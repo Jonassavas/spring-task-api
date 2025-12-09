@@ -1,5 +1,6 @@
 package com.jonassavas.spring_task_api.domain.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -29,6 +30,17 @@ public class TaskGroupEntity {
 
     private String groupName;
 
+    @Builder.Default // "If the builder doesn't set this field, use this default value"
     @OneToMany(mappedBy = "taskGroup", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TaskEntity> tasks;
+    private List<TaskEntity> tasks = new ArrayList<>();
+
+    public void addTask(TaskEntity task) {
+        tasks.add(task);
+        task.setTaskGroup(this);
+    }
+
+    public void removeTask(TaskEntity task) {
+        tasks.remove(task);
+        task.setTaskGroup(null);
+    }
 }

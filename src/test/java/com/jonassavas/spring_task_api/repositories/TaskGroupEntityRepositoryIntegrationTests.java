@@ -28,7 +28,7 @@ public class TaskGroupEntityRepositoryIntegrationTests {
 
     @Test
     @Transactional
-    public void testThatTaskGroupCanBeCreatedAndRecalled(){
+    public void testThatEmptyTaskGroupCanBeCreatedAndRecalled(){
         TaskGroupEntity testTaskGroup = TestDataUtil.createTaskGroupEntityA();
         underTest.save(testTaskGroup);
         Optional<TaskGroupEntity> result = underTest.findById(1L);
@@ -38,7 +38,7 @@ public class TaskGroupEntityRepositoryIntegrationTests {
 
     @Test
     @Transactional
-    public void testThatMultipleTaskGroupsCanBeCreatedAndRecalled(){
+    public void testThatMultipleEmptyTaskGroupsCanBeCreatedAndRecalled(){
         TaskGroupEntity testTaskGroupA = TestDataUtil.createTaskGroupEntityA();
         underTest.save(testTaskGroupA);
         TaskGroupEntity testTaskGroupB = TestDataUtil.createTaskGroupEntityB();
@@ -51,4 +51,23 @@ public class TaskGroupEntityRepositoryIntegrationTests {
                 .containsExactly(testTaskGroupA, testTaskGroupB, testTaskGroupC);
     }
 
+    @Test
+    @Transactional
+    public void testThatTaskGroupWithTasksCanBeCreatedAndRecalled(){
+        TaskGroupEntity testTaskGroup = TestDataUtil.createTaskGroupEntityA();
+        TaskEntity testTaskEntityA = TestDataUtil.createTestTaskEntityA();
+        testTaskGroup.addTask(testTaskEntityA);
+
+        underTest.save(testTaskGroup);
+        
+        Optional<TaskGroupEntity> result = underTest.findById(1L);
+        TaskGroupEntity savedGroup = result.get();
+        assertThat(savedGroup.getGroupName())
+                            .isEqualTo(testTaskGroup.getGroupName());
+        assertThat(savedGroup.getTasks())
+                            .hasSize(1);
+        TaskEntity savedTask = savedGroup.getTasks().get(0);
+        assertThat(savedTask.getTaskName())
+                            .isEqualTo(testTaskEntityA.getTaskName());
+    }
 }

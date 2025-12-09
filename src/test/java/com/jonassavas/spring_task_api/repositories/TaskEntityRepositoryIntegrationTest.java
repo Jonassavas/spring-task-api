@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
+import com.jonassavas.spring_task_api.TestDataUtil;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
 
@@ -25,13 +26,25 @@ public class TaskEntityRepositoryIntegrationTest {
 
     @Test
     public void testThatTaskCanBeCreatedAndRecalled(){
-        TaskEntity task = TaskEntity.builder()
-                                    .taskName("Homework")
-                                    .taskGroup(null)
-                                    .build();
-        underTest.save(task);
+        TaskEntity testTaskA = TestDataUtil.createTestTaskEntityA();
+        underTest.save(testTaskA);
         Optional<TaskEntity> result = underTest.findById(1L);
         assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo(task);
+        assertThat(result.get()).isEqualTo(testTaskA);
+    }
+
+    @Test
+    public void testThatMultipleTasksCanBeCreatedAndRecalled(){
+        TaskEntity testTaskA = TestDataUtil.createTestTaskEntityA();
+        underTest.save(testTaskA);
+        TaskEntity testTaskB = TestDataUtil.createTestTaskEntityB();
+        underTest.save(testTaskB);
+        TaskEntity testTaskC = TestDataUtil.createTestTaskEntityC();
+        underTest.save(testTaskC);
+
+        Iterable<TaskEntity> result = underTest.findAll();
+        assertThat(result)
+                .hasSize(3)
+                .containsExactly(testTaskA, testTaskB, testTaskC);
     }
 }

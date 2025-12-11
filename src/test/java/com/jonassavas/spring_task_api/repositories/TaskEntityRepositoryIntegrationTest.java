@@ -46,4 +46,27 @@ public class TaskEntityRepositoryIntegrationTest {
                 .hasSize(3)
                 .containsExactly(testTaskA, testTaskB, testTaskC);
     }
+
+    @Test
+    public void testThatTaskCanBeUpdated(){
+        TaskEntity taskEntityA = TestDataUtil.createTestTaskEntityA();
+        underTest.save(taskEntityA);
+        taskEntityA.setTaskName("UPDATED");
+        underTest.save(taskEntityA);
+        
+        Optional<TaskEntity> result = underTest.findById(taskEntityA.getId());
+        assertThat(result).isPresent();
+        assertThat(result.get()).isEqualTo(taskEntityA);
+    }
+
+    @Test
+    public void testThatTaskCanBeDeleted(){
+        TaskEntity taskEntityA = TestDataUtil.createTestTaskEntityA();
+        underTest.save(taskEntityA);
+
+        underTest.deleteById(taskEntityA.getId());
+        Optional<TaskEntity> result = underTest.findById(taskEntityA.getId());
+        assertThat(result).isEmpty();
+    }
+
 }

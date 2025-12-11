@@ -70,4 +70,28 @@ public class TaskGroupEntityRepositoryIntegrationTests {
         assertThat(savedTask.getTaskName())
                             .isEqualTo(testTaskEntityA.getTaskName());
     }
+
+    @Test
+    @Transactional
+    public void testThatTaskGroupCanBeUpdated(){
+        TaskGroupEntity testTaskGroupA = TestDataUtil.createTaskGroupEntityA();
+        underTest.save(testTaskGroupA);
+        testTaskGroupA.setTaskGroupName("UPDATED");
+        underTest.save(testTaskGroupA);
+
+        Optional<TaskGroupEntity> result = underTest.findById(testTaskGroupA.getId());
+        assertThat(result).isPresent();
+        assertThat(result.get()).isEqualTo(testTaskGroupA);
+    }
+
+    @Test
+    @Transactional
+    public void testThatTaskGroupCanBeDeleted(){
+        TaskGroupEntity testTaskGroupA = TestDataUtil.createTaskGroupEntityA();
+        underTest.save(testTaskGroupA);
+
+        underTest.deleteById(testTaskGroupA.getId());
+        Optional<TaskGroupEntity> result = underTest.findById(testTaskGroupA.getId());
+        assertThat(result).isEmpty();
+    }
 }

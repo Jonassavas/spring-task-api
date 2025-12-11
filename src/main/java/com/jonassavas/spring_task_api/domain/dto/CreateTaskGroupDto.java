@@ -1,9 +1,5 @@
 package com.jonassavas.spring_task_api.domain.dto;
 
-import java.util.List;
-
-import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

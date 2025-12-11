@@ -9,7 +9,6 @@ import org.springframework.test.annotation.DirtiesContext;
 
 import com.jonassavas.spring_task_api.TestDataUtil;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
-import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

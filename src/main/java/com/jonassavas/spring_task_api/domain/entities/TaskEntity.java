@@ -1,5 +1,7 @@
 package com.jonassavas.spring_task_api.domain.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,5 +31,6 @@ public class TaskEntity {
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "group_id") // Maybe change the nullable for initial tests (, nullable = false) Add nullable later
+    @JsonBackReference
     private TaskGroupEntity taskGroup;
 }

@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class TaskGroupDto {
     private Long id;
 
-    private String groupName;
+    private String taskGroupName;
 
     private List<TaskEntity> tasks;
 }

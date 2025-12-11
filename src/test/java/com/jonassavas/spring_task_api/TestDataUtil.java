@@ -32,19 +32,19 @@ public class TestDataUtil {
     
     public static TaskGroupEntity createTaskGroupEntityA(){
         return TaskGroupEntity.builder()
-                                .groupName("Task Group A")
+                                .taskGroupName("Task Group A")
                                 .build();
     }
 
     public static TaskGroupEntity createTaskGroupEntityB(){
         return TaskGroupEntity.builder()
-                                .groupName("Task Group B")
+                                .taskGroupName("Task Group B")
                                 .build();
     }
 
     public static TaskGroupEntity createTaskGroupEntityC(){
         return TaskGroupEntity.builder()
-                                .groupName("Task Group C")
+                                .taskGroupName("Task Group C")
                                 .build();
     }
 }

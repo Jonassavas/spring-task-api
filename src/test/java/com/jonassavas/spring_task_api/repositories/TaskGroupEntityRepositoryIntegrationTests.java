@@ -17,6 +17,7 @@ import jakarta.transaction.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class TaskGroupEntityRepositoryIntegrationTests {
     
     TaskGroupRepository underTest;
@@ -62,8 +63,8 @@ public class TaskGroupEntityRepositoryIntegrationTests {
         
         Optional<TaskGroupEntity> result = underTest.findById(1L);
         TaskGroupEntity savedGroup = result.get();
-        assertThat(savedGroup.getGroupName())
-                            .isEqualTo(testTaskGroup.getGroupName());
+        assertThat(savedGroup.getTaskGroupName())
+                            .isEqualTo(testTaskGroup.getTaskGroupName());
         assertThat(savedGroup.getTasks())
                             .hasSize(1);
         TaskEntity savedTask = savedGroup.getTasks().get(0);

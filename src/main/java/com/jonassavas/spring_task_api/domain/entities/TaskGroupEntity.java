@@ -3,6 +3,8 @@ package com.jonassavas.spring_task_api.domain.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -28,10 +30,11 @@ public class TaskGroupEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String groupName;
+    private String taskGroupName;
 
     @Builder.Default // "If the builder doesn't set this field, use this default value"
     @OneToMany(mappedBy = "taskGroup", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // Prevent recursion
     private List<TaskEntity> tasks = new ArrayList<>();
 
     public void addTask(TaskEntity task) {

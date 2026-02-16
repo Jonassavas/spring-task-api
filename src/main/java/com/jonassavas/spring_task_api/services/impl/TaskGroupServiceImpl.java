@@ -34,7 +34,6 @@ public class TaskGroupServiceImpl implements TaskGroupService{
         return taskGroupRepository.save(taskGroupEntity);
     }
 
-    // TODO: Fix the create method to ensure that taskboard is fully functional
     @Override
     public TaskGroupEntity createTaskGroup(Long boardId, TaskGroupEntity taskGroupEntity){
         TaskBoardEntity taskBoard = taskBoardRepository.findById(boardId)
@@ -89,7 +88,7 @@ public class TaskGroupServiceImpl implements TaskGroupService{
     public TaskGroupEntity update(Long id, TaskGroupRequestDto dto){
         TaskGroupEntity taskGroup = taskGroupRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException(
-                                        "TaskGroup not found with it: " + id));
+                                        "TaskGroup not found with id: " + id));
     
         if(dto.getTaskGroupName() != null){
             taskGroup.setTaskGroupName(dto.getTaskGroupName());

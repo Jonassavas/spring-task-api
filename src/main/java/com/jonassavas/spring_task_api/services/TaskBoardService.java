@@ -1,5 +1,8 @@
 package com.jonassavas.spring_task_api.services;
 
+import java.util.List;
+import java.util.Optional;
+
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 
 public interface TaskBoardService {
@@ -11,9 +14,11 @@ public interface TaskBoardService {
 
     void delete(Long id);
 
-    TaskBoardEntity findById(Long id);
+    Optional<TaskBoardEntity> findById(Long id);
 
     // Delete all taskGroups?
     boolean isExist(Long id);
+
+    List<TaskBoardEntity> findAll();
     
 }

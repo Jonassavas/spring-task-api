@@ -14,6 +14,7 @@ public class TaskBoardMapper implements Mapper<TaskBoardEntity, TaskBoardDto>{
     public TaskBoardMapper(ModelMapper modelMapper){
         this.modelMapper = modelMapper;
 
+        // THIS WILL PROBABLY BE USER LATER
         // // Skip taskGroup when mapping DTO -> Entity
         // this.modelMapper.typeMap(TaskBoardDto.class, TaskBoardEntity.class)
         //         .addMappings(mapper -> mapper.skip(TaskBoardEntity::setTaskBoard));

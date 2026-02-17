@@ -8,10 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
-import com.jonassavas.spring_task_api.TestDataUtil;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
+import com.jonassavas.util.TestTaskBoardData;
+import com.jonassavas.util.TestTaskData;
+import com.jonassavas.util.TestTaskGroupData;
 
 import jakarta.transaction.Transactional;
 
@@ -32,10 +34,10 @@ public class TaskEntityRepositoryIntegrationTest {
     @BeforeEach
     public void setUp(){
         taskBoard = taskBoardRepository.save(
-            TestDataUtil.createTestTaskBoardEntityA()
+            TestTaskBoardData.createTestTaskBoardEntityA()
         );
         taskGroup = taskGroupRepository.save(
-            TestDataUtil.createTaskGroupEntityA(taskBoard)
+            TestTaskGroupData.createTaskGroupEntityA(taskBoard)
         );
     }
 
@@ -51,7 +53,7 @@ public class TaskEntityRepositoryIntegrationTest {
     @Test
     @Transactional
     public void testThatTaskCanBeCreatedAndRecalled(){
-        TaskEntity testTaskA = TestDataUtil.createTestTaskEntityA(taskGroup);
+        TaskEntity testTaskA = TestTaskData.createTestTaskEntityA(taskGroup);
         underTest.save(testTaskA);
         Optional<TaskEntity> result = underTest.findById(1L);
         assertThat(result).isPresent();
@@ -61,11 +63,11 @@ public class TaskEntityRepositoryIntegrationTest {
     @Test
     @Transactional
     public void testThatMultipleTasksCanBeCreatedAndRecalled(){
-        TaskEntity testTaskA = TestDataUtil.createTestTaskEntityA(taskGroup);
+        TaskEntity testTaskA = TestTaskData.createTestTaskEntityA(taskGroup);
         underTest.save(testTaskA);
-        TaskEntity testTaskB = TestDataUtil.createTestTaskEntityB(taskGroup);
+        TaskEntity testTaskB = TestTaskData.createTestTaskEntityB(taskGroup);
         underTest.save(testTaskB);
-        TaskEntity testTaskC = TestDataUtil.createTestTaskEntityC(taskGroup);
+        TaskEntity testTaskC = TestTaskData.createTestTaskEntityC(taskGroup);
         underTest.save(testTaskC);
 
         Iterable<TaskEntity> result = underTest.findAll();
@@ -77,7 +79,7 @@ public class TaskEntityRepositoryIntegrationTest {
     @Test
     @Transactional
     public void testThatTaskCanBeUpdated(){
-        TaskEntity taskEntityA = TestDataUtil.createTestTaskEntityA(taskGroup);
+        TaskEntity taskEntityA = TestTaskData.createTestTaskEntityA(taskGroup);
         underTest.save(taskEntityA);
         taskEntityA.setTaskName("UPDATED");
         underTest.save(taskEntityA);
@@ -90,7 +92,7 @@ public class TaskEntityRepositoryIntegrationTest {
     @Test
     @Transactional
     public void testThatTaskCanBeDeleted(){
-        TaskEntity taskEntityA = TestDataUtil.createTestTaskEntityA(taskGroup);
+        TaskEntity taskEntityA = TestTaskData.createTestTaskEntityA(taskGroup);
         underTest.save(taskEntityA);
 
         underTest.deleteById(taskEntityA.getId());

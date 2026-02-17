@@ -94,9 +94,11 @@ public class TaskEntityRepositoryIntegrationTest {
     public void testThatTaskCanBeDeleted(){
         TaskEntity taskEntityA = TestTaskData.createTestTaskEntityA(taskGroup);
         underTest.save(taskEntityA);
+        Optional<TaskEntity> result = underTest.findById(taskEntityA.getId());
+        assertThat(result.get()).isEqualTo(taskEntityA);
 
         underTest.deleteById(taskEntityA.getId());
-        Optional<TaskEntity> result = underTest.findById(taskEntityA.getId());
+        result = underTest.findById(taskEntityA.getId());
         assertThat(result).isEmpty();
     }
 

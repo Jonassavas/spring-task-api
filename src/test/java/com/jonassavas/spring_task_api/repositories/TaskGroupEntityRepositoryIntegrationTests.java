@@ -107,9 +107,11 @@ public class TaskGroupEntityRepositoryIntegrationTests {
     public void testThatTaskGroupCanBeDeleted(){
         TaskGroupEntity testTaskGroupA = TestTaskGroupData.createTaskGroupEntityA(taskBoard);
         underTest.save(testTaskGroupA);
+        Optional<TaskGroupEntity> result = underTest.findById(testTaskGroupA.getId());
+        assertThat(result.get()).isEqualTo(testTaskGroupA);
 
         underTest.deleteById(testTaskGroupA.getId());
-        Optional<TaskGroupEntity> result = underTest.findById(testTaskGroupA.getId());
+        result = underTest.findById(testTaskGroupA.getId());
         assertThat(result).isEmpty();
     }
 }

@@ -11,6 +11,8 @@ import com.jonassavas.spring_task_api.services.TaskGroupService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -42,6 +44,12 @@ public class TaskBoardController {
     public ResponseEntity<TaskBoardDto> createTaskBoard(@RequestBody TaskBoardRequestDto taskBoardDto) {
         TaskBoardDto responseDto = taskBoardService.createTaskBoard(taskBoardDto);
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping(path = "/boards/{boardId}")
+    public ResponseEntity deleteTaskBoard(@PathVariable("boardId") Long boardId){
+        taskBoardService.delete(boardId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
     
     

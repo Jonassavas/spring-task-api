@@ -15,6 +15,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class TaskBoardWithGroupsDto {
     private Long id;
-    private String name;
-    private List<TaskGroupDto> groups;
+    private String taskBoardName;
+    private List<TaskGroupDto> taskGroups;
 }

@@ -48,8 +48,8 @@ public class TaskBoardServiceImpl implements TaskBoardService {
         TaskBoardEntity board = taskBoardRepository.findById(id)
                                 .orElseThrow(() -> new EntityNotFoundException(
                                     "TaskBoard not found with id: " + id));
-        if(taskBoard.getName() != null){
-            board.setName(taskBoard.getName());
+        if(taskBoard.getTaskBoardName() != null){
+            board.setTaskBoardName(taskBoard.getTaskBoardName());
         }
 
         return board; 

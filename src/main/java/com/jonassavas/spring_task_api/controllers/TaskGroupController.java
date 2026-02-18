@@ -101,8 +101,8 @@ public class TaskGroupController {
     // }
 
     @DeleteMapping(path = "/boards/{boardId}/groups/{groupId}")
-    public ResponseEntity deleteTaskGroup(@PathVariable("groupId") Long id){
-        taskGroupService.delete(id);
+    public ResponseEntity deleteTaskGroup(@PathVariable("groupId") Long groupId){
+        taskGroupService.delete(groupId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

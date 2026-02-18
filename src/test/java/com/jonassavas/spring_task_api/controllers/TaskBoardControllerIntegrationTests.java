@@ -13,9 +13,12 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardRequestDto;
+import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
 import com.jonassavas.spring_task_api.services.TaskBoardService;
 import com.jonassavas.util.TestTaskBoardData;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -55,6 +58,43 @@ public class TaskBoardControllerIntegrationTests {
        ).andExpect(
         MockMvcResultMatchers.status().isCreated() 
        );
+    }
+    
+    @Test
+    public void testThatCreateTaskReturnsSavedTask() throws Exception{
+       TaskBoardRequestDto testTaskBoardDtoA = TestTaskBoardData.createTestTaskBoardRequestDtoA();
+
+       String taskBoardJson = objectMapper.writeValueAsString(testTaskBoardDtoA);
+
+       mockMvc.perform(
+        MockMvcRequestBuilders.post("/boards")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(taskBoardJson)
+       ).andExpect(
+        MockMvcResultMatchers.jsonPath("$.id").isNumber() 
+       ).andExpect(
+        MockMvcResultMatchers.jsonPath("$.taskBoardName").value("Task Board A") 
+       );
+    }
+
+    @Test
+    public void testThatDeleteTaskBoardReturnsHttp204() throws Exception{
+        TaskBoardEntity testTaskBoardEntityA = TestTaskBoardData.createTestTaskBoardEntityA();
+        taskBoardRepository.save(testTaskBoardEntityA);
+
+        assertThat(taskBoardRepository
+                    .findById(testTaskBoardEntityA.getId())
+                    .equals(testTaskBoardEntityA));
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.delete("/boards/" + testTaskBoardEntityA.getId())
+            .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(
+            MockMvcResultMatchers.status().isNoContent());
+
+        assertThat(taskBoardRepository
+                    .findById(testTaskBoardEntityA.getId())
+                    .isEmpty());
     }
     
 }

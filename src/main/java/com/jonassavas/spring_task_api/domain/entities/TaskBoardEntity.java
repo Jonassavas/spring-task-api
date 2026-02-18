@@ -26,7 +26,7 @@ public class TaskBoardEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+    private String taskBoardName;
 
     //Later: owner
     // private UserEntity owner;

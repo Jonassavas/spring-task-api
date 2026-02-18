@@ -1,10 +1,9 @@
-package com.jonassavas.spring_task_api.mappers.impl;
+package com.jonassavas.spring_task_api.mappers.impl.task_group;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-
-import com.jonassavas.spring_task_api.domain.dto.TaskGroupRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
 import com.jonassavas.spring_task_api.mappers.Mapper;
 

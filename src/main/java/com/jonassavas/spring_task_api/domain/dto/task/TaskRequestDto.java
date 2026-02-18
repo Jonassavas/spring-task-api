@@ -1,4 +1,4 @@
-package com.jonassavas.spring_task_api.domain.dto;
+package com.jonassavas.spring_task_api.domain.dto.task;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

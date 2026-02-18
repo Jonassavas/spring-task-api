@@ -7,7 +7,10 @@ import java.util.stream.StreamSupport;
 
 import org.springframework.stereotype.Service;
 
+import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardDto;
+import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
+import com.jonassavas.spring_task_api.mappers.Mapper;
 import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
 import com.jonassavas.spring_task_api.services.TaskBoardService;
 
@@ -19,15 +22,24 @@ import jakarta.transaction.Transactional;
 public class TaskBoardServiceImpl implements TaskBoardService {
 
     private TaskBoardRepository taskBoardRepository;
+    private Mapper<TaskBoardEntity, TaskBoardRequestDto> taskBoardRequestMapper;
+    private Mapper<TaskBoardEntity, TaskBoardDto> taskBoardMapper;
 
-    public TaskBoardServiceImpl(TaskBoardRepository taskBoardRepository){
+
+    public TaskBoardServiceImpl(TaskBoardRepository taskBoardRepository,
+                                Mapper<TaskBoardEntity, TaskBoardRequestDto> taskBoardRequestMapper,
+                                Mapper<TaskBoardEntity, TaskBoardDto> taskBoardMapper){
         this.taskBoardRepository = taskBoardRepository;
+        this.taskBoardRequestMapper = taskBoardRequestMapper;
+        this.taskBoardMapper = taskBoardMapper;
     }
 
     @Override
-    public TaskBoardEntity save(TaskBoardEntity taskBoard){
+    public TaskBoardDto createTaskBoard(TaskBoardRequestDto requestDto){
         // Will need to check for the user later here
-        return taskBoardRepository.save(taskBoard);
+        TaskBoardEntity taskBoard = taskBoardRequestMapper.mapFrom(requestDto);
+        TaskBoardEntity savedTaskBoard = taskBoardRepository.save(taskBoard);
+        return taskBoardMapper.mapTo(savedTaskBoard);
     } 
 
     // TODO check the taskgroup aswell for this: Might just want the dto as input here

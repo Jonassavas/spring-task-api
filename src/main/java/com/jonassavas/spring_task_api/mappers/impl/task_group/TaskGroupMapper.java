@@ -1,34 +1,33 @@
-package com.jonassavas.spring_task_api.mappers.impl;
+package com.jonassavas.spring_task_api.mappers.impl.task_group;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-
-import com.jonassavas.spring_task_api.domain.dto.TaskGroupWithTasksDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
 import com.jonassavas.spring_task_api.mappers.Mapper;
 
 @Component
-public class TaskGroupWithTasksMapper implements Mapper<TaskGroupEntity, TaskGroupWithTasksDto>{
+public class TaskGroupMapper implements Mapper<TaskGroupEntity, TaskGroupDto>{
     private ModelMapper modelMapper;
 
-    public TaskGroupWithTasksMapper(ModelMapper modelMapper){
+    public TaskGroupMapper(ModelMapper modelMapper){
         this.modelMapper = modelMapper;
 
         // Skip taskGroup when mapping DTO -> Entity
-        this.modelMapper.typeMap(TaskGroupWithTasksDto.class, TaskGroupEntity.class)
+        this.modelMapper.typeMap(TaskGroupDto.class, TaskGroupEntity.class)
                 .addMappings(mapper -> mapper.skip(TaskGroupEntity::setTaskBoard));
     }
     
     @Override
-    public TaskGroupWithTasksDto mapTo(TaskGroupEntity taskGroupEntity){
-        TaskGroupWithTasksDto dto = modelMapper.map(taskGroupEntity, TaskGroupWithTasksDto.class);
+    public TaskGroupDto mapTo(TaskGroupEntity taskGroupEntity){
+        TaskGroupDto dto = modelMapper.map(taskGroupEntity, TaskGroupDto.class);
         dto.setTaskBoardId(taskGroupEntity.getTaskBoard().getId());
         return dto;
     }
 
     @Override
-    public TaskGroupEntity mapFrom(TaskGroupWithTasksDto taskGroupDto){
+    public TaskGroupEntity mapFrom(TaskGroupDto taskGroupDto){
         return modelMapper.map(taskGroupDto, TaskGroupEntity.class);
     }
 }

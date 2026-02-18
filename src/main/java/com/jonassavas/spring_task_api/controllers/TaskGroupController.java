@@ -2,10 +2,10 @@ package com.jonassavas.spring_task_api.controllers;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.jonassavas.spring_task_api.domain.dto.TaskGroupRequestDto;
-import com.jonassavas.spring_task_api.domain.dto.TaskDto;
-import com.jonassavas.spring_task_api.domain.dto.TaskGroupDto;
-import com.jonassavas.spring_task_api.domain.dto.TaskGroupWithTasksDto;
+import com.jonassavas.spring_task_api.domain.dto.task.TaskDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupWithTasksDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;

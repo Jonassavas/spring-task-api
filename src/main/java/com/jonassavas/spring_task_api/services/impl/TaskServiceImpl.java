@@ -6,7 +6,7 @@ import java.util.stream.StreamSupport;
 
 import org.springframework.stereotype.Service;
 
-import com.jonassavas.spring_task_api.domain.dto.TaskRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task.TaskRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
 import com.jonassavas.spring_task_api.repositories.TaskGroupRepository;

@@ -1,14 +1,21 @@
 package com.jonassavas.spring_task_api.controllers;
 
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.assertj.MockMvcTester.MockMvcRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardRequestDto;
 import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
 import com.jonassavas.spring_task_api.services.TaskBoardService;
+import com.jonassavas.util.TestTaskBoardData;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -25,8 +32,29 @@ public class TaskBoardControllerIntegrationTests {
     // Add user here?
 
     @Autowired
-    public TaskBoardControllerIntegrationTests(){
+    public TaskBoardControllerIntegrationTests(TaskBoardService taskBoardService,
+                                                MockMvc mockMvc,
+                                                ObjectMapper objectMapper,
+                                                TaskBoardRepository taskBoardRepository){
+        this.taskBoardService = taskBoardService;
+        this.mockMvc = mockMvc;
+        this.objectMapper = objectMapper;
+        this.taskBoardRepository = taskBoardRepository;
+    }
 
+    @Test
+    public void testThatCreateTaskReturnsHttp201Create() throws Exception{
+       TaskBoardRequestDto testTaskBoardDtoA = TestTaskBoardData.createTestTaskBoardRequestDtoA();
+
+       String taskBoardJson = objectMapper.writeValueAsString(testTaskBoardDtoA);
+
+       mockMvc.perform(
+        MockMvcRequestBuilders.post("/boards")
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(taskBoardJson)
+       ).andExpect(
+        MockMvcResultMatchers.status().isCreated() 
+       );
     }
     
 }

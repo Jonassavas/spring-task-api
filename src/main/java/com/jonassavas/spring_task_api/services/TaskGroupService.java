@@ -2,7 +2,7 @@ package com.jonassavas.spring_task_api.services;
 
 import java.util.List;
 
-import com.jonassavas.spring_task_api.domain.dto.TaskGroupRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
 
 public interface TaskGroupService {

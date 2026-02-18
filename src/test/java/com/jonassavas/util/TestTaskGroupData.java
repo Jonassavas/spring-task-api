@@ -1,6 +1,6 @@
 package com.jonassavas.util;
 
-import com.jonassavas.spring_task_api.domain.dto.TaskGroupRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
 

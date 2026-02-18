@@ -1,5 +1,6 @@
 package com.jonassavas.util;
 
+import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 
 public class TestTaskBoardData {
@@ -28,4 +29,24 @@ public class TestTaskBoardData {
     }
 
     // DTOs -------------------------------------------------------------
+    public static TaskBoardRequestDto createTestTaskBoardRequestDtoA(){
+        // This will require a user at some point
+        return TaskBoardRequestDto.builder()
+                                .name("Task Board A")
+                                .build();
+    }
+    
+    public static TaskBoardRequestDto createTestTaskBoardRequestDtoB(){
+        // This will require a user at some point
+        return TaskBoardRequestDto.builder()
+                                .name("Task Board B")
+                                .build();
+    }
+
+    public static TaskBoardRequestDto createTestTaskBoardRequestDtoC(){
+        // This will require a user at some point
+        return TaskBoardRequestDto.builder()
+                                .name("Task Board C")
+                                .build();
+    }
 }

@@ -1,4 +1,4 @@
-package com.jonassavas.spring_task_api.domain.dto;
+package com.jonassavas.spring_task_api.domain.dto.task;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,11 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TaskGroupDto {
+public class TaskDto {
+    private Long taskGroupId;
+
     private Long id;
 
-    private String taskGroupName;
-
-    private Long taskBoardId;
-
+    private String taskName;
 }

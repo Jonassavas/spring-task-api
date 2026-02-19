@@ -12,7 +12,7 @@ public interface TaskBoardService {
     TaskBoardDto createTaskBoard(TaskBoardRequestDto requestDto);
 
     // Save, Delete, Read, Update
-    TaskBoardEntity update(Long id, TaskBoardEntity taskBoard);
+    TaskBoardDto update(Long id, TaskBoardRequestDto requestDto);
 
     void delete(Long id);
 

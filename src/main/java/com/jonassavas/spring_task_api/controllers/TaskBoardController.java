@@ -9,9 +9,12 @@ import com.jonassavas.spring_task_api.mappers.Mapper;
 import com.jonassavas.spring_task_api.services.TaskBoardService;
 import com.jonassavas.spring_task_api.services.TaskGroupService;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,5 +55,18 @@ public class TaskBoardController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
     
-    
+    @GetMapping("/boards")
+    public List<TaskBoardDto> listTaskGroups() {
+        return taskBoardService.findAll()
+            .stream()
+            .map(taskBoardMapper::mapTo)
+            .toList();
+    }
+
+    @PostMapping(path = "/boards/{boardId}")
+    public ResponseEntity<TaskBoardDto> updateTaskBoard(@PathVariable("boardId") Long boardId,
+                                                        @RequestBody TaskBoardRequestDto taskBoardDto){
+        TaskBoardDto responseDto = taskBoardService.update(boardId, taskBoardDto);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
 }

@@ -44,15 +44,15 @@ public class TaskBoardServiceImpl implements TaskBoardService {
 
     // TODO check the taskgroup aswell for this: Might just want the dto as input here
     @Override
-    public TaskBoardEntity update(Long id, TaskBoardEntity taskBoard){
+    public TaskBoardDto update(Long id, TaskBoardRequestDto requestDto){
         TaskBoardEntity board = taskBoardRepository.findById(id)
                                 .orElseThrow(() -> new EntityNotFoundException(
                                     "TaskBoard not found with id: " + id));
-        if(taskBoard.getTaskBoardName() != null){
-            board.setTaskBoardName(taskBoard.getTaskBoardName());
+        if(requestDto.getTaskBoardName() != null){
+            board.setTaskBoardName(requestDto.getTaskBoardName());
         }
 
-        return board; 
+        return taskBoardMapper.mapTo(board);
     }
 
     @Override

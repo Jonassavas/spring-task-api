@@ -45,6 +45,8 @@ public class TaskBoardControllerIntegrationTests {
         this.taskBoardRepository = taskBoardRepository;
     }
 
+    // CREATE -----------------------------------------------------------
+
     @Test
     public void testThatCreateTaskReturnsHttp201Create() throws Exception{
        TaskBoardRequestDto testTaskBoardDtoA = TestTaskBoardData.createTestTaskBoardRequestDtoA();
@@ -77,6 +79,8 @@ public class TaskBoardControllerIntegrationTests {
        );
     }
 
+    // DELETE -----------------------------------------------------------
+
     @Test
     public void testThatDeleteTaskBoardReturnsHttp204() throws Exception{
         TaskBoardEntity testTaskBoardEntityA = TestTaskBoardData.createTestTaskBoardEntityA();
@@ -96,5 +100,44 @@ public class TaskBoardControllerIntegrationTests {
                     .findById(testTaskBoardEntityA.getId())
                     .isEmpty());
     }
-    
+
+    @Test
+    public void testThatDeleteTaskBoardDeletesCorrectBoard(){
+
+    }
+
+    @Test
+    public void testThatDeleteTaskBoardDeletesTaskGroupsAndTasks() throws Exception{
+
+        
+    }
+
+    @Test
+    public void testThatDeleteTaskBoardOnlyDeletesOwnTaskGroupsAndTasks() throws Exception{
+
+        
+    }
+
+    // LIST -----------------------------------------------------------
+
+    @Test
+    public void testThatListTaskBoardsReturnsHttpStatus200() throws Exception{
+
+        
+    }
+
+
+    // UPDATE -----------------------------------------------------------
+
+    @Test
+    public void testThatUpdateTaskBoardReturnsHttp200() throws Exception{
+
+        
+    }
+
+    @Test
+    public void testThatUpdateTaskBoardKeepsItsTaskGroups() throws Exception{
+
+        
+    }    
 }

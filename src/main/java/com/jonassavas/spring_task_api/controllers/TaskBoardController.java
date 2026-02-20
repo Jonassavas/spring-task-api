@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -63,7 +64,7 @@ public class TaskBoardController {
             .toList();
     }
 
-    @PostMapping(path = "/boards/{boardId}")
+    @PatchMapping(path = "/boards/{boardId}")
     public ResponseEntity<TaskBoardDto> updateTaskBoard(@PathVariable("boardId") Long boardId,
                                                         @RequestBody TaskBoardRequestDto taskBoardDto){
         TaskBoardDto responseDto = taskBoardService.update(boardId, taskBoardDto);

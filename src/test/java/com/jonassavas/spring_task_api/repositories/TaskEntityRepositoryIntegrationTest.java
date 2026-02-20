@@ -1,5 +1,7 @@
 package com.jonassavas.spring_task_api.repositories;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -16,8 +18,6 @@ import com.jonassavas.util.TestTaskData;
 import com.jonassavas.util.TestTaskGroupData;
 
 import jakarta.transaction.Transactional;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)

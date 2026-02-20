@@ -7,6 +7,7 @@ import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardDto;
 import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 
+
 public interface TaskBoardService {
 
     TaskBoardDto createTaskBoard(TaskBoardRequestDto requestDto);

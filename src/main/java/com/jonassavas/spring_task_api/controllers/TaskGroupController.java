@@ -1,24 +1,6 @@
 package com.jonassavas.spring_task_api.controllers;
 
-import org.springframework.web.bind.annotation.RestController;
-
-import com.jonassavas.spring_task_api.domain.dto.task.TaskDto;
-import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupDto;
-import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupRequestDto;
-import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupWithTasksDto;
-import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
-import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
-import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
-import com.jonassavas.spring_task_api.mappers.Mapper;
-import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
-import com.jonassavas.spring_task_api.services.TaskBoardService;
-import com.jonassavas.spring_task_api.services.TaskGroupService;
-import com.jonassavas.spring_task_api.services.TaskService;
-
-import jakarta.persistence.EntityNotFoundException;
-
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +10,15 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupWithTasksDto;
+import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
+import com.jonassavas.spring_task_api.mappers.Mapper;
+import com.jonassavas.spring_task_api.services.TaskBoardService;
+import com.jonassavas.spring_task_api.services.TaskGroupService;
 
 
 @RestController

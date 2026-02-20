@@ -3,7 +3,6 @@ package com.jonassavas.spring_task_api.mappers.impl.task;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-import com.jonassavas.spring_task_api.domain.dto.task.TaskDto;
 import com.jonassavas.spring_task_api.domain.dto.task.TaskRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 import com.jonassavas.spring_task_api.mappers.Mapper;

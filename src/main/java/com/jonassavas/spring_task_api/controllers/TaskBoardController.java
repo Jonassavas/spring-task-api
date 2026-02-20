@@ -1,14 +1,5 @@
 package com.jonassavas.spring_task_api.controllers;
 
-import org.springframework.web.bind.annotation.RestController;
-
-import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardDto;
-import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardRequestDto;
-import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
-import com.jonassavas.spring_task_api.mappers.Mapper;
-import com.jonassavas.spring_task_api.services.TaskBoardService;
-import com.jonassavas.spring_task_api.services.TaskGroupService;
-
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -19,6 +10,13 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardDto;
+import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardRequestDto;
+import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
+import com.jonassavas.spring_task_api.mappers.Mapper;
+import com.jonassavas.spring_task_api.services.TaskBoardService;
 
 
 @RestController

@@ -133,7 +133,6 @@ public class TaskControllerIntegrationTests {
     @Test
     public void testThatDeleteTaskReturnsHttp204() throws Exception{
         TaskEntity testTaskEntityA = taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
-        //taskService.createTask(taskGroupA.getId(), testTaskRequestDtoA);
 
         assertThat(taskGroupService
                     .findByIdWithTasks(taskGroupA.getId())
@@ -154,12 +153,9 @@ public class TaskControllerIntegrationTests {
 
     @Test
     public void testThatDeleteTaskDeletesCorrectTask() throws Exception{
-        //TaskEntity testTaskEntityA = TestTaskData.createTestTaskEntityA(taskGroupA);
         TaskEntity testTaskEntityA = taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
-        //taskService.createTask(taskGroupA.getId(), testTaskEntityA);
 
         TaskEntity testTaskEntityB = taskRepository.save(TestTaskData.createTestTaskEntityB(taskGroupA));
-        //taskService.createTask(taskGroupA.getId(), testTaskEntityB);
 
         assertThat(taskGroupService
                     .findByIdWithTasks(taskGroupA.getId())
@@ -208,7 +204,6 @@ public class TaskControllerIntegrationTests {
     public void testUpdateTaskGroupId() throws Exception{
         // Creating tasks for taskGroup: A
         TaskEntity testTaskEntityA = taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
-        //taskService.createTask(taskGroupA.getId(), testTaskEntityA);
 
         // Creating tasks for another taskGroup: B
         TaskRequestDto testRequestTaskDto = TestTaskData.createTestRequestTaskDto(taskGroupB);
@@ -232,7 +227,6 @@ public class TaskControllerIntegrationTests {
 
         // Creating task for taskGroup: A
         TaskEntity testTaskEntityA = taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
-        //taskService.createTask(taskGroupA.getId(), testTaskEntityA);
 
         // Creating request to change testTaskEntityA from taskGroup: A --> B
         TaskRequestDto testRequestTaskDto = TestTaskData.createTestRequestTaskDto(taskGroupB);

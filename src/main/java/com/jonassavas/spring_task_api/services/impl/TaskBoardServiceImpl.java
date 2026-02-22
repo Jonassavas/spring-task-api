@@ -61,8 +61,12 @@ public class TaskBoardServiceImpl implements TaskBoardService {
     }
 
     @Override
-    public Optional<TaskBoardEntity> findById(Long id){
-        return taskBoardRepository.findById(id);
+    public Optional<TaskBoardDto> findById(Long id){
+        Optional<TaskBoardEntity> taskBoard = taskBoardRepository.findById(id);
+        if(!taskBoard.isPresent()){
+            return Optional.empty();
+        }
+        return Optional.of(taskBoardMapper.mapTo(taskBoard.get()));
     }
 
     @Override

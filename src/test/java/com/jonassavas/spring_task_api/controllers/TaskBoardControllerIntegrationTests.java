@@ -22,7 +22,6 @@ import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
 import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
 import com.jonassavas.spring_task_api.repositories.TaskGroupRepository;
 import com.jonassavas.spring_task_api.repositories.TaskRepository;
-import com.jonassavas.spring_task_api.services.TaskBoardService;
 import com.jonassavas.util.TestTaskBoardData;
 import com.jonassavas.util.TestTaskData;
 import com.jonassavas.util.TestTaskGroupData;
@@ -33,48 +32,46 @@ import com.jonassavas.util.TestTaskGroupData;
 @AutoConfigureMockMvc
 public class TaskBoardControllerIntegrationTests {
 
-    private TaskBoardService taskBoardService;
-
-    private TaskGroupRepository taskGroupRepository;
-    private TaskRepository taskRepository;
-    
     private MockMvc mockMvc;
-
     private ObjectMapper objectMapper;
+
+    // Repositories to save test data to the database:
+    private TaskRepository taskRepository;
+    private TaskGroupRepository taskGroupRepository; 
     private TaskBoardRepository taskBoardRepository;
 
     // Add user here?
 
     @Autowired
-    public TaskBoardControllerIntegrationTests(TaskBoardService taskBoardService,
-                                                MockMvc mockMvc,
-                                                ObjectMapper objectMapper,
-                                                TaskBoardRepository taskBoardRepository,
-                                                TaskGroupRepository taskGroupRepository,
-                                                TaskRepository taskRepository){
-        this.taskBoardService = taskBoardService;
+    public TaskBoardControllerIntegrationTests(
+            MockMvc mockMvc,
+            ObjectMapper objectMapper,
+            TaskRepository taskRepository,
+            TaskGroupRepository taskGroupRepository,
+            TaskBoardRepository taskBoardRepository) {
         this.mockMvc = mockMvc;
         this.objectMapper = objectMapper;
-        this.taskBoardRepository = taskBoardRepository;
-        this.taskGroupRepository = taskGroupRepository;
         this.taskRepository = taskRepository;
+        this.taskGroupRepository = taskGroupRepository;
+        this.taskBoardRepository = taskBoardRepository; 
     }
 
     // CREATE -----------------------------------------------------------
 
     @Test
     public void testThatCreateTaskReturnsHttp201Create() throws Exception{
-       TaskBoardRequestDto testTaskBoardDtoA = TestTaskBoardData.createTestTaskBoardRequestDtoA();
+        TaskBoardRequestDto testTaskBoardDtoA = 
+            TestTaskBoardData.createTestTaskBoardRequestDtoA();
 
-       String taskBoardJson = objectMapper.writeValueAsString(testTaskBoardDtoA);
+        String taskBoardJson = objectMapper.writeValueAsString(testTaskBoardDtoA);
 
-       mockMvc.perform(
+        mockMvc.perform(
         MockMvcRequestBuilders.post("/boards")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(taskBoardJson)
-       ).andExpect(
-        MockMvcResultMatchers.status().isCreated() 
-       );
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(taskBoardJson)
+        ).andExpect(
+            MockMvcResultMatchers.status().isCreated() 
+        );
     }
     
     @Test
@@ -85,12 +82,12 @@ public class TaskBoardControllerIntegrationTests {
 
        mockMvc.perform(
         MockMvcRequestBuilders.post("/boards")
-        .contentType(MediaType.APPLICATION_JSON)
-        .content(taskBoardJson)
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(taskBoardJson)
        ).andExpect(
-        MockMvcResultMatchers.jsonPath("$.id").isNumber() 
+            MockMvcResultMatchers.jsonPath("$.id").isNumber() 
        ).andExpect(
-        MockMvcResultMatchers.jsonPath("$.taskBoardName").value("Task Board A") 
+            MockMvcResultMatchers.jsonPath("$.taskBoardName").value("Task Board A") 
        );
     }
 
@@ -168,7 +165,7 @@ public class TaskBoardControllerIntegrationTests {
                     .findAll()).isEmpty();
     }
 
-    // LIST -----------------------------------------------------------
+    // READ -----------------------------------------------------------
 
     @Test
     public void testThatListTaskBoardsReturnsHttpStatus200() throws Exception{

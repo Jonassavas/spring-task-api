@@ -34,11 +34,16 @@ public class TaskGroupControllerIntegrationTests {
 
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
-    
+   
+    // Repositories to save test data to the database:
     private TaskRepository taskRepository;
     private TaskGroupRepository taskGroupRepository;
     private TaskBoardRepository taskBoardRepository;
 
+    /* Prerequisit data:
+        A TaskGroup needs a TaskBoard:
+            - TaskBoard --> TaskGroup
+    */
     private TaskBoardEntity taskBoard; 
 
     @Autowired
@@ -61,6 +66,8 @@ public class TaskGroupControllerIntegrationTests {
             TestTaskBoardData.createTestTaskBoardEntityA()
         );
     }
+
+    // CREATE -----------------------------------------------------------
 
     @Test
     public void testThatCreateTaskGroupReturnsHttp201Create() throws Exception{
@@ -92,6 +99,8 @@ public class TaskGroupControllerIntegrationTests {
         );
     }
 
+    // READ -----------------------------------------------------------
+
     @Test
     public void testThatListTaskGroupsReturnsHttpStatus200() throws Exception{
         mockMvc.perform(
@@ -118,6 +127,7 @@ public class TaskGroupControllerIntegrationTests {
         );
     }
 
+    // DELETE -----------------------------------------------------------
 
     @Test
     public void testThatDeleteTaskGroupReturnsHttp204() throws Exception{
@@ -245,6 +255,7 @@ public class TaskGroupControllerIntegrationTests {
                                                      testTaskEntityC.getId());
     }
 
+    // UPDATE -----------------------------------------------------------
 
     @Test
     public void testThatUpdateTaskGroupReturnsHttp200() throws Exception{

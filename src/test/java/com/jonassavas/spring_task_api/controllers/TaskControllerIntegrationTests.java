@@ -35,16 +35,18 @@ import com.jonassavas.util.TestTaskGroupData;
 @AutoConfigureMockMvc
 public class TaskControllerIntegrationTests {
     
-    //private TaskGroupService taskGroupService;
     private MockMvc mockMvc;
-
     private ObjectMapper objectMapper;
 
+    // Repositories to save test data to the database:
     private TaskRepository taskRepository;
-    private TaskBoardRepository taskBoardRepository;
     private TaskGroupRepository taskGroupRepository;
+    private TaskBoardRepository taskBoardRepository;
 
-    // Create taskBoard here, to be used in the tests
+    /* Prerequisit data:
+        A Task needs a taskGroup, which in turn requires a taskBoard.
+            - TaskBoard --> TaskGroup --> Task 
+    */  
     private TaskBoardEntity taskBoard; 
     private TaskGroupEntity taskGroupA;
     private TaskGroupEntity taskGroupB;
@@ -54,13 +56,13 @@ public class TaskControllerIntegrationTests {
             MockMvc mockMvc, 
             ObjectMapper objectMapper,
             TaskRepository taskRepository,
-            TaskBoardRepository taskBoardRepository, 
-            TaskGroupRepository taskGroupRepository) {
+            TaskGroupRepository taskGroupRepository,
+            TaskBoardRepository taskBoardRepository) {
         this.mockMvc = mockMvc;
         this.objectMapper = objectMapper;
         this.taskRepository = taskRepository;
+        this.taskGroupRepository = taskGroupRepository;
         this.taskBoardRepository = taskBoardRepository;
-        this.taskGroupRepository = taskGroupRepository; 
     } 
     
     @BeforeEach
@@ -75,6 +77,8 @@ public class TaskControllerIntegrationTests {
             TestTaskGroupData.createTaskGroupEntityA(taskBoard)
         );
     }
+
+    // CREATE -----------------------------------------------------------
 
     @Test
     public void testThatCreateTaskReturnsHttp201Create() throws Exception{
@@ -127,6 +131,7 @@ public class TaskControllerIntegrationTests {
         );
     }
 
+    // DELETE -----------------------------------------------------------
 
     @Test
     public void testThatDeleteTaskReturnsHttp204() throws Exception{
@@ -180,6 +185,7 @@ public class TaskControllerIntegrationTests {
         
     }
 
+    // UPDATE -----------------------------------------------------------
 
     @Test
     public void testUpdateTaskName() throws Exception{

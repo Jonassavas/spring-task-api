@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,13 +16,18 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jonassavas.spring_task_api.TestDataUtil;
-import com.jonassavas.spring_task_api.domain.dto.TaskRequestDto;
-import com.jonassavas.spring_task_api.domain.dto.TaskDto;
+import com.jonassavas.spring_task_api.domain.dto.task.TaskRequestDto;
+import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
-import com.jonassavas.spring_task_api.services.TaskGroupService;
-import com.jonassavas.spring_task_api.services.TaskService;
+import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
+import com.jonassavas.spring_task_api.repositories.TaskGroupRepository;
+import com.jonassavas.spring_task_api.repositories.TaskRepository;
+import com.jonassavas.util.TestTaskBoardData;
+import com.jonassavas.util.TestTaskData;
+import com.jonassavas.util.TestTaskGroupData;
+
+
 
 
 @SpringBootTest
@@ -29,36 +35,59 @@ import com.jonassavas.spring_task_api.services.TaskService;
 @AutoConfigureMockMvc
 public class TaskControllerIntegrationTests {
     
-    private TaskService taskService;
-    private TaskGroupService taskGroupService;
     private MockMvc mockMvc;
-
     private ObjectMapper objectMapper;
 
+    // Repositories to save test data to the database:
+    private TaskRepository taskRepository;
+    private TaskGroupRepository taskGroupRepository;
+    private TaskBoardRepository taskBoardRepository;
+
+    /* Prerequisit data:
+        A Task needs a taskGroup, which in turn requires a taskBoard.
+            - TaskBoard --> TaskGroup --> Task 
+    */  
+    private TaskBoardEntity taskBoard; 
+    private TaskGroupEntity taskGroupA;
+    private TaskGroupEntity taskGroupB;
+
     @Autowired
-    public TaskControllerIntegrationTests(TaskService taskService, 
-                                          TaskGroupService taskGroupService, 
-                                          MockMvc mockMvc, 
-                                          ObjectMapper objectMapper){
-        this.taskService = taskService;
-        this.taskGroupService = taskGroupService;
+    public TaskControllerIntegrationTests(
+            MockMvc mockMvc, 
+            ObjectMapper objectMapper,
+            TaskRepository taskRepository,
+            TaskGroupRepository taskGroupRepository,
+            TaskBoardRepository taskBoardRepository) {
         this.mockMvc = mockMvc;
-        this.objectMapper = objectMapper; 
+        this.objectMapper = objectMapper;
+        this.taskRepository = taskRepository;
+        this.taskGroupRepository = taskGroupRepository;
+        this.taskBoardRepository = taskBoardRepository;
     } 
+    
+    @BeforeEach
+    public void setUp(){
+        taskBoard = taskBoardRepository.save(
+            TestTaskBoardData.createTestTaskBoardEntityA()
+        );
+        taskGroupA = taskGroupRepository.save(
+            TestTaskGroupData.createTaskGroupEntityA(taskBoard)
+        );
+        taskGroupB = taskGroupRepository.save(
+            TestTaskGroupData.createTaskGroupEntityA(taskBoard)
+        );
+    }
+
+    // CREATE -----------------------------------------------------------
 
     @Test
     public void testThatCreateTaskReturnsHttp201Create() throws Exception{
-        TaskGroupEntity testTaskGroupEntityA = TestDataUtil.createTaskGroupEntityA();
-        taskGroupService.save(testTaskGroupEntityA);
+        TaskRequestDto testTaskRequestDtoA = TestTaskData.createTestTaskRequestDtoA(taskGroupA);
 
-        TaskDto testTaskDtoA = TestDataUtil.createTestTaskDtoA();
-
-        testTaskDtoA.setTaskGroupId(testTaskGroupEntityA.getId());
-
-        String taskJson = objectMapper.writeValueAsString(testTaskDtoA);
+        String taskJson = objectMapper.writeValueAsString(testTaskRequestDtoA);
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/taskgroups/" + testTaskGroupEntityA.getId() + "/tasks")
+            MockMvcRequestBuilders.post("/groups/" + taskGroupA.getId() + "/tasks")
             .contentType(MediaType.APPLICATION_JSON)
             .content(taskJson)
         ).andExpect(
@@ -68,17 +97,12 @@ public class TaskControllerIntegrationTests {
 
     @Test
     public void testThatCreateTaskReturnsSavedTask() throws Exception{
-        TaskGroupEntity testTaskGroupEntityA = TestDataUtil.createTaskGroupEntityA();
-        taskGroupService.save(testTaskGroupEntityA);
+        TaskRequestDto testTaskRequestDtoA = TestTaskData.createTestTaskRequestDtoA(taskGroupA);
 
-        TaskDto testTaskDtoA = TestDataUtil.createTestTaskDtoA();
-
-        testTaskDtoA.setTaskGroupId(testTaskGroupEntityA.getId());
-
-        String taskJson = objectMapper.writeValueAsString(testTaskDtoA);
+        String taskJson = objectMapper.writeValueAsString(testTaskRequestDtoA);
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/taskgroups/" + testTaskGroupEntityA.getId() + "/tasks")
+            MockMvcRequestBuilders.post("/groups/" + taskGroupA.getId() + "/tasks")
             .contentType(MediaType.APPLICATION_JSON)
             .content(taskJson)
         ).andExpect(
@@ -92,17 +116,14 @@ public class TaskControllerIntegrationTests {
     
     @Test
     public void testThatCreateTaskWithoutValidTaskGroupReturns404() throws Exception{
-        // TaskGroupEntity testTaskGroupEntityA = TestDataUtil.createTaskGroupEntityA();
-        // taskGroupService.save(testTaskGroupEntityA);
+        TaskRequestDto testTaskRequestDtoA = TestTaskData.createTestTaskRequestDtoA(taskGroupA);
 
-        TaskDto testTaskDtoA = TestDataUtil.createTestTaskDtoA();
+        testTaskRequestDtoA.setTaskGroupId(99L);
 
-        testTaskDtoA.setTaskGroupId(99L);
-
-        String taskJson = objectMapper.writeValueAsString(testTaskDtoA);
+        String taskJson = objectMapper.writeValueAsString(testTaskRequestDtoA);
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/taskgroups/" + 99 + "/tasks")
+            MockMvcRequestBuilders.post("/groups/" + 99 + "/tasks")
             .contentType(MediaType.APPLICATION_JSON)
             .content(taskJson)
         ).andExpect(
@@ -110,17 +131,14 @@ public class TaskControllerIntegrationTests {
         );
     }
 
+    // DELETE -----------------------------------------------------------
 
     @Test
     public void testThatDeleteTaskReturnsHttp204() throws Exception{
-        TaskGroupEntity testTaskGroupEntityA = TestDataUtil.createTaskGroupEntityA();
-        taskGroupService.save(testTaskGroupEntityA);
+        TaskEntity testTaskEntityA = taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
 
-        TaskEntity testTaskEntityA = TestDataUtil.createTestTaskEntityA();
-        taskService.createTask(testTaskGroupEntityA.getId(), testTaskEntityA);
-
-        assertThat(taskGroupService
-                    .findByIdWithTasks(testTaskGroupEntityA.getId())
+        assertThat(taskGroupRepository
+                    .findByIdWithTasks(taskGroupA.getId()).get()
                         .getTasks().size())
                 .isEqualTo(1); 
 
@@ -130,25 +148,22 @@ public class TaskControllerIntegrationTests {
         ).andExpect(
             MockMvcResultMatchers.status().isNoContent());
 
-        assertThat(taskGroupService
-                    .findByIdWithTasks(testTaskGroupEntityA.getId())
+        assertThat(taskGroupRepository
+                    .findByIdWithTasks(taskGroupA.getId()).get()
                         .getTasks().size())
                 .isEqualTo(0); 
     }
 
     @Test
     public void testThatDeleteTaskDeletesCorrectTask() throws Exception{
-        TaskGroupEntity testTaskGroupEntityA = TestDataUtil.createTaskGroupEntityA();
-        taskGroupService.save(testTaskGroupEntityA);
+        TaskEntity testTaskEntityA = 
+            taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
 
-        TaskEntity testTaskEntityA = TestDataUtil.createTestTaskEntityA();
-        taskService.createTask(testTaskGroupEntityA.getId(), testTaskEntityA);
+        TaskEntity testTaskEntityB = 
+            taskRepository.save(TestTaskData.createTestTaskEntityB(taskGroupA));
 
-        TaskEntity testTaskEntityB = TestDataUtil.createTestTaskEntityB();
-        taskService.createTask(testTaskGroupEntityA.getId(), testTaskEntityB);
-
-        assertThat(taskGroupService
-                    .findByIdWithTasks(testTaskGroupEntityA.getId())
+        assertThat(taskGroupRepository
+                    .findByIdWithTasks(taskGroupA.getId()).get()
                         .getTasks().size())
                 .isEqualTo(2); 
 
@@ -158,9 +173,10 @@ public class TaskControllerIntegrationTests {
         ).andExpect(
             MockMvcResultMatchers.status().isNoContent());
         
-        List<TaskEntity> result = taskGroupService
-                                    .findByIdWithTasks(testTaskGroupEntityA.getId())
-                                        .getTasks();
+        List<TaskEntity> result = taskGroupRepository
+                                    .findByIdWithTasks(taskGroupA.getId())
+                                    .get()
+                                    .getTasks();
 
         assertThat(result.size()).isEqualTo(1);
         assertThat(result)
@@ -169,19 +185,18 @@ public class TaskControllerIntegrationTests {
         
     }
 
+    // UPDATE -----------------------------------------------------------
 
     @Test
     public void testUpdateTaskName() throws Exception{
-        TaskGroupEntity testTaskGroupEntityA = TestDataUtil.createTaskGroupEntityA();
-        taskGroupService.save(testTaskGroupEntityA);
+        TaskEntity testTaskEntityA = 
+            taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
 
-        TaskEntity testTaskEntityA = TestDataUtil.createTestTaskEntityA();
-        taskService.createTask(testTaskGroupEntityA.getId(), testTaskEntityA);
+        TaskRequestDto testRequestTaskDto = 
+            TestTaskData.createTestRequestTaskDto(taskGroupA);
+        testRequestTaskDto.setTaskName("UPDATED");
 
-        TaskRequestDto testCreateTaskDto = TestDataUtil.createTestCreateTaskDto();
-        testCreateTaskDto.setTaskName("UPDATED");
-
-        String taskJson = objectMapper.writeValueAsString(testCreateTaskDto);
+        String taskJson = objectMapper.writeValueAsString(testRequestTaskDto);
 
         mockMvc.perform(
             MockMvcRequestBuilders.patch("/tasks/" + testTaskEntityA.getId())
@@ -196,19 +211,16 @@ public class TaskControllerIntegrationTests {
 
     @Test
     public void testUpdateTaskGroupId() throws Exception{
-        TaskGroupEntity testTaskGroupEntityA = TestDataUtil.createTaskGroupEntityA();
-        taskGroupService.save(testTaskGroupEntityA);
+        // Creating tasks for taskGroup: A
+        TaskEntity testTaskEntityA = 
+            taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
 
-        TaskEntity testTaskEntityA = TestDataUtil.createTestTaskEntityA();
-        taskService.createTask(testTaskGroupEntityA.getId(), testTaskEntityA);
+        // Creating tasks for another taskGroup: B
+        TaskRequestDto testRequestTaskDto = 
+            TestTaskData.createTestRequestTaskDto(taskGroupB);
+        testRequestTaskDto.setTaskGroupId(taskGroupB.getId());
 
-        TaskGroupEntity testTaskGroupEntityB = TestDataUtil.createTaskGroupEntityB();
-        taskGroupService.save(testTaskGroupEntityB);
-
-        TaskRequestDto testCreateTaskDto = TestDataUtil.createTestCreateTaskDto();
-        testCreateTaskDto.setTaskGroupId(testTaskGroupEntityB.getId());
-
-        String taskJson = objectMapper.writeValueAsString(testCreateTaskDto);
+        String taskJson = objectMapper.writeValueAsString(testRequestTaskDto);
 
         mockMvc.perform(
             MockMvcRequestBuilders.patch("/tasks/" + testTaskEntityA.getId())
@@ -217,26 +229,23 @@ public class TaskControllerIntegrationTests {
         ).andExpect(
             MockMvcResultMatchers.status().isOk()
         ).andExpect(
-            MockMvcResultMatchers.jsonPath("$.taskGroupId").value(testTaskGroupEntityB.getId())
+            MockMvcResultMatchers.jsonPath("$.taskGroupId").value(taskGroupB.getId())
         );
     }
 
     @Test
     public void testUpdateBothTaskGroupIdAndTaskName() throws Exception{
-        TaskGroupEntity testTaskGroupEntityA = TestDataUtil.createTaskGroupEntityA();
-        taskGroupService.save(testTaskGroupEntityA);
 
-        TaskEntity testTaskEntityA = TestDataUtil.createTestTaskEntityA();
-        taskService.createTask(testTaskGroupEntityA.getId(), testTaskEntityA);
+        // Creating task for taskGroup: A
+        TaskEntity testTaskEntityA = 
+            taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
 
-        TaskGroupEntity testTaskGroupEntityB = TestDataUtil.createTaskGroupEntityB();
-        taskGroupService.save(testTaskGroupEntityB);
+        // Creating request to change testTaskEntityA from taskGroup: A --> B
+        TaskRequestDto testRequestTaskDto = TestTaskData.createTestRequestTaskDto(taskGroupB);
+        testRequestTaskDto.setTaskGroupId(taskGroupB.getId());
+        testRequestTaskDto.setTaskName("UPDATED");
 
-        TaskRequestDto testCreateTaskDto = TestDataUtil.createTestCreateTaskDto();
-        testCreateTaskDto.setTaskGroupId(testTaskGroupEntityB.getId());
-        testCreateTaskDto.setTaskName("UPDATED");
-
-        String taskJson = objectMapper.writeValueAsString(testCreateTaskDto);
+        String taskJson = objectMapper.writeValueAsString(testRequestTaskDto);
 
         mockMvc.perform(
             MockMvcRequestBuilders.patch("/tasks/" + testTaskEntityA.getId())
@@ -245,7 +254,7 @@ public class TaskControllerIntegrationTests {
         ).andExpect(
             MockMvcResultMatchers.status().isOk()
         ).andExpect(
-            MockMvcResultMatchers.jsonPath("$.taskGroupId").value(testTaskGroupEntityB.getId())
+            MockMvcResultMatchers.jsonPath("$.taskGroupId").value(taskGroupB.getId())
         ).andExpect(
             MockMvcResultMatchers.jsonPath("$.taskName").value("UPDATED")
         );

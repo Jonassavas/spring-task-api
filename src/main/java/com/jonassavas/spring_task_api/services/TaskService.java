@@ -2,17 +2,17 @@ package com.jonassavas.spring_task_api.services;
 
 import java.util.List;
 
-import com.jonassavas.spring_task_api.domain.dto.TaskRequestDto;
-import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
+import com.jonassavas.spring_task_api.domain.dto.task.TaskDto;
+import com.jonassavas.spring_task_api.domain.dto.task.TaskRequestDto;
 
 public interface TaskService {
-    TaskEntity createTask(Long groupId, TaskEntity taskEntity);
+    TaskDto createTask(Long groupId, TaskRequestDto taskEntity);
 
     void delete(Long id);
 
     boolean isExist(Long id);
 
-    TaskEntity update(Long id, TaskRequestDto dto);
+    TaskDto update(Long id, TaskRequestDto dto);
 
-    List<TaskEntity> findAll();
+    List<TaskDto> findAll();
 }

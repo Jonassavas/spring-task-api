@@ -1,37 +1,53 @@
 package com.jonassavas.spring_task_api.repositories;
 
-import org.springframework.boot.test.context.SpringBootTest;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 
-import com.jonassavas.spring_task_api.TestDataUtil;
+import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
+import com.jonassavas.util.TestTaskBoardData;
+import com.jonassavas.util.TestTaskData;
+import com.jonassavas.util.TestTaskGroupData;
 
 import jakarta.transaction.Transactional;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 public class TaskGroupEntityRepositoryIntegrationTests {
     
     TaskGroupRepository underTest;
+    private TaskBoardRepository taskBoardRepository;
+    
+    private TaskBoardEntity taskBoard; 
 
     @Autowired
-    public TaskGroupEntityRepositoryIntegrationTests(TaskGroupRepository underTest){
+    public TaskGroupEntityRepositoryIntegrationTests(TaskGroupRepository underTest,
+                                                    TaskBoardRepository taskBoardRepository){
         this.underTest = underTest;
+        this.taskBoardRepository = taskBoardRepository;
+    }
+
+    @BeforeEach
+    public void setUp(){
+        taskBoard = taskBoardRepository.save(
+            TestTaskBoardData.createTestTaskBoardEntityA()
+        ); 
     }
 
     @Test
     @Transactional
     public void testThatEmptyTaskGroupCanBeCreatedAndRecalled(){
-        TaskGroupEntity testTaskGroup = TestDataUtil.createTaskGroupEntityA();
+        TaskGroupEntity testTaskGroup = TestTaskGroupData.createTaskGroupEntityA(taskBoard);
         underTest.save(testTaskGroup);
-        Optional<TaskGroupEntity> result = underTest.findById(1L);
+        Optional<TaskGroupEntity> result = underTest.findById(testTaskGroup.getId());
         assertThat(result).isPresent();
         assertThat(result.get()).isEqualTo(testTaskGroup);
     }
@@ -39,11 +55,11 @@ public class TaskGroupEntityRepositoryIntegrationTests {
     @Test
     @Transactional
     public void testThatMultipleEmptyTaskGroupsCanBeCreatedAndRecalled(){
-        TaskGroupEntity testTaskGroupA = TestDataUtil.createTaskGroupEntityA();
+        TaskGroupEntity testTaskGroupA = TestTaskGroupData.createTaskGroupEntityA(taskBoard);
         underTest.save(testTaskGroupA);
-        TaskGroupEntity testTaskGroupB = TestDataUtil.createTaskGroupEntityB();
+        TaskGroupEntity testTaskGroupB = TestTaskGroupData.createTaskGroupEntityB(taskBoard);
         underTest.save(testTaskGroupB);
-        TaskGroupEntity testTaskGroupC = TestDataUtil.createTaskGroupEntityB();
+        TaskGroupEntity testTaskGroupC = TestTaskGroupData.createTaskGroupEntityB(taskBoard);
         underTest.save(testTaskGroupC);
         Iterable<TaskGroupEntity> result = underTest.findAll();
         assertThat(result)
@@ -54,13 +70,13 @@ public class TaskGroupEntityRepositoryIntegrationTests {
     @Test
     @Transactional
     public void testThatTaskGroupWithTasksCanBeCreatedAndRecalled(){
-        TaskGroupEntity testTaskGroup = TestDataUtil.createTaskGroupEntityA();
-        TaskEntity testTaskEntityA = TestDataUtil.createTestTaskEntityA();
+        TaskGroupEntity testTaskGroup = TestTaskGroupData.createTaskGroupEntityA(taskBoard);
+        TaskEntity testTaskEntityA = TestTaskData.createTestTaskEntityA(testTaskGroup);
         testTaskGroup.addTask(testTaskEntityA);
 
         underTest.save(testTaskGroup);
         
-        Optional<TaskGroupEntity> result = underTest.findById(1L);
+        Optional<TaskGroupEntity> result = underTest.findByIdWithTasks(1L);
         TaskGroupEntity savedGroup = result.get();
         assertThat(savedGroup.getTaskGroupName())
                             .isEqualTo(testTaskGroup.getTaskGroupName());
@@ -74,24 +90,28 @@ public class TaskGroupEntityRepositoryIntegrationTests {
     @Test
     @Transactional
     public void testThatTaskGroupCanBeUpdated(){
-        TaskGroupEntity testTaskGroupA = TestDataUtil.createTaskGroupEntityA();
+        TaskGroupEntity testTaskGroupA = TestTaskGroupData.createTaskGroupEntityA(taskBoard);
         underTest.save(testTaskGroupA);
         testTaskGroupA.setTaskGroupName("UPDATED");
         underTest.save(testTaskGroupA);
 
         Optional<TaskGroupEntity> result = underTest.findById(testTaskGroupA.getId());
         assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo(testTaskGroupA);
+        assertThat(result.get())
+                .extracting(TaskGroupEntity::getTaskGroupName)
+                .isEqualTo("UPDATED");
     }
 
     @Test
     @Transactional
     public void testThatTaskGroupCanBeDeleted(){
-        TaskGroupEntity testTaskGroupA = TestDataUtil.createTaskGroupEntityA();
+        TaskGroupEntity testTaskGroupA = TestTaskGroupData.createTaskGroupEntityA(taskBoard);
         underTest.save(testTaskGroupA);
+        Optional<TaskGroupEntity> result = underTest.findById(testTaskGroupA.getId());
+        assertThat(result.get()).isEqualTo(testTaskGroupA);
 
         underTest.deleteById(testTaskGroupA.getId());
-        Optional<TaskGroupEntity> result = underTest.findById(testTaskGroupA.getId());
+        result = underTest.findById(testTaskGroupA.getId());
         assertThat(result).isEmpty();
     }
 }

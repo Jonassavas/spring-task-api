@@ -6,9 +6,12 @@ import java.util.stream.StreamSupport;
 
 import org.springframework.stereotype.Service;
 
+import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupWithTasksDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
+import com.jonassavas.spring_task_api.mappers.Mapper;
 import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
 import com.jonassavas.spring_task_api.repositories.TaskGroupRepository;
 import com.jonassavas.spring_task_api.services.TaskGroupService;
@@ -22,47 +25,69 @@ public class TaskGroupServiceImpl implements TaskGroupService{
     
     private TaskGroupRepository taskGroupRepository;
     private TaskBoardRepository taskBoardRepository;
+    private Mapper<TaskGroupEntity, TaskGroupRequestDto> taskGroupRequestMapper;
+    private Mapper<TaskGroupEntity, TaskGroupWithTasksDto> taskGroupWithTasksMapper;
+    private Mapper<TaskGroupEntity, TaskGroupDto> taskGroupMapper;
 
     public TaskGroupServiceImpl(TaskGroupRepository taskGroupRepository,
-                                TaskBoardRepository taskBoardRepository){
+                                TaskBoardRepository taskBoardRepository,
+                                Mapper<TaskGroupEntity, TaskGroupRequestDto> taskGroupRequestMapper,
+                                Mapper<TaskGroupEntity, TaskGroupWithTasksDto> taskGroupWithTasksMapper,
+                                Mapper<TaskGroupEntity, TaskGroupDto> taskGroupMapper){
         this.taskGroupRepository = taskGroupRepository;
         this.taskBoardRepository = taskBoardRepository;
+        this.taskGroupRequestMapper = taskGroupRequestMapper;
+        this.taskGroupWithTasksMapper = taskGroupWithTasksMapper;
+        this.taskGroupMapper = taskGroupMapper;
     }
 
     @Override
-    public TaskGroupEntity save(TaskGroupEntity taskGroupEntity){
-        return taskGroupRepository.save(taskGroupEntity);
+    public TaskGroupDto save(TaskGroupRequestDto taskGroupRequestDto){
+        TaskGroupEntity taskGroupEntity = taskGroupRequestMapper.mapFrom(taskGroupRequestDto);
+        TaskGroupEntity savedTaskGroup =  taskGroupRepository.save(taskGroupEntity);
+        return taskGroupMapper.mapTo(savedTaskGroup);
     }
 
     @Override
-    public TaskGroupEntity createTaskGroup(Long boardId, TaskGroupEntity taskGroupEntity){
+    public TaskGroupDto createTaskGroup(Long boardId, TaskGroupRequestDto taskGroupRequestDto){
         TaskBoardEntity taskBoard = taskBoardRepository.findById(boardId)
             .orElseThrow(() -> new EntityNotFoundException("Taskboard not found with id: " + boardId));
+
+        TaskGroupEntity taskGroupEntity = taskGroupRequestMapper.mapFrom(taskGroupRequestDto);
         
         taskGroupEntity.setTaskBoard(taskBoard);
         taskBoard.addTaskGroup(taskGroupEntity);
 
-        return taskGroupRepository.save(taskGroupEntity);
+        TaskGroupEntity savedTaskGroup = taskGroupRepository.save(taskGroupEntity);
+
+        return taskGroupMapper.mapTo(savedTaskGroup);
     }
 
     @Override
-    public List<TaskGroupEntity> findAll(){
+    public List<TaskGroupDto> findAll(){
         return StreamSupport.stream(taskGroupRepository
                                     .findAll()
                                     .spliterator(), false)
+                                    .map(taskGroupMapper::mapTo)
                                     .collect(Collectors.toList());
     }
 
     @Override
-    public List<TaskGroupEntity> findAllWithTasks(){
-        return taskGroupRepository.findAllWithTasks();
+    public List<TaskGroupWithTasksDto> findAllWithTasks(){
+        return StreamSupport.stream(taskGroupRepository
+                                    .findAllWithTasks()
+                                    .spliterator(), false)
+                                    .map(taskGroupWithTasksMapper::mapTo)
+                                    .collect(Collectors.toList());
     }
 
     @Override
-    public TaskGroupEntity findByIdWithTasks(Long id){
-        return taskGroupRepository.findByIdWithTasks(id)
+    public TaskGroupWithTasksDto findByIdWithTasks(Long id){
+        TaskGroupEntity taskGroup = taskGroupRepository.findByIdWithTasks(id)
             .orElseThrow(() -> new EntityNotFoundException(
                 "TaskGroup not found with id " + id));
+        return taskGroupWithTasksMapper.mapTo(taskGroup);
+        
     }
 
     @Override
@@ -85,7 +110,7 @@ public class TaskGroupServiceImpl implements TaskGroupService{
     }
 
     @Override
-    public TaskGroupEntity update(Long id, TaskGroupRequestDto dto){
+    public TaskGroupDto update(Long id, TaskGroupRequestDto dto){
         TaskGroupEntity taskGroup = taskGroupRepository.findById(id)
                     .orElseThrow(() -> new EntityNotFoundException(
                                         "TaskGroup not found with id: " + id));
@@ -94,6 +119,6 @@ public class TaskGroupServiceImpl implements TaskGroupService{
             taskGroup.setTaskGroupName(dto.getTaskGroupName());
         }
 
-        return taskGroup;
+        return taskGroupMapper.mapTo(taskGroup);
     }
 }

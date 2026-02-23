@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupWithTasksDto;
 
 public interface TaskGroupService {
     TaskGroupDto save(TaskGroupRequestDto taskGroupRequestDto);
@@ -12,9 +13,9 @@ public interface TaskGroupService {
 
     List<TaskGroupDto> findAll();
 
-    List<TaskGroupDto> findAllWithTasks();
+    List<TaskGroupWithTasksDto> findAllWithTasks();
 
-    TaskGroupDto findByIdWithTasks(Long id);
+    TaskGroupWithTasksDto findByIdWithTasks(Long id);
 
     boolean isExist(Long id);
 

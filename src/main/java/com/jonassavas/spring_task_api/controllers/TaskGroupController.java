@@ -15,8 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupWithTasksDto;
-import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
-import com.jonassavas.spring_task_api.mappers.Mapper;
 import com.jonassavas.spring_task_api.services.TaskBoardService;
 import com.jonassavas.spring_task_api.services.TaskGroupService;
 
@@ -25,45 +23,29 @@ import com.jonassavas.spring_task_api.services.TaskGroupService;
 public class TaskGroupController {
     private TaskGroupService taskGroupService;
 
-    private Mapper<TaskGroupEntity, TaskGroupRequestDto> taskGroupRequestMapper;
-    private Mapper<TaskGroupEntity, TaskGroupWithTasksDto> taskGroupWithTasksMapper;
-    private Mapper<TaskGroupEntity, TaskGroupDto> taskGroupMapper;
+
     private TaskBoardService taskBoardService;
 
     public TaskGroupController(TaskGroupService taskGroupService, 
-                                Mapper<TaskGroupEntity, TaskGroupRequestDto> taskGroupRequestMapper,
-                                Mapper<TaskGroupEntity, TaskGroupDto> taskGroupMapper,
-                                Mapper<TaskGroupEntity, TaskGroupWithTasksDto> taskGroupWithTasksMapper,
                                 TaskBoardService taskBoardService){
         this.taskGroupService = taskGroupService;
-        this.taskGroupRequestMapper = taskGroupRequestMapper;
-        this.taskGroupMapper = taskGroupMapper;
-        this.taskGroupWithTasksMapper = taskGroupWithTasksMapper;
         this.taskBoardService = taskBoardService;
     }
 
     @PostMapping(path = "/boards/{boardId}/groups")
-    public ResponseEntity<TaskGroupRequestDto> createTaskGroup(@PathVariable("boardId") Long boardId,
-                                                                @RequestBody TaskGroupRequestDto taskGroup) {
-
-        
-        //taskGroup.setTaskBoardId(boardId);
+    public ResponseEntity<TaskGroupDto> createTaskGroup(
+        @PathVariable("boardId") Long boardId,
+        @RequestBody TaskGroupRequestDto requestDto) { 
         if(!taskBoardService.isExist(boardId)){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        TaskGroupEntity taskGroupEntity = taskGroupRequestMapper.mapFrom(taskGroup);
-        TaskGroupEntity savedTaskGroupEntity = taskGroupService.createTaskGroup(boardId, taskGroupEntity);
-        TaskGroupRequestDto responseDto = taskGroupRequestMapper.mapTo(savedTaskGroupEntity);
-        
+        TaskGroupDto responseDto = taskGroupService.createTaskGroup(boardId, requestDto); 
         return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
     }
 
     @GetMapping("/boards/{boardId}/groups")
     public List<TaskGroupDto> listTaskGroups() {
-        return taskGroupService.findAll()
-            .stream()
-            .map(taskGroupMapper::mapTo)
-            .toList();
+        return taskGroupService.findAll(); 
     }
 
     // @GetMapping("/taskgroups/{id}/tasks")
@@ -76,10 +58,7 @@ public class TaskGroupController {
 
     @GetMapping("/boards/{boardId}/groups/with-tasks")
         public List<TaskGroupWithTasksDto> listTaskGroupsWithTasks() {
-            return taskGroupService.findAllWithTasks()
-                .stream()
-                .map(taskGroupWithTasksMapper::mapTo)
-                .toList();
+            return taskGroupService.findAllWithTasks();
     }
 
 
@@ -104,10 +83,10 @@ public class TaskGroupController {
 
     @PatchMapping(path = "/boards/{boardId}/groups/{groupId}")
     public ResponseEntity<TaskGroupDto> updateTaskGroup(
-            @PathVariable("groupId") Long id, 
-            @RequestBody TaskGroupRequestDto dto) {
-        TaskGroupEntity updated = taskGroupService.update(id, dto);
-        return new ResponseEntity<>(taskGroupRequestMapper.mapTo(updated), HttpStatus.OK);
+            @PathVariable("groupId") Long groupId, 
+            @RequestBody TaskGroupRequestDto requestDto) {
+        TaskGroupDto responseDto = taskGroupService.update(groupId, requestDto);
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 
 }

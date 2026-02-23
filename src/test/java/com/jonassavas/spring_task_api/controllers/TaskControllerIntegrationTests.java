@@ -23,7 +23,6 @@ import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
 import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
 import com.jonassavas.spring_task_api.repositories.TaskGroupRepository;
 import com.jonassavas.spring_task_api.repositories.TaskRepository;
-import com.jonassavas.spring_task_api.services.TaskGroupService;
 import com.jonassavas.util.TestTaskBoardData;
 import com.jonassavas.util.TestTaskData;
 import com.jonassavas.util.TestTaskGroupData;
@@ -36,7 +35,7 @@ import com.jonassavas.util.TestTaskGroupData;
 @AutoConfigureMockMvc
 public class TaskControllerIntegrationTests {
     
-    private TaskGroupService taskGroupService;
+    //private TaskGroupService taskGroupService;
     private MockMvc mockMvc;
 
     private ObjectMapper objectMapper;
@@ -51,13 +50,12 @@ public class TaskControllerIntegrationTests {
     private TaskGroupEntity taskGroupB;
 
     @Autowired
-    public TaskControllerIntegrationTests(TaskGroupService taskGroupService, 
-                                        MockMvc mockMvc, 
-                                        ObjectMapper objectMapper,
-                                        TaskRepository taskRepository,
-                                        TaskBoardRepository taskBoardRepository, 
-                                        TaskGroupRepository taskGroupRepository){
-        this.taskGroupService = taskGroupService;
+    public TaskControllerIntegrationTests(
+                                    MockMvc mockMvc, 
+                                    ObjectMapper objectMapper,
+                                    TaskRepository taskRepository,
+                                    TaskBoardRepository taskBoardRepository, 
+                                    TaskGroupRepository taskGroupRepository){
         this.mockMvc = mockMvc;
         this.objectMapper = objectMapper;
         this.taskRepository = taskRepository;
@@ -134,8 +132,8 @@ public class TaskControllerIntegrationTests {
     public void testThatDeleteTaskReturnsHttp204() throws Exception{
         TaskEntity testTaskEntityA = taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
 
-        assertThat(taskGroupService
-                    .findByIdWithTasks(taskGroupA.getId())
+        assertThat(taskGroupRepository
+                    .findByIdWithTasks(taskGroupA.getId()).get()
                         .getTasks().size())
                 .isEqualTo(1); 
 
@@ -145,8 +143,8 @@ public class TaskControllerIntegrationTests {
         ).andExpect(
             MockMvcResultMatchers.status().isNoContent());
 
-        assertThat(taskGroupService
-                    .findByIdWithTasks(taskGroupA.getId())
+        assertThat(taskGroupRepository
+                    .findByIdWithTasks(taskGroupA.getId()).get()
                         .getTasks().size())
                 .isEqualTo(0); 
     }
@@ -157,8 +155,8 @@ public class TaskControllerIntegrationTests {
 
         TaskEntity testTaskEntityB = taskRepository.save(TestTaskData.createTestTaskEntityB(taskGroupA));
 
-        assertThat(taskGroupService
-                    .findByIdWithTasks(taskGroupA.getId())
+        assertThat(taskGroupRepository
+                    .findByIdWithTasks(taskGroupA.getId()).get()
                         .getTasks().size())
                 .isEqualTo(2); 
 
@@ -168,9 +166,10 @@ public class TaskControllerIntegrationTests {
         ).andExpect(
             MockMvcResultMatchers.status().isNoContent());
         
-        List<TaskEntity> result = taskGroupService
+        List<TaskEntity> result = taskGroupRepository
                                     .findByIdWithTasks(taskGroupA.getId())
-                                        .getTasks();
+                                    .get()
+                                    .getTasks();
 
         assertThat(result.size()).isEqualTo(1);
         assertThat(result)

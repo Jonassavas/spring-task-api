@@ -70,10 +70,11 @@ public class TaskBoardServiceImpl implements TaskBoardService {
     }
 
     @Override
-    public List<TaskBoardEntity> findAll(){
+    public List<TaskBoardDto> findAll(){
         return StreamSupport.stream(taskBoardRepository
                                     .findAll()
                                     .spliterator(), false)
+                                    .map(taskBoardMapper::mapTo)
                                     .collect(Collectors.toList());
     }
 

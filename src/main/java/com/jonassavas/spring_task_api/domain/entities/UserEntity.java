@@ -1,14 +1,13 @@
 package com.jonassavas.spring_task_api.domain.entities;
 
-import java.util.List;
-
-import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,10 +24,20 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    private String email;
-    private String passwordHash;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<TaskGroupEntity> taskGroups;
+    @NotBlank
+    @Column(unique = true, nullable = false, length = 50)
+    private String username;
+
+    @NotBlank
+    @Column(nullable = false)
+    private String password;
+
+    @NotBlank
+    @Email
+    @Column(unique = true, nullable = false, length = 100)
+    private String email;
+
+    // @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    // private List<TaskBoardEntity> taskBoards = new ArrayList<>();
 }

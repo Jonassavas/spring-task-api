@@ -16,5 +16,9 @@ public class UserServiceImpl {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
+
+    public void register(RegisterRequestDto request){
+        
+    }
     
 }

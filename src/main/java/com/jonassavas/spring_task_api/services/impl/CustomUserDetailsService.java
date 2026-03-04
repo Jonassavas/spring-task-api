@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 import com.jonassavas.spring_task_api.domain.entities.UserEntity;
 import com.jonassavas.spring_task_api.repositories.UserRepository;
 
+// This class has a single responsibility:
+//  - Load 'UserEntity' for Spring Security authentification.
+// Works as an adapter between Spring Security and the database.
+
 @Service
 public class CustomUserDetailsService implements UserDetailsService{
     private final UserRepository userRepository;

@@ -4,6 +4,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 import com.jonassavas.spring_task_api.domain.dto.auth.AuthResponse;
 import com.jonassavas.spring_task_api.domain.dto.auth.LoginRequest;
@@ -12,6 +13,11 @@ import com.jonassavas.spring_task_api.domain.entities.UserEntity;
 import com.jonassavas.spring_task_api.repositories.UserRepository;
 import com.jonassavas.spring_task_api.services.AuthService;
 
+import jakarta.transaction.Transactional;
+
+
+@Service
+@Transactional
 public class AuthServiceImpl implements AuthService{
 
     private final UserRepository userRepository;
@@ -39,6 +45,8 @@ public class AuthServiceImpl implements AuthService{
         // Encode the password
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
+        user.setEmail(request.getEmail());
+
         userRepository.save(user);
     }
 
@@ -52,7 +60,9 @@ public class AuthServiceImpl implements AuthService{
                                 )
                         );
         // Later generate JWT here
-        return new AuthResponse("jwt-token will be here");
+        AuthResponse test = new AuthResponse();
+        test.setToken("TEST-TOKEN");
+        return test;
     }
     
 }

@@ -7,7 +7,7 @@ import com.jonassavas.spring_task_api.domain.dto.auth.RegisterRequest;
 public interface AuthService {
     // Authenticate user, generate JWT, return Token.
 
-    void register(RegisterRequest request);
+    AuthResponse register(RegisterRequest request);
 
     AuthResponse login(LoginRequest request);
 }

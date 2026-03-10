@@ -8,5 +8,5 @@ import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 
 @Repository
 public interface TaskBoardRepository extends JpaRepository<TaskBoardEntity, Long> {
-    
+   // Implement findByOwnerUsername 
 }

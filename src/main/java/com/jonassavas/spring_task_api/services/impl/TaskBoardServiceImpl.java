@@ -82,4 +82,13 @@ public class TaskBoardServiceImpl implements TaskBoardService {
     public boolean isExist(Long id){
         return taskBoardRepository.existsById(id);
     }
+
+    @Override
+    public List<TaskBoardDto> listTaskBoardsForUser(String username){
+        return StreamSupport.stream(taskBoardRepository
+                                    .findByOwnerUsername(username)
+                                    .spliterator(), false)
+                                    .map(taskBoardMapper::mapTo)
+                                    .collect(Collectors.toList());
+    }
 }

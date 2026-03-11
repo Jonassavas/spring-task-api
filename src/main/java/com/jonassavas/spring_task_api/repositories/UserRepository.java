@@ -6,8 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.jonassavas.spring_task_api.domain.entities.UserEntity;
 
-public interface UserRepository extends JpaRepository<UserEntity, Long>{
-
+public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByUsername(String username);
-    
 }

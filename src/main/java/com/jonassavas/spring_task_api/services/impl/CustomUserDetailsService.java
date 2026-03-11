@@ -7,13 +7,11 @@ import org.springframework.stereotype.Service;
 
 import com.jonassavas.spring_task_api.domain.entities.UserEntity;
 import com.jonassavas.spring_task_api.repositories.UserRepository;
-
-// This class has a single responsibility:
-//  - Load 'UserEntity' for Spring Security authentification.
-// Works as an adapter between Spring Security and the database.
+import com.jonassavas.spring_task_api.security.CustomUserDetails;
 
 @Service
-public class CustomUserDetailsService implements UserDetailsService{
+public class CustomUserDetailsService implements UserDetailsService {
+
     private final UserRepository userRepository;
 
     public CustomUserDetailsService(UserRepository userRepository){
@@ -21,17 +19,9 @@ public class CustomUserDetailsService implements UserDetailsService{
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) 
-            throws UsernameNotFoundException{
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         UserEntity user = userRepository.findByUsername(username)
-                        .orElseThrow(() -> new UsernameNotFoundException(
-                            "Username not found: " + username));
-
-        return org.springframework.security.core.userdetails.User
-                            .builder()
-                            .username(user.getUsername())
-                            .password(user.getPassword())
-                            .roles("USER")
-                            .build();
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        return new CustomUserDetails(user);
     }
 }

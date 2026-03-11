@@ -22,5 +22,7 @@ public interface TaskBoardService {
     boolean isExist(Long id);
 
     List<TaskBoardDto> findAll();
+
+    List<TaskBoardDto> listTaskBoardsForUser(String username);
     
 }

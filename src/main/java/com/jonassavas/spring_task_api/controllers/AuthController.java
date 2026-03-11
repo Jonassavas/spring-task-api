@@ -4,29 +4,34 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jonassavas.spring_task_api.domain.dto.auth.AuthResponse;
 import com.jonassavas.spring_task_api.domain.dto.auth.LoginRequest;
 import com.jonassavas.spring_task_api.domain.dto.auth.RegisterRequest;
 import com.jonassavas.spring_task_api.services.AuthService;
 
 @RestController
+@RequestMapping("/auth")
 public class AuthController {
+
     private final AuthService authService;
 
     public AuthController(AuthService authService){
         this.authService = authService;
     }
 
-    @PostMapping("/auth/register")
-    public ResponseEntity register(@RequestBody RegisterRequest requestDto){
-        authService.register(requestDto);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest requestDto) {
+        // Register user and return JWT token
+        AuthResponse response = authService.register(requestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PostMapping("/auth/login")
-    public ResponseEntity login(@RequestBody LoginRequest requestDto){
-        authService.login(requestDto);
-        return new ResponseEntity<>(HttpStatus.OK);
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest requestDto) {
+        AuthResponse response = authService.login(requestDto);
+        return ResponseEntity.ok(response);
     }
 }

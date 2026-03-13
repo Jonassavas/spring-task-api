@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardDto;
 import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
+import com.jonassavas.spring_task_api.domain.entities.UserEntity;
 import com.jonassavas.spring_task_api.mappers.Mapper;
 import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
+import com.jonassavas.spring_task_api.security.SecurityService;
 import com.jonassavas.spring_task_api.services.TaskBoardService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -24,14 +26,17 @@ public class TaskBoardServiceImpl implements TaskBoardService {
     private TaskBoardRepository taskBoardRepository;
     private Mapper<TaskBoardEntity, TaskBoardRequestDto> taskBoardRequestMapper;
     private Mapper<TaskBoardEntity, TaskBoardDto> taskBoardMapper;
+    private final SecurityService securityService;
 
 
     public TaskBoardServiceImpl(TaskBoardRepository taskBoardRepository,
                                 Mapper<TaskBoardEntity, TaskBoardRequestDto> taskBoardRequestMapper,
-                                Mapper<TaskBoardEntity, TaskBoardDto> taskBoardMapper){
+                                Mapper<TaskBoardEntity, TaskBoardDto> taskBoardMapper,
+                                SecurityService securityService){
         this.taskBoardRepository = taskBoardRepository;
         this.taskBoardRequestMapper = taskBoardRequestMapper;
         this.taskBoardMapper = taskBoardMapper;
+        this.securityService = securityService;
     }
 
     @Override
@@ -84,9 +89,10 @@ public class TaskBoardServiceImpl implements TaskBoardService {
     }
 
     @Override
-    public List<TaskBoardDto> listTaskBoardsForUser(String username){
+    public List<TaskBoardDto> listTaskBoardsForCurrentUser(){
+        UserEntity user = securityService.getCurrentUser();
         return StreamSupport.stream(taskBoardRepository
-                                    .findByOwnerUsername(username)
+                                    .findByOwnerUsername(user.getUsername())
                                     .spliterator(), false)
                                     .map(taskBoardMapper::mapTo)
                                     .collect(Collectors.toList());

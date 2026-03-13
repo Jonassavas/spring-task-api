@@ -23,6 +23,6 @@ public interface TaskBoardService {
 
     List<TaskBoardDto> findAll();
 
-    List<TaskBoardDto> listTaskBoardsForUser(String username);
+    List<TaskBoardDto> listTaskBoardsForCurrentUser();
     
 }

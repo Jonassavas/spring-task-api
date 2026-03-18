@@ -21,7 +21,7 @@ public interface TaskBoardService {
     // Delete all taskGroups?
     boolean isExist(Long id);
 
-    List<TaskBoardDto> findAll();
+    //List<TaskBoardDto> findAll();
 
     List<TaskBoardDto> listTaskBoardsForCurrentUser();
     

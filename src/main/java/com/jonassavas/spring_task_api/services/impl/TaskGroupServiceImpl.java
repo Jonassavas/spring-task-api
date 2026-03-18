@@ -55,6 +55,7 @@ public class TaskGroupServiceImpl implements TaskGroupService{
 
         TaskGroupEntity taskGroupEntity = taskGroupRequestMapper.mapFrom(taskGroupRequestDto);
         
+        // TODO: Don't think we need to do this explicitly
         taskGroupEntity.setTaskBoard(taskBoard);
         taskBoard.addTaskGroup(taskGroupEntity);
 

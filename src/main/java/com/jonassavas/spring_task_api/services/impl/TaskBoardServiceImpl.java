@@ -3,7 +3,6 @@ package com.jonassavas.spring_task_api.services.impl;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.springframework.stereotype.Service;
 
@@ -41,18 +40,24 @@ public class TaskBoardServiceImpl implements TaskBoardService {
 
     @Override
     public TaskBoardDto createTaskBoard(TaskBoardRequestDto requestDto){
-        // Will need to check for the user later here
+        UserEntity user = securityService.getCurrentUser();
         TaskBoardEntity taskBoard = taskBoardRequestMapper.mapFrom(requestDto);
+        taskBoard.setOwner(user);
         TaskBoardEntity savedTaskBoard = taskBoardRepository.save(taskBoard);
         return taskBoardMapper.mapTo(savedTaskBoard);
     } 
 
-    // TODO check the taskgroup aswell for this: Might just want the dto as input here
     @Override
     public TaskBoardDto update(Long id, TaskBoardRequestDto requestDto){
-        TaskBoardEntity board = taskBoardRepository.findById(id)
-                                .orElseThrow(() -> new EntityNotFoundException(
-                                    "TaskBoard not found with id: " + id));
+        UserEntity user = securityService.getCurrentUser();
+
+        TaskBoardEntity board = taskBoardRepository
+                        .findByIdAndOwnerUsername(id, user.getUsername())
+                        .orElseThrow(() -> new EntityNotFoundException(
+                            "TaskBoard not found with id: " + id +" for user: " + user.getUsername()
+                        ));
+
+
         if(requestDto.getTaskBoardName() != null){
             board.setTaskBoardName(requestDto.getTaskBoardName());
         }
@@ -62,39 +67,44 @@ public class TaskBoardServiceImpl implements TaskBoardService {
 
     @Override
     public void delete(Long id){
-        taskBoardRepository.deleteById(id);
-    }
+        UserEntity user = securityService.getCurrentUser();
+
+        TaskBoardEntity board = taskBoardRepository
+                .findByIdAndOwnerUsername(id, user.getUsername())
+                .orElseThrow(() -> new EntityNotFoundException(
+                    "TaskBoard not found or not owned by user"
+                ));
+
+        taskBoardRepository.delete(board);
+    } 
 
     @Override
     public Optional<TaskBoardDto> findById(Long id){
-        Optional<TaskBoardEntity> taskBoard = taskBoardRepository.findById(id);
-        if(!taskBoard.isPresent()){
-            return Optional.empty();
-        }
-        return Optional.of(taskBoardMapper.mapTo(taskBoard.get()));
-    }
+
+        UserEntity user = securityService.getCurrentUser();
+
+        Optional<TaskBoardEntity> taskBoard =
+                taskBoardRepository.findByIdAndOwnerUsername(id, user.getUsername());
+
+        return taskBoard.map(taskBoardMapper::mapTo);
+    } 
 
     @Override
-    public List<TaskBoardDto> findAll(){
-        return StreamSupport.stream(taskBoardRepository
-                                    .findAll()
-                                    .spliterator(), false)
-                                    .map(taskBoardMapper::mapTo)
-                                    .collect(Collectors.toList());
-    }
+    public List<TaskBoardDto> listTaskBoardsForCurrentUser(){
+
+        UserEntity user = securityService.getCurrentUser();
+
+        return taskBoardRepository
+                .findByOwnerUsername(user.getUsername())
+                .stream()
+                .map(taskBoardMapper::mapTo)
+                .collect(Collectors.toList());
+    } 
 
     @Override
     public boolean isExist(Long id){
         return taskBoardRepository.existsById(id);
     }
 
-    @Override
-    public List<TaskBoardDto> listTaskBoardsForCurrentUser(){
-        UserEntity user = securityService.getCurrentUser();
-        return StreamSupport.stream(taskBoardRepository
-                                    .findByOwnerUsername(user.getUsername())
-                                    .spliterator(), false)
-                                    .map(taskBoardMapper::mapTo)
-                                    .collect(Collectors.toList());
-    }
+
 }

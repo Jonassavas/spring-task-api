@@ -2,7 +2,6 @@ package com.jonassavas.spring_task_api.services.impl;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.springframework.stereotype.Service;
 
@@ -14,6 +13,7 @@ import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
 import com.jonassavas.spring_task_api.mappers.Mapper;
 import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
 import com.jonassavas.spring_task_api.repositories.TaskGroupRepository;
+import com.jonassavas.spring_task_api.security.SecurityService;
 import com.jonassavas.spring_task_api.services.TaskGroupService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -28,67 +28,67 @@ public class TaskGroupServiceImpl implements TaskGroupService{
     private Mapper<TaskGroupEntity, TaskGroupRequestDto> taskGroupRequestMapper;
     private Mapper<TaskGroupEntity, TaskGroupWithTasksDto> taskGroupWithTasksMapper;
     private Mapper<TaskGroupEntity, TaskGroupDto> taskGroupMapper;
+    private final SecurityService securityService;
 
     public TaskGroupServiceImpl(TaskGroupRepository taskGroupRepository,
                                 TaskBoardRepository taskBoardRepository,
                                 Mapper<TaskGroupEntity, TaskGroupRequestDto> taskGroupRequestMapper,
                                 Mapper<TaskGroupEntity, TaskGroupWithTasksDto> taskGroupWithTasksMapper,
-                                Mapper<TaskGroupEntity, TaskGroupDto> taskGroupMapper){
+                                Mapper<TaskGroupEntity, TaskGroupDto> taskGroupMapper,
+                                SecurityService securityService){
         this.taskGroupRepository = taskGroupRepository;
         this.taskBoardRepository = taskBoardRepository;
         this.taskGroupRequestMapper = taskGroupRequestMapper;
         this.taskGroupWithTasksMapper = taskGroupWithTasksMapper;
         this.taskGroupMapper = taskGroupMapper;
+        this.securityService = securityService;
     }
 
     @Override
-    public TaskGroupDto save(TaskGroupRequestDto taskGroupRequestDto){
-        TaskGroupEntity taskGroupEntity = taskGroupRequestMapper.mapFrom(taskGroupRequestDto);
-        TaskGroupEntity savedTaskGroup =  taskGroupRepository.save(taskGroupEntity);
-        return taskGroupMapper.mapTo(savedTaskGroup);
+    public TaskGroupDto createTaskGroup(Long boardId, TaskGroupRequestDto dto){
+
+        String username = securityService.getCurrentUsername();
+
+        TaskBoardEntity taskBoard = taskBoardRepository
+            .findByIdAndOwnerUsername(boardId, username)
+            .orElseThrow(() -> new EntityNotFoundException(
+                "Taskboard not found or not owned by user"
+            ));
+
+        TaskGroupEntity taskGroup = taskGroupRequestMapper.mapFrom(dto);
+
+        taskGroup.setTaskBoard(taskBoard);
+
+        TaskGroupEntity saved = taskGroupRepository.save(taskGroup);
+
+        return taskGroupMapper.mapTo(saved);
     }
 
     @Override
-    public TaskGroupDto createTaskGroup(Long boardId, TaskGroupRequestDto taskGroupRequestDto){
-        TaskBoardEntity taskBoard = taskBoardRepository.findById(boardId)
-            .orElseThrow(() -> new EntityNotFoundException("Taskboard not found with id: " + boardId));
+    public List<TaskGroupDto> findByBoard(Long boardId){
 
-        TaskGroupEntity taskGroupEntity = taskGroupRequestMapper.mapFrom(taskGroupRequestDto);
-        
-        // TODO: Don't think we need to do this explicitly
-        taskGroupEntity.setTaskBoard(taskBoard);
-        taskBoard.addTaskGroup(taskGroupEntity);
+        String username = securityService.getCurrentUsername();
 
-        TaskGroupEntity savedTaskGroup = taskGroupRepository.save(taskGroupEntity);
-
-        return taskGroupMapper.mapTo(savedTaskGroup);
+        return taskGroupRepository
+            .findByTaskBoardIdAndTaskBoardOwnerUsername(boardId, username)
+            .stream()
+            .map(taskGroupMapper::mapTo)
+            .collect(Collectors.toList());
     }
 
-    @Override
-    public List<TaskGroupDto> findAll(){
-        return StreamSupport.stream(taskGroupRepository
-                                    .findAll()
-                                    .spliterator(), false)
-                                    .map(taskGroupMapper::mapTo)
-                                    .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<TaskGroupWithTasksDto> findAllWithTasks(){
-        return StreamSupport.stream(taskGroupRepository
-                                    .findAllWithTasks()
-                                    .spliterator(), false)
-                                    .map(taskGroupWithTasksMapper::mapTo)
-                                    .collect(Collectors.toList());
-    }
-
+    
     @Override
     public TaskGroupWithTasksDto findByIdWithTasks(Long id){
-        TaskGroupEntity taskGroup = taskGroupRepository.findByIdWithTasks(id)
+
+        String username = securityService.getCurrentUsername();
+
+        TaskGroupEntity taskGroup = taskGroupRepository
+            .findByIdWithTasksAndUsername(id, username)
             .orElseThrow(() -> new EntityNotFoundException(
-                "TaskGroup not found with id " + id));
+                "TaskGroup not found or not owned by user"
+            ));
+
         return taskGroupWithTasksMapper.mapTo(taskGroup);
-        
     }
 
     @Override
@@ -98,28 +98,48 @@ public class TaskGroupServiceImpl implements TaskGroupService{
 
     @Override
     public void delete(Long id){
-        taskGroupRepository.deleteById(id);
-    }
- 
-    @Override
-    public void deleteAllTasks(Long id){
-        TaskGroupEntity taskGroup = taskGroupRepository.findById(id)
-                                    .orElseThrow(() -> new EntityNotFoundException(
-                                        "TaskGroup not found with id " + id));
 
-        taskGroup.getTasks().clear();
+        String username = securityService.getCurrentUsername();
+
+        TaskGroupEntity taskGroup = taskGroupRepository
+            .findByIdAndTaskBoardOwnerUsername(id, username)
+            .orElseThrow(() -> new EntityNotFoundException(
+                "TaskGroup not found or not owned by user"
+            ));
+
+        taskGroupRepository.delete(taskGroup);
     }
 
     @Override
     public TaskGroupDto update(Long id, TaskGroupRequestDto dto){
-        TaskGroupEntity taskGroup = taskGroupRepository.findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException(
-                                        "TaskGroup not found with id: " + id));
-    
+
+        String username = securityService.getCurrentUsername();
+
+        TaskGroupEntity taskGroup = taskGroupRepository
+            .findByIdAndTaskBoardOwnerUsername(id, username)
+            .orElseThrow(() -> new EntityNotFoundException(
+                "TaskGroup not found or not owned by user"
+            ));
+
         if(dto.getTaskGroupName() != null){
             taskGroup.setTaskGroupName(dto.getTaskGroupName());
         }
 
         return taskGroupMapper.mapTo(taskGroup);
     }
+ 
+    @Override
+    public void deleteAllTasks(Long id){
+
+        String username = securityService.getCurrentUsername();
+
+        TaskGroupEntity taskGroup = taskGroupRepository
+            .findByIdAndTaskBoardOwnerUsername(id, username)
+            .orElseThrow(() -> new EntityNotFoundException(
+                "TaskGroup not found or not owned by user"
+            ));
+
+        taskGroup.getTasks().clear();
+    }
+
 }

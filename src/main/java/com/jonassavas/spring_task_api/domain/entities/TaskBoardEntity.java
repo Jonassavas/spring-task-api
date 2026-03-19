@@ -31,9 +31,6 @@ public class TaskBoardEntity {
     private Long id;
     private String taskBoardName;
 
-    //Later: owner
-    // private UserEntity owner;
-
     @OneToMany(
         mappedBy = "taskBoard",
         cascade = CascadeType.ALL,

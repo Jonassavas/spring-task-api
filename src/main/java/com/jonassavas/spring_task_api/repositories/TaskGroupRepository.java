@@ -15,17 +15,22 @@ which is used to indicate that the class provides the mechanism for storage,
 retrieval, update, delete, and search operation on objects.*/
 @Repository 
 public interface TaskGroupRepository extends JpaRepository<TaskGroupEntity, Long>{
-    
-    @Query("""
-        SELECT tg FROM TaskGroupEntity tg
-        LEFT JOIN FETCH tg.tasks            
-    """) 
-    List<TaskGroupEntity> findAllWithTasks();
+
+    List<TaskGroupEntity> findByTaskBoardIdAndTaskBoardOwnerUsername(Long boardId, String username);
+
+    Optional<TaskGroupEntity> findByIdAndTaskBoardOwnerUsername(Long id, String username);
 
     @Query("""
-        SELECT tg from TaskGroupEntity tg
+        SELECT tg FROM TaskGroupEntity tg
         LEFT JOIN FETCH tg.tasks
-        WHERE tg.id = :id
+        WHERE tg.taskBoard.owner.username = :username
+    """) 
+    List<TaskGroupEntity> findAllWithTasksByUsername(String username);
+
+    @Query("""
+        SELECT tg FROM TaskGroupEntity tg
+        LEFT JOIN FETCH tg.tasks
+        WHERE tg.id = :id AND tg.taskBoard.owner.username = :username
     """)
-    Optional<TaskGroupEntity> findByIdWithTasks(Long id);
+    Optional<TaskGroupEntity> findByIdWithTasksAndUsername(Long id, String username);
 }

@@ -57,7 +57,7 @@ public class TaskGroupServiceImpl implements TaskGroupService{
 
         TaskGroupEntity taskGroup = taskGroupRequestMapper.mapFrom(dto);
 
-        taskGroup.setTaskBoard(taskBoard);
+        taskBoard.addTaskGroup(taskGroup); // Also sets the taskBoard for the taskgroup
 
         TaskGroupEntity saved = taskGroupRepository.save(taskGroup);
 
@@ -65,7 +65,7 @@ public class TaskGroupServiceImpl implements TaskGroupService{
     }
 
     @Override
-    public List<TaskGroupDto> findByBoard(Long boardId){
+    public List<TaskGroupDto> listGroupsOnBoard(Long boardId){
 
         String username = securityService.getCurrentUsername();
 
@@ -107,7 +107,9 @@ public class TaskGroupServiceImpl implements TaskGroupService{
                 "TaskGroup not found or not owned by user"
             ));
 
-        taskGroupRepository.delete(taskGroup);
+        TaskBoardEntity board = taskGroup.getTaskBoard();
+
+        board.removeTaskGroup(taskGroup);
     }
 
     @Override

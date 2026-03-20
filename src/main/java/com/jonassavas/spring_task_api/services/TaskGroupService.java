@@ -7,15 +7,13 @@ import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupWithTasksDto;
 
 public interface TaskGroupService {
-    TaskGroupDto save(TaskGroupRequestDto taskGroupRequestDto);
-
     TaskGroupDto createTaskGroup(Long boardId, TaskGroupRequestDto taskGroupRequestDto);
 
-    List<TaskGroupDto> findAll();
-
-    List<TaskGroupWithTasksDto> findAllWithTasks();
+    List<TaskGroupDto> listGroupsOnBoard(Long boardId);
 
     TaskGroupWithTasksDto findByIdWithTasks(Long id);
+
+    //List<TaskGroupWithTasksDto> findAllWithTasks();
 
     boolean isExist(Long id);
 

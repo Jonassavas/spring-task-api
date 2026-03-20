@@ -45,11 +45,10 @@ public class TaskBoardEntity {
 
     public void addTaskGroup(TaskGroupEntity taskGroup) {
         taskGroups.add(taskGroup);
-        //taskGroup.setTaskBoard(this);
+        taskGroup.setTaskBoard(this);
     }
 
-    public void removeTaskGroup(TaskGroupEntity task) {
-        taskGroups.remove(task);
-        //task.setTaskGroup(null);
+    public void removeTaskGroup(TaskGroupEntity taskGroup) {
+        taskGroups.remove(taskGroup);
     }
 }

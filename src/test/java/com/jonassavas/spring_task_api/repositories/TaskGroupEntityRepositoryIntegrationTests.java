@@ -76,7 +76,7 @@ public class TaskGroupEntityRepositoryIntegrationTests {
 
         underTest.save(testTaskGroup);
         
-        Optional<TaskGroupEntity> result = underTest.findByIdWithTasks(1L);
+        Optional<TaskGroupEntity> result = underTest.findById(1L);
         TaskGroupEntity savedGroup = result.get();
         assertThat(savedGroup.getTaskGroupName())
                             .isEqualTo(testTaskGroup.getTaskGroupName());

@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_board.CreateTaskBoardRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
@@ -60,7 +60,7 @@ public class TaskBoardControllerIntegrationTests {
 
     @Test
     public void testThatCreateTaskReturnsHttp201Create() throws Exception{
-        TaskBoardRequestDto testTaskBoardDtoA = 
+        CreateTaskBoardRequestDto testTaskBoardDtoA = 
             TestTaskBoardData.createTestTaskBoardRequestDtoA();
 
         String taskBoardJson = objectMapper.writeValueAsString(testTaskBoardDtoA);
@@ -76,7 +76,7 @@ public class TaskBoardControllerIntegrationTests {
     
     @Test
     public void testThatCreateTaskReturnsSavedTask() throws Exception{
-       TaskBoardRequestDto testTaskBoardDtoA = TestTaskBoardData.createTestTaskBoardRequestDtoA();
+       CreateTaskBoardRequestDto testTaskBoardDtoA = TestTaskBoardData.createTestTaskBoardRequestDtoA();
 
        String taskBoardJson = objectMapper.writeValueAsString(testTaskBoardDtoA);
 
@@ -190,7 +190,7 @@ public class TaskBoardControllerIntegrationTests {
         TaskBoardEntity testTaskBoardA = TestTaskBoardData.createTestTaskBoardEntityA();
         taskBoardRepository.save(testTaskBoardA);
 
-        TaskBoardRequestDto testTaskBoardDto = TestTaskBoardData.createTestTaskBoardRequestDtoA();
+        CreateTaskBoardRequestDto testTaskBoardDto = TestTaskBoardData.createTestTaskBoardRequestDtoA();
         testTaskBoardDto.setTaskBoardName("UPDATED");
         String taskBoardJson = objectMapper.writeValueAsString(testTaskBoardDto);
 

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import com.jonassavas.spring_task_api.domain.dto.task.CreateTaskRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task.TaskDto;
-import com.jonassavas.spring_task_api.domain.dto.task.TaskRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task.UpdateTaskRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
@@ -25,18 +24,15 @@ import jakarta.transaction.Transactional;
 public class TaskServiceImpl implements TaskService{
     private final TaskRepository taskRepository;
     private final TaskGroupRepository taskGroupRepository;
-    private final Mapper<TaskEntity, TaskRequestDto> taskRequestMapper;
     private final Mapper<TaskEntity, TaskDto> taskMapper;
     private final SecurityService securityService;
 
     public TaskServiceImpl(TaskRepository taskRepository, 
                             TaskGroupRepository taskGroupRepository,
-                            Mapper<TaskEntity, TaskRequestDto> taskRequestMapper,
                             Mapper<TaskEntity, TaskDto> taskMapper,
                             SecurityService securityService){
         this.taskRepository = taskRepository;
         this.taskGroupRepository = taskGroupRepository;
-        this.taskRequestMapper = taskRequestMapper;
         this.taskMapper = taskMapper;
         this.securityService = securityService;
     }
@@ -51,7 +47,9 @@ public class TaskServiceImpl implements TaskService{
                 .orElseThrow(() -> new EntityNotFoundException(
                         "TaskGroup not found or not owned by user"));
 
-        TaskEntity taskEntity = taskRequestMapper.mapFrom(taskRequestDto);
+        TaskEntity taskEntity = TaskEntity.builder()
+        .taskName(taskRequestDto.getTaskName())
+        .build();
 
         taskGroup.addTask(taskEntity);
 

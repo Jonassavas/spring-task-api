@@ -1,6 +1,7 @@
 package com.jonassavas.util;
 
-import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.CreateTaskGroupRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.UpdateTaskGroupRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
 
@@ -30,31 +31,52 @@ public class TestTaskGroupData {
     }
 
     
-    // DTOs -------------------------------------------------------------
-    public static TaskGroupRequestDto createTaskGroupRequestDtoA(TaskBoardEntity taskBoard){
-        return TaskGroupRequestDto.builder()
-                                .taskBoardId(taskBoard.getId())
+    // CREATE DTOs -------------------------------------------------------------
+    public static CreateTaskGroupRequestDto createTaskGroupRequestDtoA(TaskBoardEntity taskBoard){
+        return CreateTaskGroupRequestDto.builder()
                                 .taskGroupName("Task Group A")
                                 .build();
     }
 
-    public static TaskGroupRequestDto createTaskGroupDtoA(TaskBoardEntity taskBoard){
-        return TaskGroupRequestDto.builder()
-                                .taskBoardId(taskBoard.getId())
+    public static CreateTaskGroupRequestDto createTaskGroupDtoA(TaskBoardEntity taskBoard){
+        return CreateTaskGroupRequestDto.builder()
                                 .taskGroupName("Task Group A")
                                 .build();
     }
 
-    public static TaskGroupRequestDto createTaskGroupDtoB(TaskBoardEntity taskBoard){
-        return TaskGroupRequestDto.builder()
-                                .taskBoardId(taskBoard.getId())
+    public static CreateTaskGroupRequestDto createTaskGroupDtoB(TaskBoardEntity taskBoard){
+        return CreateTaskGroupRequestDto.builder()
                                 .taskGroupName("Task Group B")
                                 .build();
     }
 
-    public static TaskGroupRequestDto createTaskGroupDtoC(TaskBoardEntity taskBoard){
-        return TaskGroupRequestDto.builder()
-                                .taskBoardId(taskBoard.getId())
+    public static CreateTaskGroupRequestDto createTaskGroupDtoC(TaskBoardEntity taskBoard){
+        return CreateTaskGroupRequestDto.builder()
+                                .taskGroupName("Task Group C")
+                                .build();
+    }
+
+    // UPDATE DTOs -------------------------------------------------------------
+    public static UpdateTaskGroupRequestDto updateTaskGroupRequestDtoA(TaskBoardEntity taskBoard){
+        return UpdateTaskGroupRequestDto.builder()
+                                .taskGroupName("Task Group A")
+                                .build();
+    }
+
+    public static UpdateTaskGroupRequestDto updateTaskGroupDtoA(TaskBoardEntity taskBoard){
+        return UpdateTaskGroupRequestDto.builder()
+                                .taskGroupName("Task Group A")
+                                .build();
+    }
+
+    public static UpdateTaskGroupRequestDto updateTaskGroupDtoB(TaskBoardEntity taskBoard){
+        return UpdateTaskGroupRequestDto.builder()
+                                .taskGroupName("Task Group B")
+                                .build();
+    }
+
+    public static UpdateTaskGroupRequestDto updateTaskGroupDtoC(TaskBoardEntity taskBoard){
+        return UpdateTaskGroupRequestDto.builder()
                                 .taskGroupName("Task Group C")
                                 .build();
     }

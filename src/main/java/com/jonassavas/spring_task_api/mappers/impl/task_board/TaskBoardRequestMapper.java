@@ -3,12 +3,12 @@ package com.jonassavas.spring_task_api.mappers.impl.task_board;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
-import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_board.CreateTaskBoardRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.mappers.Mapper;
 
 @Component
-public class TaskBoardRequestMapper implements Mapper<TaskBoardEntity, TaskBoardRequestDto>{
+public class TaskBoardRequestMapper implements Mapper<TaskBoardEntity, CreateTaskBoardRequestDto>{
    private ModelMapper modelMapper;
 
     public TaskBoardRequestMapper(ModelMapper modelMapper){
@@ -21,14 +21,14 @@ public class TaskBoardRequestMapper implements Mapper<TaskBoardEntity, TaskBoard
     }
     
     @Override
-    public TaskBoardRequestDto mapTo(TaskBoardEntity taskBoardEntity){
-        TaskBoardRequestDto dto = modelMapper.map(taskBoardEntity, TaskBoardRequestDto.class);
+    public CreateTaskBoardRequestDto mapTo(TaskBoardEntity taskBoardEntity){
+        CreateTaskBoardRequestDto dto = modelMapper.map(taskBoardEntity, CreateTaskBoardRequestDto.class);
         //dto.setTaskBoardId(taskBoardEntity.getTaskBoard().getId());
         return dto;
     }
 
     @Override
-    public TaskBoardEntity mapFrom(TaskBoardRequestDto taskBoardDto){
+    public TaskBoardEntity mapFrom(CreateTaskBoardRequestDto taskBoardDto){
         return modelMapper.map(taskBoardDto, TaskBoardEntity.class);
     } 
 }

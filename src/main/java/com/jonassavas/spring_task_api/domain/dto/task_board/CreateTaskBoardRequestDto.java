@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class TaskBoardRequestDto {
+public class CreateTaskBoardRequestDto {
     private String taskBoardName;   
 }

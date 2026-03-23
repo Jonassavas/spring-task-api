@@ -1,7 +1,7 @@
 package com.jonassavas.util;
 
 import com.jonassavas.spring_task_api.domain.dto.task.CreateTaskRequestDto;
-import com.jonassavas.spring_task_api.domain.dto.task.TaskRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task.UpdateTaskRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
 
@@ -56,29 +56,29 @@ public class TestTaskData {
     }
 
     // UPDATE DTOs -------------------------------------------------------------
-    public static TaskRequestDto updateTestTaskRequestDtoA(TaskGroupEntity taskGroup){
-        return TaskRequestDto.builder()
+    public static UpdateTaskRequestDto updateTestTaskRequestDtoA(TaskGroupEntity taskGroup){
+        return UpdateTaskRequestDto.builder()
                         .taskGroupId(taskGroup.getId())
                         .taskName("Task A")
                         .build();
     }
 
-    public static TaskRequestDto updateTestTaskRequestDtoB(TaskGroupEntity taskGroup){
-        return TaskRequestDto.builder()
+    public static UpdateTaskRequestDto updateTestTaskRequestDtoB(TaskGroupEntity taskGroup){
+        return UpdateTaskRequestDto.builder()
                         .taskGroupId(taskGroup.getId())
                         .taskName("Task B")
                         .build();
     }
 
-    public static TaskRequestDto updateTestTaskRequestDtoC(TaskGroupEntity taskGroup){
-        return TaskRequestDto.builder()
+    public static UpdateTaskRequestDto updateTestTaskRequestDtoC(TaskGroupEntity taskGroup){
+        return UpdateTaskRequestDto.builder()
                         .taskGroupId(taskGroup.getId())
                         .taskName("Task C")
                         .build();
     }
 
-    public static TaskRequestDto updateTestRequestTaskDto(TaskGroupEntity taskGroup){
-        return TaskRequestDto.builder()
+    public static UpdateTaskRequestDto updateTestRequestTaskDto(TaskGroupEntity taskGroup){
+        return UpdateTaskRequestDto.builder()
                             .taskName("Create Task Dto")
                             .taskGroupId(taskGroup.getId())
                             .build();

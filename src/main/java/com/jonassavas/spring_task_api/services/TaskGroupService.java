@@ -2,12 +2,13 @@ package com.jonassavas.spring_task_api.services;
 
 import java.util.List;
 
+import com.jonassavas.spring_task_api.domain.dto.task_group.CreateTaskGroupRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupDto;
-import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupWithTasksDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.UpdateTaskGroupRequestDto;
 
 public interface TaskGroupService {
-    TaskGroupDto createTaskGroup(Long boardId, TaskGroupRequestDto taskGroupRequestDto);
+    TaskGroupDto createTaskGroup(Long boardId, CreateTaskGroupRequestDto taskGroupRequestDto);
 
     List<TaskGroupDto> listGroupsOnBoard(Long boardId);
 
@@ -21,5 +22,5 @@ public interface TaskGroupService {
 
     void deleteAllTasks(Long id);
 
-    TaskGroupDto update(Long id, TaskGroupRequestDto taskGroupRequestDto);
+    TaskGroupDto update(Long id, UpdateTaskGroupRequestDto taskGroupRequestDto);
 }

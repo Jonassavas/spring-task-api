@@ -5,8 +5,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.jonassavas.spring_task_api.domain.dto.task.CreateTaskRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task.TaskDto;
 import com.jonassavas.spring_task_api.domain.dto.task.TaskRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task.UpdateTaskRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
 import com.jonassavas.spring_task_api.mappers.Mapper;
@@ -40,7 +42,7 @@ public class TaskServiceImpl implements TaskService{
     }
 
     @Override
-    public TaskDto createTask(Long groupId, TaskRequestDto taskRequestDto) {
+    public TaskDto createTask(Long groupId, CreateTaskRequestDto taskRequestDto) {
 
         String username = securityService.getCurrentUsername();
 
@@ -93,7 +95,7 @@ public class TaskServiceImpl implements TaskService{
 
 
     @Override
-    public TaskDto update(Long id, TaskRequestDto taskRequestDto) {
+    public TaskDto update(Long id, UpdateTaskRequestDto taskRequestDto) {
 
         String username = securityService.getCurrentUsername();
 

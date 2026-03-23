@@ -6,8 +6,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.jonassavas.spring_task_api.domain.dto.task_board.CreateTaskBoardRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardDto;
-import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_board.UpdateTaskBoardRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.UserEntity;
 import com.jonassavas.spring_task_api.mappers.Mapper;
@@ -23,13 +24,13 @@ import jakarta.transaction.Transactional;
 public class TaskBoardServiceImpl implements TaskBoardService {
 
     private TaskBoardRepository taskBoardRepository;
-    private Mapper<TaskBoardEntity, TaskBoardRequestDto> taskBoardRequestMapper;
+    private Mapper<TaskBoardEntity, CreateTaskBoardRequestDto> taskBoardRequestMapper;
     private Mapper<TaskBoardEntity, TaskBoardDto> taskBoardMapper;
     private final SecurityService securityService;
 
 
     public TaskBoardServiceImpl(TaskBoardRepository taskBoardRepository,
-                                Mapper<TaskBoardEntity, TaskBoardRequestDto> taskBoardRequestMapper,
+                                Mapper<TaskBoardEntity, CreateTaskBoardRequestDto> taskBoardRequestMapper,
                                 Mapper<TaskBoardEntity, TaskBoardDto> taskBoardMapper,
                                 SecurityService securityService){
         this.taskBoardRepository = taskBoardRepository;
@@ -39,16 +40,18 @@ public class TaskBoardServiceImpl implements TaskBoardService {
     }
 
     @Override
-    public TaskBoardDto createTaskBoard(TaskBoardRequestDto requestDto){
+    public TaskBoardDto createTaskBoard(CreateTaskBoardRequestDto requestDto){
         UserEntity user = securityService.getCurrentUser();
-        TaskBoardEntity taskBoard = taskBoardRequestMapper.mapFrom(requestDto);
-        taskBoard.setOwner(user);
+        TaskBoardEntity taskBoard = TaskBoardEntity.builder()
+        .taskBoardName(requestDto.getTaskBoardName())
+        .owner(user)
+        .build(); 
         TaskBoardEntity savedTaskBoard = taskBoardRepository.save(taskBoard);
         return taskBoardMapper.mapTo(savedTaskBoard);
     } 
 
     @Override
-    public TaskBoardDto update(Long id, TaskBoardRequestDto requestDto){
+    public TaskBoardDto update(Long id, UpdateTaskBoardRequestDto requestDto){
         UserEntity user = securityService.getCurrentUser();
 
         TaskBoardEntity board = taskBoardRepository

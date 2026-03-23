@@ -13,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jonassavas.spring_task_api.domain.dto.task_board.CreateTaskBoardRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardDto;
-import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_board.UpdateTaskBoardRequestDto;
 import com.jonassavas.spring_task_api.services.TaskBoardService;
 
 
@@ -30,7 +31,7 @@ public class TaskBoardController {
     }
 
     @PostMapping
-    public ResponseEntity<TaskBoardDto> createTaskBoard(@RequestBody TaskBoardRequestDto requestDto) {
+    public ResponseEntity<TaskBoardDto> createTaskBoard(@RequestBody CreateTaskBoardRequestDto requestDto) {
         TaskBoardDto responseDto = taskBoardService.createTaskBoard(requestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto); 
@@ -57,7 +58,7 @@ public class TaskBoardController {
     @PatchMapping("/{boardId}")
     public ResponseEntity<TaskBoardDto> updateTaskBoard(
             @PathVariable Long boardId,
-            @RequestBody TaskBoardRequestDto requestDto){
+            @RequestBody UpdateTaskBoardRequestDto requestDto){
 
         TaskBoardDto responseDto =
                 taskBoardService.update(boardId, requestDto);

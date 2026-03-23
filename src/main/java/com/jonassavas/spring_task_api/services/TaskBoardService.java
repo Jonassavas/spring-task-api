@@ -3,16 +3,17 @@ package com.jonassavas.spring_task_api.services;
 import java.util.List;
 import java.util.Optional;
 
+import com.jonassavas.spring_task_api.domain.dto.task_board.CreateTaskBoardRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardDto;
-import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_board.UpdateTaskBoardRequestDto;
 
 
 public interface TaskBoardService {
 
-    TaskBoardDto createTaskBoard(TaskBoardRequestDto requestDto);
+    TaskBoardDto createTaskBoard(CreateTaskBoardRequestDto requestDto);
 
     // Save, Delete, Read, Update
-    TaskBoardDto update(Long id, TaskBoardRequestDto requestDto);
+    TaskBoardDto update(Long id, UpdateTaskBoardRequestDto requestDto);
 
     void delete(Long id);
 

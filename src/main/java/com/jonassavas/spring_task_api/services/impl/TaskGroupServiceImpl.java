@@ -5,9 +5,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import com.jonassavas.spring_task_api.domain.dto.task_group.CreateTaskGroupRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupDto;
-import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupWithTasksDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.UpdateTaskGroupRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
 import com.jonassavas.spring_task_api.mappers.Mapper;
@@ -23,29 +24,26 @@ import jakarta.transaction.Transactional;
 @Transactional
 public class TaskGroupServiceImpl implements TaskGroupService{
     
-    private TaskGroupRepository taskGroupRepository;
-    private TaskBoardRepository taskBoardRepository;
-    private Mapper<TaskGroupEntity, TaskGroupRequestDto> taskGroupRequestMapper;
-    private Mapper<TaskGroupEntity, TaskGroupWithTasksDto> taskGroupWithTasksMapper;
-    private Mapper<TaskGroupEntity, TaskGroupDto> taskGroupMapper;
+    private final TaskGroupRepository taskGroupRepository;
+    private final TaskBoardRepository taskBoardRepository;
+    private final Mapper<TaskGroupEntity, TaskGroupWithTasksDto> taskGroupWithTasksMapper;
+    private final Mapper<TaskGroupEntity, TaskGroupDto> taskGroupMapper;
     private final SecurityService securityService;
 
     public TaskGroupServiceImpl(TaskGroupRepository taskGroupRepository,
                                 TaskBoardRepository taskBoardRepository,
-                                Mapper<TaskGroupEntity, TaskGroupRequestDto> taskGroupRequestMapper,
                                 Mapper<TaskGroupEntity, TaskGroupWithTasksDto> taskGroupWithTasksMapper,
                                 Mapper<TaskGroupEntity, TaskGroupDto> taskGroupMapper,
                                 SecurityService securityService){
         this.taskGroupRepository = taskGroupRepository;
         this.taskBoardRepository = taskBoardRepository;
-        this.taskGroupRequestMapper = taskGroupRequestMapper;
         this.taskGroupWithTasksMapper = taskGroupWithTasksMapper;
         this.taskGroupMapper = taskGroupMapper;
         this.securityService = securityService;
     }
 
     @Override
-    public TaskGroupDto createTaskGroup(Long boardId, TaskGroupRequestDto dto){
+    public TaskGroupDto createTaskGroup(Long boardId, CreateTaskGroupRequestDto dto){
 
         String username = securityService.getCurrentUsername();
 
@@ -55,14 +53,16 @@ public class TaskGroupServiceImpl implements TaskGroupService{
                 "Taskboard not found or not owned by user"
             ));
 
-        TaskGroupEntity taskGroup = taskGroupRequestMapper.mapFrom(dto);
+        TaskGroupEntity taskGroup = TaskGroupEntity.builder()
+        .taskGroupName(dto.getTaskGroupName())
+        .build();
 
-        taskBoard.addTaskGroup(taskGroup); // Also sets the taskBoard for the taskgroup
+        taskBoard.addTaskGroup(taskGroup); // sets relationship
 
         TaskGroupEntity saved = taskGroupRepository.save(taskGroup);
 
         return taskGroupMapper.mapTo(saved);
-    }
+    } 
 
     @Override
     public List<TaskGroupDto> listGroupsOnBoard(Long boardId){
@@ -113,7 +113,7 @@ public class TaskGroupServiceImpl implements TaskGroupService{
     }
 
     @Override
-    public TaskGroupDto update(Long id, TaskGroupRequestDto dto){
+    public TaskGroupDto update(Long id, UpdateTaskGroupRequestDto dto){
 
         String username = securityService.getCurrentUsername();
 

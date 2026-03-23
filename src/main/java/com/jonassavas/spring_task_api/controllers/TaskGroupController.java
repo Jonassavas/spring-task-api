@@ -13,9 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jonassavas.spring_task_api.domain.dto.task_group.CreateTaskGroupRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupDto;
-import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupWithTasksDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.UpdateTaskGroupRequestDto;
 import com.jonassavas.spring_task_api.services.TaskGroupService;
 
 @RestController
@@ -31,7 +32,7 @@ public class TaskGroupController {
     @PostMapping
     public ResponseEntity<TaskGroupDto> createTaskGroup(
             @PathVariable Long boardId,
-            @RequestBody TaskGroupRequestDto requestDto) {
+            @RequestBody CreateTaskGroupRequestDto requestDto) {
 
         TaskGroupDto responseDto =
                 taskGroupService.createTaskGroup(boardId, requestDto);
@@ -62,7 +63,7 @@ public class TaskGroupController {
     @PatchMapping("/{groupId}")
     public ResponseEntity<TaskGroupDto> updateTaskGroup(
             @PathVariable Long groupId,
-            @RequestBody TaskGroupRequestDto requestDto) {
+            @RequestBody UpdateTaskGroupRequestDto requestDto) {
 
         TaskGroupDto responseDto =
                 taskGroupService.update(groupId, requestDto);

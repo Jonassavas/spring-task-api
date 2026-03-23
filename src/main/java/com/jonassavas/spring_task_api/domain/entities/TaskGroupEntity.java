@@ -52,6 +52,5 @@ public class TaskGroupEntity {
 
     public void removeTask(TaskEntity task) {
         tasks.remove(task);
-        //task.setTaskGroup(null);
     }
 }

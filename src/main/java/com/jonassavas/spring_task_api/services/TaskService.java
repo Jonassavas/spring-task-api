@@ -14,5 +14,5 @@ public interface TaskService {
 
     TaskDto update(Long id, TaskRequestDto dto);
 
-    List<TaskDto> findAll();
+    List<TaskDto> findByGroup(Long groupId);
 }

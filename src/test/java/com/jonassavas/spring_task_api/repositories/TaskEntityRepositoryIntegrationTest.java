@@ -13,9 +13,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
+import com.jonassavas.spring_task_api.domain.entities.UserEntity;
 import com.jonassavas.util.TestTaskBoardData;
 import com.jonassavas.util.TestTaskData;
 import com.jonassavas.util.TestTaskGroupData;
+import com.jonassavas.util.TestUserData;
 
 import jakarta.transaction.Transactional;
 
@@ -25,16 +27,21 @@ public class TaskEntityRepositoryIntegrationTest {
     
     private TaskRepository underTest;
 
+    private UserRepository userRepository;
     private TaskBoardRepository taskBoardRepository;
     private TaskGroupRepository taskGroupRepository;
 
+    private UserEntity user;
     private TaskBoardEntity taskBoard; 
     private TaskGroupEntity taskGroup; 
 
     @BeforeEach
     public void setUp(){
+        user = userRepository.save(
+            TestUserData.createTestUserEntityA()
+        );
         taskBoard = taskBoardRepository.save(
-            TestTaskBoardData.createTestTaskBoardEntityA()
+            TestTaskBoardData.createTestTaskBoardEntityA(user)
         );
         taskGroup = taskGroupRepository.save(
             TestTaskGroupData.createTaskGroupEntityA(taskBoard)
@@ -42,10 +49,12 @@ public class TaskEntityRepositoryIntegrationTest {
     }
 
     @Autowired
-    public TaskEntityRepositoryIntegrationTest(TaskRepository underTest, 
+    public TaskEntityRepositoryIntegrationTest(TaskRepository underTest,
+                                            UserRepository userRepository,
                                             TaskBoardRepository taskBoardRepository, 
                                             TaskGroupRepository taskGroupRepository){
         this.underTest = underTest;
+        this.userRepository = userRepository;
         this.taskBoardRepository = taskBoardRepository;
         this.taskGroupRepository = taskGroupRepository;
     }

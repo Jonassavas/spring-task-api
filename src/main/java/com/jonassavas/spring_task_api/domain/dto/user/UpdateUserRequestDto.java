@@ -10,7 +10,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UserRegisterRequestDto {
+public class UpdateUserRequestDto {
     private String username;
+
     private String password;
+
+    private String email;
 }

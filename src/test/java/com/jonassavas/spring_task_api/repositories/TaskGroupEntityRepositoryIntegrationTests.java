@@ -13,9 +13,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
+import com.jonassavas.spring_task_api.domain.entities.UserEntity;
 import com.jonassavas.util.TestTaskBoardData;
 import com.jonassavas.util.TestTaskData;
 import com.jonassavas.util.TestTaskGroupData;
+import com.jonassavas.util.TestUserData;
 
 import jakarta.transaction.Transactional;
 
@@ -25,20 +27,29 @@ public class TaskGroupEntityRepositoryIntegrationTests {
     
     TaskGroupRepository underTest;
     private TaskBoardRepository taskBoardRepository;
+    private UserRepository userRepository;
     
+    // TaskBoardEntities require a user
+    private UserEntity user;
     private TaskBoardEntity taskBoard; 
 
     @Autowired
     public TaskGroupEntityRepositoryIntegrationTests(TaskGroupRepository underTest,
-                                                    TaskBoardRepository taskBoardRepository){
+                                                    TaskBoardRepository taskBoardRepository,
+                                                    UserRepository userRepository){
         this.underTest = underTest;
         this.taskBoardRepository = taskBoardRepository;
+        this.userRepository = userRepository;
     }
 
     @BeforeEach
     public void setUp(){
+        user = userRepository.save(
+            TestUserData.createTestUserEntityA()
+        );
+       
         taskBoard = taskBoardRepository.save(
-            TestTaskBoardData.createTestTaskBoardEntityA()
+            TestTaskBoardData.createTestTaskBoardEntityA(user)
         ); 
     }
 

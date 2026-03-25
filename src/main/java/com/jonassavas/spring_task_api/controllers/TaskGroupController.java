@@ -19,6 +19,8 @@ import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupWithTasksDt
 import com.jonassavas.spring_task_api.domain.dto.task_group.UpdateTaskGroupRequestDto;
 import com.jonassavas.spring_task_api.services.TaskGroupService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/taskboards/{boardId}/groups")
 public class TaskGroupController {
@@ -32,7 +34,7 @@ public class TaskGroupController {
     @PostMapping
     public ResponseEntity<TaskGroupDto> createTaskGroup(
             @PathVariable Long boardId,
-            @RequestBody CreateTaskGroupRequestDto requestDto) {
+            @Valid @RequestBody CreateTaskGroupRequestDto requestDto) {
 
         TaskGroupDto responseDto =
                 taskGroupService.createTaskGroup(boardId, requestDto);
@@ -63,7 +65,7 @@ public class TaskGroupController {
     @PatchMapping("/{groupId}")
     public ResponseEntity<TaskGroupDto> updateTaskGroup(
             @PathVariable Long groupId,
-            @RequestBody UpdateTaskGroupRequestDto requestDto) {
+            @Valid @RequestBody UpdateTaskGroupRequestDto requestDto) {
 
         TaskGroupDto responseDto =
                 taskGroupService.update(groupId, requestDto);

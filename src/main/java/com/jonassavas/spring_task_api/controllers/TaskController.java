@@ -17,6 +17,8 @@ import com.jonassavas.spring_task_api.domain.dto.task.TaskDto;
 import com.jonassavas.spring_task_api.domain.dto.task.UpdateTaskRequestDto;
 import com.jonassavas.spring_task_api.services.TaskService;
 
+import jakarta.validation.Valid;
+
 @RestController
 public class TaskController {
 
@@ -29,7 +31,7 @@ public class TaskController {
     @PostMapping("/groups/{groupId}/tasks")
     public ResponseEntity<TaskDto> createTask(
             @PathVariable Long groupId,
-            @RequestBody CreateTaskRequestDto dto) {
+            @Valid @RequestBody CreateTaskRequestDto dto) {
 
         TaskDto responseDto = taskService.createTask(groupId, dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
@@ -46,7 +48,7 @@ public class TaskController {
     @PatchMapping("/tasks/{taskId}")
     public ResponseEntity<TaskDto> update(
             @PathVariable Long taskId,
-            @RequestBody UpdateTaskRequestDto requestDto) {
+            @Valid @RequestBody UpdateTaskRequestDto requestDto) {
 
         TaskDto responseDto = taskService.update(taskId, requestDto);
         return ResponseEntity.ok(responseDto);

@@ -3,7 +3,6 @@ package com.jonassavas.spring_task_api.domain.dto.task_group;
 import java.util.List;
 
 import com.jonassavas.spring_task_api.domain.dto.task.TaskDto;
-import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

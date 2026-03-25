@@ -12,6 +12,8 @@ import com.jonassavas.spring_task_api.domain.dto.auth.LoginRequest;
 import com.jonassavas.spring_task_api.domain.dto.auth.RegisterRequest;
 import com.jonassavas.spring_task_api.services.AuthService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -23,14 +25,16 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest requestDto) {
+    public ResponseEntity<AuthResponse> register(
+            @Valid @RequestBody RegisterRequest requestDto) {
         // Register user and return JWT token
         AuthResponse response = authService.register(requestDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest requestDto) {
+    public ResponseEntity<AuthResponse> login(
+            @Valid @RequestBody LoginRequest requestDto) {
         AuthResponse response = authService.login(requestDto);
         return ResponseEntity.ok(response);
     }

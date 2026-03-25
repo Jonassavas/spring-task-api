@@ -18,6 +18,8 @@ import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardDto;
 import com.jonassavas.spring_task_api.domain.dto.task_board.UpdateTaskBoardRequestDto;
 import com.jonassavas.spring_task_api.services.TaskBoardService;
 
+import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("/taskboards")
@@ -31,7 +33,8 @@ public class TaskBoardController {
     }
 
     @PostMapping
-    public ResponseEntity<TaskBoardDto> createTaskBoard(@RequestBody CreateTaskBoardRequestDto requestDto) {
+    public ResponseEntity<TaskBoardDto> createTaskBoard(
+            @Valid @RequestBody CreateTaskBoardRequestDto requestDto) {
         TaskBoardDto responseDto = taskBoardService.createTaskBoard(requestDto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto); 
@@ -58,7 +61,7 @@ public class TaskBoardController {
     @PatchMapping("/{boardId}")
     public ResponseEntity<TaskBoardDto> updateTaskBoard(
             @PathVariable Long boardId,
-            @RequestBody UpdateTaskBoardRequestDto requestDto){
+            @Valid @RequestBody UpdateTaskBoardRequestDto requestDto){
 
         TaskBoardDto responseDto =
                 taskBoardService.update(boardId, requestDto);

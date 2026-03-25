@@ -11,8 +11,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -30,17 +28,13 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank
-    @Column(unique = true, nullable = false, length = 50)
+    @Column(unique = true, nullable = false, length = 30)
     private String username;
 
-    @NotBlank
-    @Column(nullable = false)
+    @Column(nullable = false, length = 100)
     private String password;
 
-    @NotBlank
-    @Email
-    @Column(unique = true, nullable = false, length = 100)
+    @Column(unique = true, nullable = false, length = 254)
     private String email;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)

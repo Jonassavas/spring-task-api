@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,12 +20,16 @@ import com.jonassavas.spring_task_api.domain.dto.task_board.CreateTaskBoardReque
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
+import com.jonassavas.spring_task_api.domain.entities.UserEntity;
 import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
 import com.jonassavas.spring_task_api.repositories.TaskGroupRepository;
 import com.jonassavas.spring_task_api.repositories.TaskRepository;
+import com.jonassavas.spring_task_api.repositories.UserRepository;
+import com.jonassavas.spring_task_api.security.JwtService;
 import com.jonassavas.util.TestTaskBoardData;
 import com.jonassavas.util.TestTaskData;
 import com.jonassavas.util.TestTaskGroupData;
+import com.jonassavas.util.TestUserData;
 
 
 @SpringBootTest
@@ -39,8 +44,13 @@ public class TaskBoardControllerIntegrationTests {
     private TaskRepository taskRepository;
     private TaskGroupRepository taskGroupRepository; 
     private TaskBoardRepository taskBoardRepository;
+    private UserRepository userRepository;
 
-    // Add user here?
+    private JwtService jwtService;
+
+    private String token;
+    private UserEntity user;
+
 
     @Autowired
     public TaskBoardControllerIntegrationTests(
@@ -48,12 +58,25 @@ public class TaskBoardControllerIntegrationTests {
             ObjectMapper objectMapper,
             TaskRepository taskRepository,
             TaskGroupRepository taskGroupRepository,
-            TaskBoardRepository taskBoardRepository) {
+            TaskBoardRepository taskBoardRepository,
+            UserRepository userRepository,
+            JwtService jwtService) {
         this.mockMvc = mockMvc;
         this.objectMapper = objectMapper;
         this.taskRepository = taskRepository;
         this.taskGroupRepository = taskGroupRepository;
         this.taskBoardRepository = taskBoardRepository; 
+        this.userRepository = userRepository;
+        this.jwtService = jwtService;
+    }
+
+    @BeforeEach
+    public void setUp(){
+        user = userRepository.save(
+            TestUserData.createTestUserEntityA()   
+        );
+
+        token = jwtService.generateToken(user.getUsername());
     }
 
     // CREATE -----------------------------------------------------------
@@ -66,7 +89,8 @@ public class TaskBoardControllerIntegrationTests {
         String taskBoardJson = objectMapper.writeValueAsString(testTaskBoardDtoA);
 
         mockMvc.perform(
-        MockMvcRequestBuilders.post("/boards")
+        MockMvcRequestBuilders.post("/taskboards")
+            .header("Authorization", "Bearer " + token)
             .contentType(MediaType.APPLICATION_JSON)
             .content(taskBoardJson)
         ).andExpect(
@@ -81,7 +105,8 @@ public class TaskBoardControllerIntegrationTests {
        String taskBoardJson = objectMapper.writeValueAsString(testTaskBoardDtoA);
 
        mockMvc.perform(
-        MockMvcRequestBuilders.post("/boards")
+        MockMvcRequestBuilders.post("/taskboards")
+            .header("Authorization", "Bearer " + token)
             .contentType(MediaType.APPLICATION_JSON)
             .content(taskBoardJson)
        ).andExpect(
@@ -95,7 +120,7 @@ public class TaskBoardControllerIntegrationTests {
 
     @Test
     public void testThatDeleteTaskBoardReturnsHttp204() throws Exception{
-        TaskBoardEntity testTaskBoardEntityA = TestTaskBoardData.createTestTaskBoardEntityA();
+        TaskBoardEntity testTaskBoardEntityA = TestTaskBoardData.createTestTaskBoardEntityA(user);
         taskBoardRepository.save(testTaskBoardEntityA);
 
         assertThat(taskBoardRepository
@@ -103,7 +128,8 @@ public class TaskBoardControllerIntegrationTests {
                     .equals(testTaskBoardEntityA));
 
         mockMvc.perform(
-            MockMvcRequestBuilders.delete("/boards/" + testTaskBoardEntityA.getId())
+            MockMvcRequestBuilders.delete("/taskboards/" + testTaskBoardEntityA.getId())
+            .header("Authorization", "Bearer " + token)
             .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(
             MockMvcResultMatchers.status().isNoContent());
@@ -115,17 +141,18 @@ public class TaskBoardControllerIntegrationTests {
 
     @Test
     public void testThatDeleteTaskBoardDeletesCorrectBoard() throws Exception{
-        TaskBoardEntity testTaskBoardEntityA = TestTaskBoardData.createTestTaskBoardEntityA();
+        TaskBoardEntity testTaskBoardEntityA = TestTaskBoardData.createTestTaskBoardEntityA(user);
         taskBoardRepository.save(testTaskBoardEntityA);
 
-        TaskBoardEntity testTaskBoardEntityB = TestTaskBoardData.createTestTaskBoardEntityB();
+        TaskBoardEntity testTaskBoardEntityB = TestTaskBoardData.createTestTaskBoardEntityB(user);
         taskBoardRepository.save(testTaskBoardEntityB);
 
         assertThat(taskBoardRepository
                     .findAll().size()).isEqualTo(2);
 
         mockMvc.perform(
-            MockMvcRequestBuilders.delete("/boards/" + testTaskBoardEntityA.getId())
+            MockMvcRequestBuilders.delete("/taskboards/" + testTaskBoardEntityA.getId())
+            .header("Authorization", "Bearer " + token)
             .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(
             MockMvcResultMatchers.status().isNoContent());
@@ -139,7 +166,7 @@ public class TaskBoardControllerIntegrationTests {
 
     @Test
     public void testThatDeleteTaskBoardDeletesTaskGroupsAndTasks() throws Exception{
-        TaskBoardEntity testTaskBoardEntityA = TestTaskBoardData.createTestTaskBoardEntityA();
+        TaskBoardEntity testTaskBoardEntityA = TestTaskBoardData.createTestTaskBoardEntityA(user);
         taskBoardRepository.save(testTaskBoardEntityA);
 
         TaskGroupEntity testTaskGroupEntityA = TestTaskGroupData.createTaskGroupEntityA(testTaskBoardEntityA);
@@ -154,7 +181,8 @@ public class TaskBoardControllerIntegrationTests {
                     .findAll().size()).isEqualTo(1);
 
         mockMvc.perform(
-            MockMvcRequestBuilders.delete("/boards/" + testTaskBoardEntityA.getId())
+            MockMvcRequestBuilders.delete("/taskboards/" + testTaskBoardEntityA.getId())
+            .header("Authorization", "Bearer " + token)
             .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(
             MockMvcResultMatchers.status().isNoContent());
@@ -169,11 +197,12 @@ public class TaskBoardControllerIntegrationTests {
 
     @Test
     public void testThatListTaskBoardsReturnsHttpStatus200() throws Exception{
-        TaskBoardEntity testTaskBoardA = TestTaskBoardData.createTestTaskBoardEntityA();
+        TaskBoardEntity testTaskBoardA = TestTaskBoardData.createTestTaskBoardEntityA(user);
         taskBoardRepository.save(testTaskBoardA);
 
         mockMvc.perform(
-            MockMvcRequestBuilders.get("/boards")
+            MockMvcRequestBuilders.get("/taskboards")
+            .header("Authorization", "Bearer " + token)
             .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(
             MockMvcResultMatchers.jsonPath("$[0].id").isNumber()
@@ -187,7 +216,7 @@ public class TaskBoardControllerIntegrationTests {
 
     @Test
     public void testThatUpdateTaskBoardReturnsHttp200() throws Exception{
-        TaskBoardEntity testTaskBoardA = TestTaskBoardData.createTestTaskBoardEntityA();
+        TaskBoardEntity testTaskBoardA = TestTaskBoardData.createTestTaskBoardEntityA(user);
         taskBoardRepository.save(testTaskBoardA);
 
         CreateTaskBoardRequestDto testTaskBoardDto = TestTaskBoardData.createTestTaskBoardRequestDtoA();
@@ -195,7 +224,8 @@ public class TaskBoardControllerIntegrationTests {
         String taskBoardJson = objectMapper.writeValueAsString(testTaskBoardDto);
 
         mockMvc.perform(
-            MockMvcRequestBuilders.patch("/boards/" + testTaskBoardA.getId())
+            MockMvcRequestBuilders.patch("/taskboards/" + testTaskBoardA.getId())
+            .header("Authorization", "Bearer " + token)
             .contentType(MediaType.APPLICATION_JSON)
             .content(taskBoardJson)
         ).andExpect(

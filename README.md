@@ -1,5 +1,77 @@
-# spring-task-api
+# Spring Task API
 
-This repository contains an in progress REST API for a taskmanager like Trello. I found Trello boards to be the most effective way for me to track the assignments and deadlines during my university studies. However, I had to customize the experience quite heavily with extensions that allowed me to for instance set colors for the specific cards (task groups), and crucially to allow me to have the layout of these task groups to be stacked or customized to my liking.
+> **Note:** This project is currently in development. The API is functional for core features, but more enhancements and frontend integration will soon be available!
 
-This API will save your configuration with specified task group colors, layout structure, and easily create/delete and manage tasks in your task groups. These settings will be saved to a PostGreSQL database here, and utilized in a frontend application in the future.
+A RESTful backend API for a task management system inspired by Trello. This project provides a scalable way to manage users, task boards, task groups, and tasks, with JWT-based authentication and PostgreSQL persistence. The project is primarily developed for learning and personal use, as I found Trello boards to be the most effective way to track assignments and deadlines during my studies. However, I had to customize the experience heavily using browser extensions to achieve the exact functionality I wanted. This project aims to replicate and improve that experience in a fully customizable, backend-driven solution.
+
+---
+
+## Features
+
+- **User Authentication** – Register and login with JWT-based security.  
+- **Task Boards** – Create, update, and manage boards for organizing tasks.  
+- **Task Groups** – Organize tasks into customizable groups within boards.  
+- **Tasks** – Create, update, move between groups, and delete tasks.  
+- **Persistence** – All data is stored in a PostgreSQL database.  
+- **Validation & Error Handling** – Request DTO validation, global exception handling, and clear error messages.  
+- **RESTful Endpoints** – Fully structured API for easy frontend integration.  
+
+---
+
+## Architecture Overview
+
+The API follows a **layered architecture** for maintainability and scalability:
+
+1. **Controller Layer**  
+   - Exposes REST endpoints.  
+   - Handles input validation (`@Valid`) and HTTP responses.  
+
+2. **Service Layer**  
+   - Contains business logic and transactional operations.  
+   - Manages creation, deletion, updates, and queries for tasks, groups, and boards.  
+
+3. **Repository Layer**  
+   - Uses Spring Data JPA to persist entities in PostgreSQL.  
+   - Provides CRUD operations and custom queries when needed.  
+
+4. **Domain / DTO Layer**  
+   - **Entities** – Represent database tables (`UserEntity`, `TaskBoardEntity`, `TaskGroupEntity`, `TaskEntity`).  
+   - **DTOs** – Handle request and response objects with validation rules.  
+   - **Mappers** – Convert between entities and DTOs.  
+
+**Data Flow Example:**  
+1. Client sends a POST request to `/boards/{boardId}/groups` with a `CreateTaskGroupRequestDto`.  
+2. Controller validates the request and calls the Service layer.  
+3. Service creates a `TaskGroupEntity` and saves it via the Repository.  
+4. Response DTO (`TaskGroupDto`) is returned to the client.  
+
+---
+
+## API Endpoints
+
+### Authentication
+- `POST /auth/register` – Register a new user  
+- `POST /auth/login` – Authenticate and receive a JWT  
+
+### Boards
+- `GET /boards` – List user boards  
+- `POST /boards` – Create a new board  
+- `PATCH /boards/{id}` – Update a board  
+- `DELETE /boards/{id}` – Delete a board  
+
+### Task Groups
+- `GET /boards/{boardId}/groups` – List task groups in a board  
+- `POST /boards/{boardId}/groups` – Create a new task group  
+- `PATCH /boards/{boardId}/groups/{groupId}` – Update a task group  
+- `DELETE /boards/{boardId}/groups/{groupId}` – Delete a task group  
+
+### Tasks
+- `POST /groups/{groupId}/tasks` – Create a task in a group  
+- `PATCH /tasks/{taskId}` – Update a task  
+- `DELETE /tasks/{taskId}` – Delete a task  
+
+---
+
+## Getting Started
+
+> Coming soon – instructions for running the API locally and connecting a frontend.  

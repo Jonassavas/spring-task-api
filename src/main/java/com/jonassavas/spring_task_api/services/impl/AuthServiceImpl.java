@@ -38,24 +38,29 @@ public class AuthServiceImpl implements AuthService{
     @Override
     public AuthResponse register(RegisterRequest request) {
 
-        if(userRepository.findByUsername(request.getUsername()).isPresent()) {
+        if (userRepository.existsByUsername(request.getUsername())) {
             throw new RuntimeException(
-                    "User already exists with username: " + request.getUsername());
+                    "Username already taken: " + request.getUsername());
+        }
+
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException(
+                    "Email already taken: " + request.getEmail());
         }
 
         UserEntity user = new UserEntity();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
-        // Encode the password
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        
+
         userRepository.save(user);
 
         String token = jwtService.generateToken(user.getUsername());
+
         return AuthResponse.builder()
-                        .token(token)
-                        .expiresIn(jwtService.getExpirationMs())
-                        .build();
+                .token(token)
+                .expiresIn(jwtService.getExpirationMs())
+                .build();
     }
 
     @Override

@@ -8,4 +8,6 @@ import com.jonassavas.spring_task_api.domain.entities.UserEntity;
 
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     Optional<UserEntity> findByUsername(String username);
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
 }

@@ -16,6 +16,6 @@ public class UpdateTaskRequestDto {
     @Positive(message = "Task group ID must be positive")
     private Long taskGroupId;
 
-    @Size(min = 1, max = 100, message = "Task name must be 1-100 characters")
+    @Size(min = 1, max = 100, message = "Task name must be between 1-100 characters")
     private String taskName;
 }

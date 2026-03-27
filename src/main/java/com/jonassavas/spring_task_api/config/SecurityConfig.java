@@ -34,7 +34,12 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers(
+                    "/auth/**",
+                    "/swagger-ui/**",
+                    "/v3/api-docs/**",
+                    "/swagger-ui.html"
+                ).permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(
@@ -43,7 +48,7 @@ public class SecurityConfig {
             );
 
         return http.build();
-    }
+    } 
 
     @Bean
     public PasswordEncoder passwordEncoder() {

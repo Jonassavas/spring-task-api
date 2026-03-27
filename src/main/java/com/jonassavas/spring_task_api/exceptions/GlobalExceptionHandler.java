@@ -103,4 +103,19 @@ public class GlobalExceptionHandler {
                         "path", request.getRequestURI()
                 ));
     }
+
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<?> handleConflict(
+                ConflictException ex,
+                HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(Map.of(
+                        "timestamp", LocalDateTime.now(),
+                        "status", 409,
+                        "error", "Conflict",
+                        "message", ex.getMessage(),
+                        "path", request.getRequestURI()
+                ));
+   }
 }

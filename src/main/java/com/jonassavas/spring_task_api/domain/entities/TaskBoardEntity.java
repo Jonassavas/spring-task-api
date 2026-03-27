@@ -3,6 +3,10 @@ package com.jonassavas.spring_task_api.domain.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,10 +44,13 @@ public class TaskBoardEntity {
         orphanRemoval = true
     )
     @Builder.Default
+    @JsonManagedReference
     private List<TaskGroupEntity> taskGroups = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
+    @JsonBackReference
+    @Schema(hidden = true) // tells Swagger/OpenAPI to ignore this field in the UI
     private UserEntity owner;
 
     public void addTaskGroup(TaskGroupEntity taskGroup) {

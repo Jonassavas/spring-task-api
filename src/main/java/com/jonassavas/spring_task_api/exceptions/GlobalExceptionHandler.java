@@ -19,39 +19,41 @@ import jakarta.servlet.http.HttpServletRequest;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<?> handleNotFound(
+    public ResponseEntity<ApiError> handleNotFound(
             EntityNotFoundException ex,
             HttpServletRequest request) {
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "status", 404,
-                        "error", "Not Found",
-                        "message", ex.getMessage(),
-                        "path", request.getRequestURI()
-                ));
+        ApiError error = new ApiError(
+                LocalDateTime.now(),
+                404,
+                "Not Found",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<?> handleAccessDenied(
+    public ResponseEntity<ApiError> handleAccessDenied(
             AccessDeniedException ex,
             HttpServletRequest request) {
 
-        return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "status", 403,
-                        "error", "Forbidden",
-                        "message", ex.getMessage(),
-                        "path", request.getRequestURI()
-                ));
+        ApiError error = new ApiError(
+                LocalDateTime.now(),
+                403,
+                "Forbidden",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-        public ResponseEntity<?> handleValidation(
-                MethodArgumentNotValidException ex,
-                HttpServletRequest request) {
+    public ResponseEntity<ApiError> handleValidation(
+            MethodArgumentNotValidException ex,
+            HttpServletRequest request) {
 
         Map<String, String> validationErrors = new HashMap<>();
 
@@ -63,59 +65,63 @@ public class GlobalExceptionHandler {
                                 error.getDefaultMessage()
                         ));
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "status", 400,
-                        "error", "Bad Request",
-                        "message", "Validation failed",
-                        "errors", validationErrors,
-                        "path", request.getRequestURI()
-                ));
-        }
+        ApiError error = new ApiError(
+                LocalDateTime.now(),
+                400,
+                "Bad Request",
+                "Validation failed",
+                request.getRequestURI(),
+                validationErrors
+        );
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleGeneric(
-            Exception ex,
-            HttpServletRequest request) {
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "status", 500,
-                        "error", "Internal Server Error",
-                        "message", ex.getMessage(),
-                        "path", request.getRequestURI()
-                ));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<?> handleAuthentication(
-                AuthenticationException ex,
-                HttpServletRequest request) {
+    public ResponseEntity<ApiError> handleAuthentication(
+            AuthenticationException ex,
+            HttpServletRequest request) {
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "status", 401,
-                        "error", "Unauthorized",
-                        "message", ex.getMessage(),
-                        "path", request.getRequestURI()
-                ));
+        ApiError error = new ApiError(
+                LocalDateTime.now(),
+                401,
+                "Unauthorized",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
     @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<?> handleConflict(
-                ConflictException ex,
-                HttpServletRequest request) {
+    public ResponseEntity<ApiError> handleConflict(
+            ConflictException ex,
+            HttpServletRequest request) {
 
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-                .body(Map.of(
-                        "timestamp", LocalDateTime.now(),
-                        "status", 409,
-                        "error", "Conflict",
-                        "message", ex.getMessage(),
-                        "path", request.getRequestURI()
-                ));
-   }
+        ApiError error = new ApiError(
+                LocalDateTime.now(),
+                409,
+                "Conflict",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> handleGeneric(
+            Exception ex,
+            HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+                LocalDateTime.now(),
+                500,
+                "Internal Server Error",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    }
 }

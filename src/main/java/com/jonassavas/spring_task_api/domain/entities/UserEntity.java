@@ -15,19 +15,26 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
 @Table(name = "users")
+@ToString(exclude = "taskBoards")
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class UserEntity {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(unique = true, nullable = false, length = 30)
@@ -39,6 +46,7 @@ public class UserEntity {
     @Column(unique = true, nullable = false, length = 254)
     private String email;
 
+    @Builder.Default
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<TaskBoardEntity> taskBoards = new ArrayList<>();

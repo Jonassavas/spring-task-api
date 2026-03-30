@@ -20,19 +20,26 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "task_boards")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString(exclude = {"taskGroups", "owner"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class TaskBoardEntity {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(nullable = false, length = 50)
@@ -50,7 +57,7 @@ public class TaskBoardEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
     @JsonBackReference
-    @Schema(hidden = true) // tells Swagger/OpenAPI to ignore this field in the UI
+    @Schema(hidden = true)
     private UserEntity owner;
 
     public void addTaskGroup(TaskGroupEntity taskGroup) {

@@ -19,32 +19,39 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
 @Table(name = "task_groups")
+@ToString(exclude = {"tasks", "taskBoard"})
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class TaskGroupEntity {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(nullable = false, length = 50)
     private String taskGroupName;
 
-    @Builder.Default // "If the builder doesn't set this field, use this default value"
+    @Builder.Default
     @OneToMany(
         mappedBy = "taskGroup",
         cascade = CascadeType.ALL,
         orphanRemoval = true
     )
-    @JsonManagedReference // Prevent recursion
+    @JsonManagedReference
     private List<TaskEntity> tasks = new ArrayList<>();
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)

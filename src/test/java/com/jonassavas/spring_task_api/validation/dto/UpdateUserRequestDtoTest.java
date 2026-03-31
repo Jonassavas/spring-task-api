@@ -5,25 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Set;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.jonassavas.spring_task_api.domain.dto.user.UpdateUserRequestDto;
 
 import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
 
-public class UpdateUserRequestDtoTest {
-
-    private Validator validator;
-
-    @BeforeEach
-    void setup() {
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
-    }
+public class UpdateUserRequestDtoTest extends BaseValidationTest {
 
     @Test
     void shouldFailWhenEmailInvalid() {

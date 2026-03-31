@@ -7,19 +7,19 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import com.jonassavas.spring_task_api.domain.dto.task_board.CreateTaskBoardRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.CreateTaskGroupRequestDto;
 
 import jakarta.validation.ConstraintViolation;
 
-public class CreateTaskBoardRequestDtoTest extends BaseValidationTest {
+public class CreateTaskGroupRequestDtoTest extends BaseValidationTest {
 
     @Test
     void shouldFailWhenNameBlank() {
-        CreateTaskBoardRequestDto dto = CreateTaskBoardRequestDto.builder()
-                .taskBoardName("")
+        CreateTaskGroupRequestDto dto = CreateTaskGroupRequestDto.builder()
+                .taskGroupName("")
                 .build();
 
-        Set<ConstraintViolation<CreateTaskBoardRequestDto>> violations =
+        Set<ConstraintViolation<CreateTaskGroupRequestDto>> violations =
                 validator.validate(dto);
 
         assertFalse(violations.isEmpty());
@@ -27,11 +27,11 @@ public class CreateTaskBoardRequestDtoTest extends BaseValidationTest {
 
     @Test
     void shouldFailWhenNameTooLong() {
-        CreateTaskBoardRequestDto dto = CreateTaskBoardRequestDto.builder()
-                .taskBoardName("a".repeat(60))
+        CreateTaskGroupRequestDto dto = CreateTaskGroupRequestDto.builder()
+                .taskGroupName("a".repeat(60))
                 .build();
 
-        Set<ConstraintViolation<CreateTaskBoardRequestDto>> violations =
+        Set<ConstraintViolation<CreateTaskGroupRequestDto>> violations =
                 validator.validate(dto);
 
         assertFalse(violations.isEmpty());
@@ -39,11 +39,11 @@ public class CreateTaskBoardRequestDtoTest extends BaseValidationTest {
 
     @Test
     void shouldPassWhenValidName() {
-        CreateTaskBoardRequestDto dto = CreateTaskBoardRequestDto.builder()
-                .taskBoardName("My Task Board")
+        CreateTaskGroupRequestDto dto = CreateTaskGroupRequestDto.builder()
+                .taskGroupName("Todo")
                 .build();
 
-        Set<ConstraintViolation<CreateTaskBoardRequestDto>> violations =
+        Set<ConstraintViolation<CreateTaskGroupRequestDto>> violations =
                 validator.validate(dto);
 
         assertTrue(violations.isEmpty());

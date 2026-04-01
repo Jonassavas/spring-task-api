@@ -78,4 +78,9 @@ public class TaskBoardEntityRepositoryIntegrationTest {
         result = underTest.findById(testTaskBoardA.getId());
         assertThat(result).isEmpty();
     }
+
+    // Custom repository methods to test
+    // List<TaskBoardEntity> findByOwnerUsername(String username);
+    // Optional<TaskBoardEntity> findByIdAndOwnerUsername(Long id, String username);
+
 }

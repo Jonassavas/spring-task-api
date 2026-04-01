@@ -111,4 +111,8 @@ public class TaskEntityRepositoryIntegrationTest {
         assertThat(result).isEmpty();
     }
 
+    // Custom repository methods to test
+    // Optional<TaskEntity> findByIdAndTaskGroupTaskBoardOwnerUsername(Long id, String username);
+    // List<TaskEntity> findByTaskGroupIdAndTaskGroupTaskBoardOwnerUsername(Long groupId, String username);
+
 }

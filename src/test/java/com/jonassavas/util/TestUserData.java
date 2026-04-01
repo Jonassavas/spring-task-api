@@ -1,5 +1,6 @@
 package com.jonassavas.util;
 
+import com.jonassavas.spring_task_api.domain.dto.user.UpdateUserRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.UserEntity;
 
 public class TestUserData {
@@ -13,7 +14,7 @@ public class TestUserData {
                                 .build();
     }
     
-    public static UserEntity createTestUserEntityB(UserEntity user){
+    public static UserEntity createTestUserEntityB(){
         return UserEntity.builder()
                                 .username("userB")
                                 .password("encryptedtestpassw2")
@@ -21,7 +22,7 @@ public class TestUserData {
                                 .build();
     }
 
-    public static UserEntity createTestUserEntityC(UserEntity user){
+    public static UserEntity createTestUserEntityC(){
         return UserEntity.builder()
                                 .username("userC")
                                 .password("encryptedtestpassw3")
@@ -29,8 +30,15 @@ public class TestUserData {
                                 .build();
     }
 
-    // CREATE DTOs -------------------------------------------------------------
+    // UPDATE DTO -------------------------------------------------------------
+    public static UpdateUserRequestDto createTestUpdateUserRequestDtoA(){
+        return UpdateUserRequestDto.builder()
+                                        .username(null)
+                                        .password(null)
+                                        .email(null)
+                                        .build();
+    }
 
+    
 
-    // UPDATE DTOs -------------------------------------------------------------
 }

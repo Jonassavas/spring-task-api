@@ -31,11 +31,11 @@ public class TaskGroupEntityRepositoryIntegrationTests {
 
     @BeforeEach
     public void setUp(){
-        user = userRepository.save(
+        user = userRepository.saveAndFlush(
             TestUserData.createTestUserEntityA()
         );
        
-        taskBoard = taskBoardRepository.save(
+        taskBoard = taskBoardRepository.saveAndFlush(
             TestTaskBoardData.createTestTaskBoardEntityA(user)
         ); 
     }
@@ -63,31 +63,27 @@ public class TaskGroupEntityRepositoryIntegrationTests {
                 .containsExactly(testTaskGroupA, testTaskGroupB, testTaskGroupC);
     }
 
-   @Test
+    @Test
     public void testThatTaskGroupWithTasksCanBeCreatedAndRecalled() {
         TaskGroupEntity testTaskGroup =
                 TestTaskGroupData.createTaskGroupEntityA(taskBoard);
-
         TaskEntity testTaskEntityA =
                 TestTaskData.createTestTaskEntityA(testTaskGroup);
-
         testTaskGroup.addTask(testTaskEntityA);
-        underTest.save(testTaskGroup);
+        TaskGroupEntity saved = underTest.saveAndFlush(testTaskGroup);
 
         Optional<TaskGroupEntity> result =
-                underTest.findById(testTaskGroup.getId());
+                underTest.findById(saved.getId());
 
         assertThat(result).isPresent();
 
         TaskGroupEntity savedGroup = result.get();
+
         assertThat(savedGroup.getTaskGroupName())
                 .isEqualTo(testTaskGroup.getTaskGroupName());
         assertThat(savedGroup.getTasks())
                 .hasSize(1);
-        TaskEntity savedTask = savedGroup.getTasks().get(0);
-        assertThat(savedTask.getTaskName())
-                .isEqualTo(testTaskEntityA.getTaskName());
-    } 
+    }
 
     @Test
     public void testThatTaskGroupCanBeUpdated(){

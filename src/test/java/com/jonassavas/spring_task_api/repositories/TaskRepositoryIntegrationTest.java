@@ -7,8 +7,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
@@ -19,100 +18,168 @@ import com.jonassavas.util.TestTaskData;
 import com.jonassavas.util.TestTaskGroupData;
 import com.jonassavas.util.TestUserData;
 
-import jakarta.transaction.Transactional;
-
-@SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DataJpaTest // Runs each test in a transaction and rolls it back.
 public class TaskRepositoryIntegrationTest {
     
-    private TaskRepository underTest;
+    @Autowired private TaskRepository underTest;
 
-    private UserRepository userRepository;
-    private TaskBoardRepository taskBoardRepository;
-    private TaskGroupRepository taskGroupRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private TaskBoardRepository taskBoardRepository;
+    @Autowired private TaskGroupRepository taskGroupRepository;
 
+    // Prerequisits for creating TaskEntities
     private UserEntity user;
     private TaskBoardEntity taskBoard; 
     private TaskGroupEntity taskGroup; 
 
     @BeforeEach
     public void setUp(){
-        user = userRepository.save(
+        user = userRepository.saveAndFlush(
             TestUserData.createTestUserEntityA()
         );
-        taskBoard = taskBoardRepository.save(
+
+        taskBoard = taskBoardRepository.saveAndFlush(
             TestTaskBoardData.createTestTaskBoardEntityA(user)
         );
-        taskGroup = taskGroupRepository.save(
+
+        taskGroup = taskGroupRepository.saveAndFlush(
             TestTaskGroupData.createTaskGroupEntityA(taskBoard)
         );
     }
 
-    @Autowired
-    public TaskRepositoryIntegrationTest(TaskRepository underTest,
-                                            UserRepository userRepository,
-                                            TaskBoardRepository taskBoardRepository, 
-                                            TaskGroupRepository taskGroupRepository){
-        this.underTest = underTest;
-        this.userRepository = userRepository;
-        this.taskBoardRepository = taskBoardRepository;
-        this.taskGroupRepository = taskGroupRepository;
-    }
-
     @Test
-    @Transactional
-    public void testThatTaskCanBeCreatedAndRecalled(){
-        TaskEntity testTaskA = TestTaskData.createTestTaskEntityA(taskGroup);
-        underTest.save(testTaskA);
-        Optional<TaskEntity> result = underTest.findById(1L);
+    public void testThatTaskCanBeCreatedAndRecalled() {
+        TaskEntity testTask = TestTaskData.createTestTaskEntityA(taskGroup);
+
+        TaskEntity saved = underTest.saveAndFlush(testTask);
+
+        Optional<TaskEntity> result = underTest.findById(saved.getId());
+
         assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo(testTaskA);
+        assertThat(result.get().getTaskName())
+                .isEqualTo(testTask.getTaskName());
     }
 
     @Test
-    @Transactional
-    public void testThatMultipleTasksCanBeCreatedAndRecalled(){
-        TaskEntity testTaskA = TestTaskData.createTestTaskEntityA(taskGroup);
-        underTest.save(testTaskA);
-        TaskEntity testTaskB = TestTaskData.createTestTaskEntityB(taskGroup);
-        underTest.save(testTaskB);
-        TaskEntity testTaskC = TestTaskData.createTestTaskEntityC(taskGroup);
-        underTest.save(testTaskC);
+    public void testThatMultipleTasksCanBeCreatedAndRecalled() {
+        TaskEntity taskA = underTest.saveAndFlush(
+                TestTaskData.createTestTaskEntityA(taskGroup)
+        );
+        TaskEntity taskB = underTest.saveAndFlush(
+                TestTaskData.createTestTaskEntityB(taskGroup)
+        );
+        TaskEntity taskC = underTest.saveAndFlush(
+                TestTaskData.createTestTaskEntityC(taskGroup)
+        );
 
         Iterable<TaskEntity> result = underTest.findAll();
+
         assertThat(result)
                 .hasSize(3)
-                .containsExactly(testTaskA, testTaskB, testTaskC);
-    }
+                .extracting(TaskEntity::getTaskName)
+                .containsExactly(taskA.getTaskName(),
+                                taskB.getTaskName(),
+                                taskC.getTaskName());
+    } 
 
     @Test
-    @Transactional
-    public void testThatTaskCanBeUpdated(){
-        TaskEntity taskEntityA = TestTaskData.createTestTaskEntityA(taskGroup);
-        underTest.save(taskEntityA);
-        taskEntityA.setTaskName("UPDATED");
-        underTest.save(taskEntityA);
-        
-        Optional<TaskEntity> result = underTest.findById(taskEntityA.getId());
+    public void testThatTaskCanBeUpdated() {
+        TaskEntity task = underTest.saveAndFlush(
+                TestTaskData.createTestTaskEntityA(taskGroup)
+        );
+
+        task.setTaskName("UPDATED");
+        underTest.saveAndFlush(task);
+
+        Optional<TaskEntity> result = underTest.findById(task.getId());
+
         assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo(taskEntityA);
+        assertThat(result.get().getTaskName()).isEqualTo("UPDATED");
     }
 
     @Test
-    @Transactional
-    public void testThatTaskCanBeDeleted(){
-        TaskEntity taskEntityA = TestTaskData.createTestTaskEntityA(taskGroup);
-        underTest.save(taskEntityA);
-        Optional<TaskEntity> result = underTest.findById(taskEntityA.getId());
-        assertThat(result.get()).isEqualTo(taskEntityA);
+    public void testThatTaskCanBeDeleted() {
+        TaskEntity task = underTest.saveAndFlush(
+                TestTaskData.createTestTaskEntityA(taskGroup)
+        );
 
-        underTest.deleteById(taskEntityA.getId());
-        result = underTest.findById(taskEntityA.getId());
+        underTest.deleteById(task.getId());
+
+        Optional<TaskEntity> result = underTest.findById(task.getId());
+
         assertThat(result).isEmpty();
     }
 
-    // Custom repository methods to test
+    // Custom repository methods -----------------------------------------
+
     // Optional<TaskEntity> findByIdAndTaskGroupTaskBoardOwnerUsername(Long id, String username);
+    @Test
+    public void testFindByIdAndTaskGroupTaskBoardOwnerUsername() {
+        TaskEntity task = underTest.saveAndFlush(
+                TestTaskData.createTestTaskEntityA(taskGroup)
+        );
+
+        Optional<TaskEntity> result =
+                underTest.findByIdAndTaskGroupTaskBoardOwnerUsername(
+                        task.getId(),
+                        user.getUsername()
+                );
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getTaskName())
+                .isEqualTo(task.getTaskName());
+    }
+
+    @Test
+    public void testFindByIdAndTaskGroupTaskBoardOwnerUsernameReturnsEmptyWhenWrongUser() {
+        TaskEntity task = underTest.saveAndFlush(
+                TestTaskData.createTestTaskEntityA(taskGroup)
+        );
+
+        Optional<TaskEntity> result =
+                underTest.findByIdAndTaskGroupTaskBoardOwnerUsername(
+                        task.getId(),
+                        "wrongUser"
+                );
+
+        assertThat(result).isEmpty();
+    }
+
     // List<TaskEntity> findByTaskGroupIdAndTaskGroupTaskBoardOwnerUsername(Long groupId, String username);
+    @Test
+    public void testFindByTaskGroupIdAndTaskGroupTaskBoardOwnerUsername() {
+        TaskEntity taskA = underTest.saveAndFlush(
+                TestTaskData.createTestTaskEntityA(taskGroup)
+        );
+        TaskEntity taskB = underTest.saveAndFlush(
+                TestTaskData.createTestTaskEntityB(taskGroup)
+        );
+
+        var result =
+                underTest.findByTaskGroupIdAndTaskGroupTaskBoardOwnerUsername(
+                        taskGroup.getId(),
+                        user.getUsername()
+                );
+
+        assertThat(result)
+                .hasSize(2)
+                .extracting(TaskEntity::getTaskName)
+                .containsExactly(taskA.getTaskName(), taskB.getTaskName());
+    }
+
+    @Test
+    public void testFindByTaskGroupIdAndTaskGroupTaskBoardOwnerUsernameReturnsEmptyWhenWrongUser() {
+        underTest.saveAndFlush(
+                TestTaskData.createTestTaskEntityA(taskGroup)
+        );
+
+        var result =
+                underTest.findByTaskGroupIdAndTaskGroupTaskBoardOwnerUsername(
+                        taskGroup.getId(),
+                        "wrongUser"
+                );
+
+        assertThat(result).isEmpty();
+    }
 
 }

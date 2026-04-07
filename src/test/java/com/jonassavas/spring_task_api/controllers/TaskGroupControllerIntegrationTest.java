@@ -35,7 +35,7 @@ import com.jonassavas.util.TestUserData;
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
-public class TaskGroupControllerIntegrationTests {
+public class TaskGroupControllerIntegrationTest {
 
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
@@ -57,7 +57,7 @@ public class TaskGroupControllerIntegrationTests {
     private TaskBoardEntity taskBoard;
 
     @Autowired
-    public TaskGroupControllerIntegrationTests(
+    public TaskGroupControllerIntegrationTest(
             MockMvc mockMvc,
             ObjectMapper objectMapper,
             TaskRepository taskRepository,

@@ -23,7 +23,7 @@ import jakarta.transaction.Transactional;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-public class TaskEntityRepositoryIntegrationTest {
+public class TaskRepositoryIntegrationTest {
     
     private TaskRepository underTest;
 
@@ -49,7 +49,7 @@ public class TaskEntityRepositoryIntegrationTest {
     }
 
     @Autowired
-    public TaskEntityRepositoryIntegrationTest(TaskRepository underTest,
+    public TaskRepositoryIntegrationTest(TaskRepository underTest,
                                             UserRepository userRepository,
                                             TaskBoardRepository taskBoardRepository, 
                                             TaskGroupRepository taskGroupRepository){

@@ -19,7 +19,7 @@ import com.jonassavas.util.TestTaskGroupData;
 import com.jonassavas.util.TestUserData;
 
 @DataJpaTest // Runs each test in a transaction and rolls it back.
-public class TaskGroupEntityRepositoryIntegrationTests {
+public class TaskGroupRepositoryIntegrationTests {
     
     @Autowired TaskGroupRepository underTest;
     @Autowired private TaskBoardRepository taskBoardRepository;

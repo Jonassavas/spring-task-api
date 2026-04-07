@@ -41,27 +41,42 @@ public class TaskGroupEntityRepositoryIntegrationTests {
     }
 
     @Test
-    public void testThatEmptyTaskGroupCanBeCreatedAndRecalled(){
-        TaskGroupEntity testTaskGroup = TestTaskGroupData.createTaskGroupEntityA(taskBoard);
-        underTest.save(testTaskGroup);
-        Optional<TaskGroupEntity> result = underTest.findById(testTaskGroup.getId());
+    public void testThatEmptyTaskGroupCanBeCreatedAndRecalled() {
+        TaskGroupEntity testTaskGroup =
+                TestTaskGroupData.createTaskGroupEntityA(taskBoard);
+
+        TaskGroupEntity saved = underTest.saveAndFlush(testTaskGroup);
+
+        Optional<TaskGroupEntity> result =
+                underTest.findById(saved.getId());
+
         assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo(testTaskGroup);
-    }
+        assertThat(result.get()).isEqualTo(saved);
+    } 
 
     @Test
     public void testThatMultipleEmptyTaskGroupsCanBeCreatedAndRecalled(){
-        TaskGroupEntity testTaskGroupA = TestTaskGroupData.createTaskGroupEntityA(taskBoard);
-        underTest.save(testTaskGroupA);
-        TaskGroupEntity testTaskGroupB = TestTaskGroupData.createTaskGroupEntityB(taskBoard);
-        underTest.save(testTaskGroupB);
-        TaskGroupEntity testTaskGroupC = TestTaskGroupData.createTaskGroupEntityB(taskBoard);
-        underTest.save(testTaskGroupC);
+        TaskGroupEntity groupA =
+                underTest.saveAndFlush(
+                    TestTaskGroupData.createTaskGroupEntityA(taskBoard)
+                );
+
+        TaskGroupEntity groupB =
+                underTest.saveAndFlush(
+                    TestTaskGroupData.createTaskGroupEntityB(taskBoard)
+                );
+
+        TaskGroupEntity groupC =
+                underTest.saveAndFlush(
+                    TestTaskGroupData.createTaskGroupEntityB(taskBoard)
+                );
+
         Iterable<TaskGroupEntity> result = underTest.findAll();
+
         assertThat(result)
                 .hasSize(3)
-                .containsExactly(testTaskGroupA, testTaskGroupB, testTaskGroupC);
-    }
+                .contains(groupA, groupB, groupC);
+    } 
 
     @Test
     public void testThatTaskGroupWithTasksCanBeCreatedAndRecalled() {
@@ -87,27 +102,39 @@ public class TaskGroupEntityRepositoryIntegrationTests {
 
     @Test
     public void testThatTaskGroupCanBeUpdated(){
-        TaskGroupEntity testTaskGroupA = TestTaskGroupData.createTaskGroupEntityA(taskBoard);
-        underTest.save(testTaskGroupA);
-        testTaskGroupA.setTaskGroupName("UPDATED");
-        underTest.save(testTaskGroupA);
+        TaskGroupEntity group =
+                underTest.saveAndFlush(
+                    TestTaskGroupData.createTaskGroupEntityA(taskBoard)
+                );
 
-        Optional<TaskGroupEntity> result = underTest.findById(testTaskGroupA.getId());
+        group.setTaskGroupName("UPDATED");
+        underTest.saveAndFlush(group);
+
+        Optional<TaskGroupEntity> result =
+                underTest.findById(group.getId());
+
         assertThat(result).isPresent();
-        assertThat(result.get())
-                .extracting(TaskGroupEntity::getTaskGroupName)
+        assertThat(result.get().getTaskGroupName())
                 .isEqualTo("UPDATED");
     }
 
     @Test
     public void testThatTaskGroupCanBeDeleted(){
-        TaskGroupEntity testTaskGroupA = TestTaskGroupData.createTaskGroupEntityA(taskBoard);
-        underTest.save(testTaskGroupA);
-        Optional<TaskGroupEntity> result = underTest.findById(testTaskGroupA.getId());
-        assertThat(result.get()).isEqualTo(testTaskGroupA);
+        TaskGroupEntity group =
+                underTest.saveAndFlush(
+                    TestTaskGroupData.createTaskGroupEntityA(taskBoard)
+                );
 
-        underTest.deleteById(testTaskGroupA.getId());
-        result = underTest.findById(testTaskGroupA.getId());
+        Optional<TaskGroupEntity> result =
+                underTest.findById(group.getId());
+
+        assertThat(result).isPresent();
+
+        underTest.deleteById(group.getId());
+        underTest.flush();
+
+        result = underTest.findById(group.getId());
+
         assertThat(result).isEmpty();
     }
 
@@ -116,11 +143,15 @@ public class TaskGroupEntityRepositoryIntegrationTests {
     // List<TaskGroupEntity> findByTaskBoardIdAndTaskBoardOwnerUsername(Long boardId, String username);
     @Test
     public void testFindByTaskBoardIdAndTaskBoardOwnerUsername() {
-        TaskGroupEntity groupA = TestTaskGroupData.createTaskGroupEntityA(taskBoard);
-        TaskGroupEntity groupB = TestTaskGroupData.createTaskGroupEntityB(taskBoard);
+        TaskGroupEntity groupA =
+                underTest.saveAndFlush(
+                    TestTaskGroupData.createTaskGroupEntityA(taskBoard)
+                );
 
-        underTest.save(groupA);
-        underTest.save(groupB);
+        TaskGroupEntity groupB =
+                underTest.saveAndFlush(
+                    TestTaskGroupData.createTaskGroupEntityB(taskBoard)
+                );
 
         var result = underTest.findByTaskBoardIdAndTaskBoardOwnerUsername(
                 taskBoard.getId(),
@@ -135,8 +166,10 @@ public class TaskGroupEntityRepositoryIntegrationTests {
     // Optional<TaskGroupEntity> findByIdAndTaskBoardOwnerUsername(Long id, String username);
     @Test
     public void testFindByIdAndTaskBoardOwnerUsername() {
-        TaskGroupEntity group = TestTaskGroupData.createTaskGroupEntityA(taskBoard);
-        underTest.save(group);
+        TaskGroupEntity group =
+                underTest.saveAndFlush(
+                    TestTaskGroupData.createTaskGroupEntityA(taskBoard)
+                );
 
         var result = underTest.findByIdAndTaskBoardOwnerUsername(
                 group.getId(),
@@ -172,7 +205,7 @@ public class TaskGroupEntityRepositoryIntegrationTests {
         TaskEntity task = TestTaskData.createTestTaskEntityA(group);
         group.addTask(task);
 
-        underTest.save(group);
+        underTest.saveAndFlush(group);
 
         var result = underTest.findAllWithTasksByUsername(user.getUsername());
 
@@ -195,7 +228,7 @@ public class TaskGroupEntityRepositoryIntegrationTests {
         TaskEntity task = TestTaskData.createTestTaskEntityA(group);
         group.addTask(task);
 
-        underTest.save(group);
+        underTest.saveAndFlush(group);
 
         var result = underTest.findByIdWithTasksAndUsername(
                 group.getId(),

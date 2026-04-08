@@ -6,6 +6,8 @@ import com.jonassavas.spring_task_api.domain.dto.user.UserDto;
 
 public interface UserService {
     UserDto getCurrentUser();
+
     public UpdateUserResponseDto updateCurrentUser(UpdateUserRequestDto dto);
+
     void deleteCurrentUser();
 }

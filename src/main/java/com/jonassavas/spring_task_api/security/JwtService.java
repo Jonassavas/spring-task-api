@@ -1,15 +1,12 @@
 package com.jonassavas.spring_task_api.security;
 
-import java.util.Date;
-
-import javax.crypto.SecretKey;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import java.util.Date;
+import javax.crypto.SecretKey;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 @Service
 public class JwtService {
@@ -41,7 +38,7 @@ public class JwtService {
                 .getPayload();
     }
 
-    public long getExpirationMs(){
+    public long getExpirationMs() {
         return expirationMs;
     }
 

@@ -1,8 +1,5 @@
 package com.jonassavas.spring_task_api.services.impl;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import com.jonassavas.spring_task_api.domain.dto.user.UpdateUserRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.user.UpdateUserResponseDto;
 import com.jonassavas.spring_task_api.domain.dto.user.UserDto;
@@ -13,8 +10,9 @@ import com.jonassavas.spring_task_api.repositories.UserRepository;
 import com.jonassavas.spring_task_api.security.JwtService;
 import com.jonassavas.spring_task_api.security.SecurityService;
 import com.jonassavas.spring_task_api.services.UserService;
-
 import jakarta.transaction.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
@@ -38,7 +36,7 @@ public class UserServiceImpl implements UserService {
         this.userMapper = userMapper;
         this.jwtService = jwtService;
     }
-    
+
     @Override
     public UserDto getCurrentUser() {
         UserEntity user = securityService.getCurrentUser();
@@ -55,7 +53,8 @@ public class UserServiceImpl implements UserService {
         boolean updated = false;
 
         // Update username
-        if (dto.getUsername() != null && !dto.getUsername().isBlank()
+        if (dto.getUsername() != null
+                && !dto.getUsername().isBlank()
                 && !dto.getUsername().equals(user.getUsername())) {
 
             if (userRepository.existsByUsername(dto.getUsername())) {
@@ -68,7 +67,8 @@ public class UserServiceImpl implements UserService {
         }
 
         // Update email
-        if (dto.getEmail() != null && !dto.getEmail().isBlank()
+        if (dto.getEmail() != null
+                && !dto.getEmail().isBlank()
                 && !dto.getEmail().equals(user.getEmail())) {
 
             if (userRepository.existsByEmail(dto.getEmail())) {
@@ -105,7 +105,7 @@ public class UserServiceImpl implements UserService {
                 .token(newToken)
                 .expiresIn(newToken != null ? jwtService.getExpirationMs() : null)
                 .build();
-    } 
+    }
 
     @Override
     public void deleteCurrentUser() {

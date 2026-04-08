@@ -2,13 +2,6 @@ package com.jonassavas.spring_task_api.repositories;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Optional;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
@@ -17,10 +10,15 @@ import com.jonassavas.util.TestTaskBoardData;
 import com.jonassavas.util.TestTaskData;
 import com.jonassavas.util.TestTaskGroupData;
 import com.jonassavas.util.TestUserData;
+import java.util.Optional;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 @DataJpaTest // Runs each test in a transaction and rolls it back.
 public class TaskRepositoryIntegrationTest {
-    
+
     @Autowired private TaskRepository underTest;
 
     @Autowired private UserRepository userRepository;
@@ -29,22 +27,20 @@ public class TaskRepositoryIntegrationTest {
 
     // Prerequisits for creating TaskEntities
     private UserEntity user;
-    private TaskBoardEntity taskBoard; 
-    private TaskGroupEntity taskGroup; 
+    private TaskBoardEntity taskBoard;
+    private TaskGroupEntity taskGroup;
 
     @BeforeEach
-    public void setUp(){
-        user = userRepository.saveAndFlush(
-            TestUserData.createTestUserEntityA()
-        );
+    public void setUp() {
+        user = userRepository.saveAndFlush(TestUserData.createTestUserEntityA());
 
-        taskBoard = taskBoardRepository.saveAndFlush(
-            TestTaskBoardData.createTestTaskBoardEntityA(user)
-        );
+        taskBoard =
+                taskBoardRepository.saveAndFlush(
+                        TestTaskBoardData.createTestTaskBoardEntityA(user));
 
-        taskGroup = taskGroupRepository.saveAndFlush(
-            TestTaskGroupData.createTaskGroupEntityA(taskBoard)
-        );
+        taskGroup =
+                taskGroupRepository.saveAndFlush(
+                        TestTaskGroupData.createTaskGroupEntityA(taskBoard));
     }
 
     @Test
@@ -56,37 +52,26 @@ public class TaskRepositoryIntegrationTest {
         Optional<TaskEntity> result = underTest.findById(saved.getId());
 
         assertThat(result).isPresent();
-        assertThat(result.get().getTaskName())
-                .isEqualTo(testTask.getTaskName());
+        assertThat(result.get().getTaskName()).isEqualTo(testTask.getTaskName());
     }
 
     @Test
     public void testThatMultipleTasksCanBeCreatedAndRecalled() {
-        TaskEntity taskA = underTest.saveAndFlush(
-                TestTaskData.createTestTaskEntityA(taskGroup)
-        );
-        TaskEntity taskB = underTest.saveAndFlush(
-                TestTaskData.createTestTaskEntityB(taskGroup)
-        );
-        TaskEntity taskC = underTest.saveAndFlush(
-                TestTaskData.createTestTaskEntityC(taskGroup)
-        );
+        TaskEntity taskA = underTest.saveAndFlush(TestTaskData.createTestTaskEntityA(taskGroup));
+        TaskEntity taskB = underTest.saveAndFlush(TestTaskData.createTestTaskEntityB(taskGroup));
+        TaskEntity taskC = underTest.saveAndFlush(TestTaskData.createTestTaskEntityC(taskGroup));
 
         Iterable<TaskEntity> result = underTest.findAll();
 
         assertThat(result)
                 .hasSize(3)
                 .extracting(TaskEntity::getTaskName)
-                .containsExactly(taskA.getTaskName(),
-                                taskB.getTaskName(),
-                                taskC.getTaskName());
-    } 
+                .containsExactly(taskA.getTaskName(), taskB.getTaskName(), taskC.getTaskName());
+    }
 
     @Test
     public void testThatTaskCanBeUpdated() {
-        TaskEntity task = underTest.saveAndFlush(
-                TestTaskData.createTestTaskEntityA(taskGroup)
-        );
+        TaskEntity task = underTest.saveAndFlush(TestTaskData.createTestTaskEntityA(taskGroup));
 
         task.setTaskName("UPDATED");
         underTest.saveAndFlush(task);
@@ -99,9 +84,7 @@ public class TaskRepositoryIntegrationTest {
 
     @Test
     public void testThatTaskCanBeDeleted() {
-        TaskEntity task = underTest.saveAndFlush(
-                TestTaskData.createTestTaskEntityA(taskGroup)
-        );
+        TaskEntity task = underTest.saveAndFlush(TestTaskData.createTestTaskEntityA(taskGroup));
 
         underTest.deleteById(task.getId());
 
@@ -115,51 +98,36 @@ public class TaskRepositoryIntegrationTest {
     // Optional<TaskEntity> findByIdAndTaskGroupTaskBoardOwnerUsername(Long id, String username);
     @Test
     public void testFindByIdAndTaskGroupTaskBoardOwnerUsername() {
-        TaskEntity task = underTest.saveAndFlush(
-                TestTaskData.createTestTaskEntityA(taskGroup)
-        );
+        TaskEntity task = underTest.saveAndFlush(TestTaskData.createTestTaskEntityA(taskGroup));
 
         Optional<TaskEntity> result =
                 underTest.findByIdAndTaskGroupTaskBoardOwnerUsername(
-                        task.getId(),
-                        user.getUsername()
-                );
+                        task.getId(), user.getUsername());
 
         assertThat(result).isPresent();
-        assertThat(result.get().getTaskName())
-                .isEqualTo(task.getTaskName());
+        assertThat(result.get().getTaskName()).isEqualTo(task.getTaskName());
     }
 
     @Test
     public void testFindByIdAndTaskGroupTaskBoardOwnerUsernameReturnsEmptyWhenWrongUser() {
-        TaskEntity task = underTest.saveAndFlush(
-                TestTaskData.createTestTaskEntityA(taskGroup)
-        );
+        TaskEntity task = underTest.saveAndFlush(TestTaskData.createTestTaskEntityA(taskGroup));
 
         Optional<TaskEntity> result =
-                underTest.findByIdAndTaskGroupTaskBoardOwnerUsername(
-                        task.getId(),
-                        "wrongUser"
-                );
+                underTest.findByIdAndTaskGroupTaskBoardOwnerUsername(task.getId(), "wrongUser");
 
         assertThat(result).isEmpty();
     }
 
-    // List<TaskEntity> findByTaskGroupIdAndTaskGroupTaskBoardOwnerUsername(Long groupId, String username);
+    // List<TaskEntity> findByTaskGroupIdAndTaskGroupTaskBoardOwnerUsername(Long groupId, String
+    // username);
     @Test
     public void testFindByTaskGroupIdAndTaskGroupTaskBoardOwnerUsername() {
-        TaskEntity taskA = underTest.saveAndFlush(
-                TestTaskData.createTestTaskEntityA(taskGroup)
-        );
-        TaskEntity taskB = underTest.saveAndFlush(
-                TestTaskData.createTestTaskEntityB(taskGroup)
-        );
+        TaskEntity taskA = underTest.saveAndFlush(TestTaskData.createTestTaskEntityA(taskGroup));
+        TaskEntity taskB = underTest.saveAndFlush(TestTaskData.createTestTaskEntityB(taskGroup));
 
         var result =
                 underTest.findByTaskGroupIdAndTaskGroupTaskBoardOwnerUsername(
-                        taskGroup.getId(),
-                        user.getUsername()
-                );
+                        taskGroup.getId(), user.getUsername());
 
         assertThat(result)
                 .hasSize(2)
@@ -169,17 +137,12 @@ public class TaskRepositoryIntegrationTest {
 
     @Test
     public void testFindByTaskGroupIdAndTaskGroupTaskBoardOwnerUsernameReturnsEmptyWhenWrongUser() {
-        underTest.saveAndFlush(
-                TestTaskData.createTestTaskEntityA(taskGroup)
-        );
+        underTest.saveAndFlush(TestTaskData.createTestTaskEntityA(taskGroup));
 
         var result =
                 underTest.findByTaskGroupIdAndTaskGroupTaskBoardOwnerUsername(
-                        taskGroup.getId(),
-                        "wrongUser"
-                );
+                        taskGroup.getId(), "wrongUser");
 
         assertThat(result).isEmpty();
     }
-
 }

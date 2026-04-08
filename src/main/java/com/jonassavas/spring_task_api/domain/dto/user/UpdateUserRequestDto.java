@@ -1,6 +1,5 @@
 package com.jonassavas.spring_task_api.domain.dto.user;
 
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;

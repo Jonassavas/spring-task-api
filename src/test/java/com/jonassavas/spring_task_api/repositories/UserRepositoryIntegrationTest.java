@@ -3,30 +3,26 @@ package com.jonassavas.spring_task_api.repositories;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.jonassavas.spring_task_api.domain.entities.UserEntity;
+import com.jonassavas.util.TestUserData;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-
-import com.jonassavas.spring_task_api.domain.entities.UserEntity;
-import com.jonassavas.util.TestUserData;
 
 @DataJpaTest
 public class UserRepositoryIntegrationTest {
 
     @Autowired private UserRepository underTest;
-    
-    //Optional<UserEntity> findByUsername(String username);
+
+    // Optional<UserEntity> findByUsername(String username);
     @Test
     public void testFindByUsernameReturnsUserWhenExists() {
-        UserEntity user = underTest.saveAndFlush(
-                TestUserData.createTestUserEntityA()
-        );
+        UserEntity user = underTest.saveAndFlush(TestUserData.createTestUserEntityA());
 
         var result = underTest.findByUsername(user.getUsername());
 
         assertThat(result).isPresent();
-        assertThat(result.get().getUsername())
-                .isEqualTo(user.getUsername());
+        assertThat(result.get().getUsername()).isEqualTo(user.getUsername());
     }
 
     @Test
@@ -43,17 +39,13 @@ public class UserRepositoryIntegrationTest {
 
         underTest.saveAndFlush(user1);
 
-        assertThatThrownBy(() -> underTest.saveAndFlush(user2))
-                .isInstanceOf(Exception.class);
+        assertThatThrownBy(() -> underTest.saveAndFlush(user2)).isInstanceOf(Exception.class);
     }
- 
-    
-    //boolean existsByUsername(String username);
+
+    // boolean existsByUsername(String username);
     @Test
     public void testExistsByUsernameReturnsTrueWhenExists() {
-        UserEntity user = underTest.saveAndFlush(
-                TestUserData.createTestUserEntityA()
-        );
+        UserEntity user = underTest.saveAndFlush(TestUserData.createTestUserEntityA());
 
         boolean exists = underTest.existsByUsername(user.getUsername());
 
@@ -67,12 +59,10 @@ public class UserRepositoryIntegrationTest {
         assertThat(exists).isFalse();
     }
 
-    //boolean existsByEmail(String email);
+    // boolean existsByEmail(String email);
     @Test
     public void testExistsByEmailReturnsTrueWhenExists() {
-        UserEntity user = underTest.saveAndFlush(
-                TestUserData.createTestUserEntityA()
-        );
+        UserEntity user = underTest.saveAndFlush(TestUserData.createTestUserEntityA());
 
         boolean exists = underTest.existsByEmail(user.getEmail());
 
@@ -86,19 +76,13 @@ public class UserRepositoryIntegrationTest {
         assertThat(exists).isFalse();
     }
 
-
     // TODO Implement case-insensitive usernames later
     @Test
     public void testFindByUsernameIsCaseSensitive() {
-        UserEntity user = underTest.saveAndFlush(
-                TestUserData.createTestUserEntityA()
-        );
+        UserEntity user = underTest.saveAndFlush(TestUserData.createTestUserEntityA());
 
-        var result = underTest.findByUsername(
-                user.getUsername().toUpperCase()
-        );
+        var result = underTest.findByUsername(user.getUsername().toUpperCase());
 
-        assertThat(result).isEmpty(); 
+        assertThat(result).isEmpty();
     }
-
 }

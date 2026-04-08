@@ -1,11 +1,5 @@
 package com.jonassavas.spring_task_api.services.impl;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-
 import com.jonassavas.spring_task_api.domain.dto.task_board.CreateTaskBoardRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardDto;
 import com.jonassavas.spring_task_api.domain.dto.task_board.UpdateTaskBoardRequestDto;
@@ -15,9 +9,12 @@ import com.jonassavas.spring_task_api.mappers.Mapper;
 import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
 import com.jonassavas.spring_task_api.security.SecurityService;
 import com.jonassavas.spring_task_api.services.TaskBoardService;
-
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
@@ -28,11 +25,11 @@ public class TaskBoardServiceImpl implements TaskBoardService {
     private Mapper<TaskBoardEntity, TaskBoardDto> taskBoardMapper;
     private final SecurityService securityService;
 
-
-    public TaskBoardServiceImpl(TaskBoardRepository taskBoardRepository,
-                                Mapper<TaskBoardEntity, CreateTaskBoardRequestDto> taskBoardRequestMapper,
-                                Mapper<TaskBoardEntity, TaskBoardDto> taskBoardMapper,
-                                SecurityService securityService){
+    public TaskBoardServiceImpl(
+            TaskBoardRepository taskBoardRepository,
+            Mapper<TaskBoardEntity, CreateTaskBoardRequestDto> taskBoardRequestMapper,
+            Mapper<TaskBoardEntity, TaskBoardDto> taskBoardMapper,
+            SecurityService securityService) {
         this.taskBoardRepository = taskBoardRepository;
         this.taskBoardRequestMapper = taskBoardRequestMapper;
         this.taskBoardMapper = taskBoardMapper;
@@ -40,28 +37,33 @@ public class TaskBoardServiceImpl implements TaskBoardService {
     }
 
     @Override
-    public TaskBoardDto createTaskBoard(CreateTaskBoardRequestDto requestDto){
+    public TaskBoardDto createTaskBoard(CreateTaskBoardRequestDto requestDto) {
         UserEntity user = securityService.getCurrentUser();
-        TaskBoardEntity taskBoard = TaskBoardEntity.builder()
-        .taskBoardName(requestDto.getTaskBoardName())
-        .owner(user)
-        .build(); 
+        TaskBoardEntity taskBoard =
+                TaskBoardEntity.builder()
+                        .taskBoardName(requestDto.getTaskBoardName())
+                        .owner(user)
+                        .build();
         TaskBoardEntity savedTaskBoard = taskBoardRepository.save(taskBoard);
         return taskBoardMapper.mapTo(savedTaskBoard);
-    } 
+    }
 
     @Override
-    public TaskBoardDto update(Long id, UpdateTaskBoardRequestDto requestDto){
+    public TaskBoardDto update(Long id, UpdateTaskBoardRequestDto requestDto) {
         UserEntity user = securityService.getCurrentUser();
 
-        TaskBoardEntity board = taskBoardRepository
+        TaskBoardEntity board =
+                taskBoardRepository
                         .findByIdAndOwnerUsername(id, user.getUsername())
-                        .orElseThrow(() -> new EntityNotFoundException(
-                            "TaskBoard not found with id: " + id +" for user: " + user.getUsername()
-                        ));
+                        .orElseThrow(
+                                () ->
+                                        new EntityNotFoundException(
+                                                "TaskBoard not found with id: "
+                                                        + id
+                                                        + " for user: "
+                                                        + user.getUsername()));
 
-
-        if(requestDto.getTaskBoardName() != null){
+        if (requestDto.getTaskBoardName() != null) {
             board.setTaskBoardName(requestDto.getTaskBoardName());
         }
 
@@ -69,20 +71,22 @@ public class TaskBoardServiceImpl implements TaskBoardService {
     }
 
     @Override
-    public void delete(Long id){
+    public void delete(Long id) {
         UserEntity user = securityService.getCurrentUser();
 
-        TaskBoardEntity board = taskBoardRepository
-                .findByIdAndOwnerUsername(id, user.getUsername())
-                .orElseThrow(() -> new EntityNotFoundException(
-                    "TaskBoard not found or not owned by user"
-                ));
+        TaskBoardEntity board =
+                taskBoardRepository
+                        .findByIdAndOwnerUsername(id, user.getUsername())
+                        .orElseThrow(
+                                () ->
+                                        new EntityNotFoundException(
+                                                "TaskBoard not found or not owned by user"));
 
         taskBoardRepository.delete(board);
-    } 
+    }
 
     @Override
-    public Optional<TaskBoardDto> findById(Long id){
+    public Optional<TaskBoardDto> findById(Long id) {
 
         UserEntity user = securityService.getCurrentUser();
 
@@ -90,24 +94,20 @@ public class TaskBoardServiceImpl implements TaskBoardService {
                 taskBoardRepository.findByIdAndOwnerUsername(id, user.getUsername());
 
         return taskBoard.map(taskBoardMapper::mapTo);
-    } 
+    }
 
     @Override
-    public List<TaskBoardDto> listTaskBoardsForCurrentUser(){
+    public List<TaskBoardDto> listTaskBoardsForCurrentUser() {
 
         UserEntity user = securityService.getCurrentUser();
 
-        return taskBoardRepository
-                .findByOwnerUsername(user.getUsername())
-                .stream()
+        return taskBoardRepository.findByOwnerUsername(user.getUsername()).stream()
                 .map(taskBoardMapper::mapTo)
                 .collect(Collectors.toList());
-    } 
-
-    @Override
-    public boolean isExist(Long id){
-        return taskBoardRepository.existsById(id);
     }
 
-
+    @Override
+    public boolean isExist(Long id) {
+        return taskBoardRepository.existsById(id);
+    }
 }

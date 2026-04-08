@@ -1,30 +1,29 @@
 package com.jonassavas.spring_task_api.security;
 
-import java.io.IOException;
-import java.time.Duration;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.Duration;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.context.annotation.Profile;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
+@Profile("!test")
 public class RateLimitingFilter extends OncePerRequestFilter {
 
     private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+    protected void doFilterInternal(
+            HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         String ip = request.getRemoteAddr();
@@ -60,20 +59,16 @@ public class RateLimitingFilter extends OncePerRequestFilter {
 
         if (endpointGroup.equals("auth")) {
             // Burst-friendly login/register
-            limit = Bandwidth.builder()
-                    .capacity(5)
-                    .refillGreedy(5, Duration.ofSeconds(10))
-                    .build();
+            limit = Bandwidth.builder().capacity(5).refillGreedy(5, Duration.ofSeconds(10)).build();
         } else {
             // General API protection
-            limit = Bandwidth.builder()
-                    .capacity(30)
-                    .refillIntervally(30, Duration.ofMinutes(1))
-                    .build();
+            limit =
+                    Bandwidth.builder()
+                            .capacity(30)
+                            .refillIntervally(30, Duration.ofMinutes(1))
+                            .build();
         }
 
-        return Bucket.builder()
-                .addLimit(limit)
-                .build();
+        return Bucket.builder().addLimit(limit).build();
     }
 }

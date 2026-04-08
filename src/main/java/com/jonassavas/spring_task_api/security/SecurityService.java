@@ -1,11 +1,10 @@
 package com.jonassavas.spring_task_api.security;
 
+import com.jonassavas.spring_task_api.domain.entities.UserEntity;
+import com.jonassavas.spring_task_api.repositories.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import com.jonassavas.spring_task_api.domain.entities.UserEntity;
-import com.jonassavas.spring_task_api.repositories.UserRepository;
 
 @Service
 public class SecurityService {
@@ -17,8 +16,7 @@ public class SecurityService {
     }
 
     public String getCurrentUsername() {
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
             throw new RuntimeException("No authenticated user found");
@@ -30,7 +28,8 @@ public class SecurityService {
     public UserEntity getCurrentUser() {
         String username = getCurrentUsername();
 
-        return userRepository.findByUsername(username)
+        return userRepository
+                .findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }

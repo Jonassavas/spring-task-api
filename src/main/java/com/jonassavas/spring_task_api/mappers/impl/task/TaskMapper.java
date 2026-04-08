@@ -1,11 +1,10 @@
 package com.jonassavas.spring_task_api.mappers.impl.task;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
-
 import com.jonassavas.spring_task_api.domain.dto.task.TaskDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 import com.jonassavas.spring_task_api.mappers.Mapper;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Component;
 
 @Component
 public class TaskMapper implements Mapper<TaskEntity, TaskDto> {
@@ -16,7 +15,8 @@ public class TaskMapper implements Mapper<TaskEntity, TaskDto> {
         this.modelMapper = modelMapper;
 
         // Skip taskGroup when mapping DTO -> Entity
-        this.modelMapper.typeMap(TaskDto.class, TaskEntity.class)
+        this.modelMapper
+                .typeMap(TaskDto.class, TaskEntity.class)
                 .addMappings(mapper -> mapper.skip(TaskEntity::setTaskGroup));
     }
 
@@ -32,4 +32,3 @@ public class TaskMapper implements Mapper<TaskEntity, TaskDto> {
         return modelMapper.map(taskDto, TaskEntity.class);
     }
 }
-

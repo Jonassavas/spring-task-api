@@ -1,5 +1,8 @@
 package com.jonassavas.spring_task_api.controllers;
 
+import com.jonassavas.spring_task_api.domain.entities.UserEntity;
+import com.jonassavas.util.TestAuthData;
+import com.jonassavas.util.TestUserData;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -9,14 +12,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import com.jonassavas.spring_task_api.domain.entities.UserEntity;
-import com.jonassavas.util.TestAuthData;
-import com.jonassavas.util.TestUserData;
-
 @SpringBootTest
 @AutoConfigureMockMvc
-public class AuthControllerIntegrationTest extends BaseControllerIntegrationTest {
-    
+public class AuthControllerIntegrationTest extends BaseAuthIntegrationTest {
+
     @Autowired private PasswordEncoder passwordEncoder;
 
     // REGISTER --------------------------------------------------
@@ -28,12 +27,10 @@ public class AuthControllerIntegrationTest extends BaseControllerIntegrationTest
         String json = objectMapper.writeValueAsString(request);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
-        ).andExpect(
-                MockMvcResultMatchers.status().isCreated()
-        );
+                        MockMvcRequestBuilders.post("/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andExpect(MockMvcResultMatchers.status().isCreated());
     }
 
     @Test
@@ -43,16 +40,11 @@ public class AuthControllerIntegrationTest extends BaseControllerIntegrationTest
         String json = objectMapper.writeValueAsString(request);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
-        ).andExpect(
-                MockMvcResultMatchers.jsonPath("$.token")
-                        .isString()
-        ).andExpect(
-                MockMvcResultMatchers.jsonPath("$.expiresIn")
-                        .isNumber()
-        );
+                        MockMvcRequestBuilders.post("/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.token").isString())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.expiresIn").isNumber());
     }
 
     @Test
@@ -61,18 +53,15 @@ public class AuthControllerIntegrationTest extends BaseControllerIntegrationTest
 
         // Save first user
         userRepository.saveAndFlush(
-                TestUserData.createTestUserEntity(request.getUsername(), request.getEmail())
-        );
+                TestUserData.createTestUserEntity(request.getUsername(), request.getEmail()));
 
         String json = objectMapper.writeValueAsString(request);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
-        ).andExpect(
-                MockMvcResultMatchers.status().isConflict()
-        );
+                        MockMvcRequestBuilders.post("/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andExpect(MockMvcResultMatchers.status().isConflict());
     }
 
     @Test
@@ -80,21 +69,15 @@ public class AuthControllerIntegrationTest extends BaseControllerIntegrationTest
         var request = TestAuthData.createTestRegisterRequestDto();
 
         userRepository.saveAndFlush(
-                TestUserData.createTestUserEntity(
-                        "differentUsername",
-                        request.getEmail()
-                )
-        );
+                TestUserData.createTestUserEntity("differentUsername", request.getEmail()));
 
         String json = objectMapper.writeValueAsString(request);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
-        ).andExpect(
-                MockMvcResultMatchers.status().isConflict()
-        );
+                        MockMvcRequestBuilders.post("/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andExpect(MockMvcResultMatchers.status().isConflict());
     }
 
     @Test
@@ -105,79 +88,62 @@ public class AuthControllerIntegrationTest extends BaseControllerIntegrationTest
         String json = objectMapper.writeValueAsString(request);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/auth/register")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
-        ).andExpect(
-                MockMvcResultMatchers.status().isBadRequest()
-        );
+                        MockMvcRequestBuilders.post("/auth/register")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     // LOGIN --------------------------------------------------------------
 
     @Test
     public void testLoginReturnsTokenWhenValid() throws Exception {
-        UserEntity user = TestUserData.createTestUserEntityA();
+        UserEntity user = TestUserData.createRandomTestUserEntity();
         user.setPassword(passwordEncoder.encode("encryptedtestpasswd1"));
 
-        userRepository.saveAndFlush(user); 
+        userRepository.saveAndFlush(user);
 
-        var request = TestAuthData.createTestLoginRequestDto(
-                user.getUsername(),
-                "encryptedtestpasswd1"
-        );
+        var request =
+                TestAuthData.createTestLoginRequestDto(user.getUsername(), "encryptedtestpasswd1");
 
         String json = objectMapper.writeValueAsString(request);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
-        ).andExpect(
-                MockMvcResultMatchers.status().isOk()
-        ).andExpect(
-                MockMvcResultMatchers.jsonPath("$.token").isString()
-        );
+                        MockMvcRequestBuilders.post("/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.token").isString());
     }
 
     @Test
     public void testLoginFailsWithWrongPassword() throws Exception {
-        UserEntity user = TestUserData.createTestUserEntityA();
+        UserEntity user = TestUserData.createRandomTestUserEntity();
         user.setPassword(passwordEncoder.encode("correctPassword"));
 
         userRepository.saveAndFlush(user);
 
-        var request = TestAuthData.createTestLoginRequestDto(
-                user.getUsername(),
-                "wrongPassword"
-        );
+        var request = TestAuthData.createTestLoginRequestDto(user.getUsername(), "wrongPassword");
 
         String json = objectMapper.writeValueAsString(request);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
-        ).andExpect(
-                MockMvcResultMatchers.status().isUnauthorized()
-        );
+                        MockMvcRequestBuilders.post("/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
     @Test
     public void testLoginFailsWhenUserNotFound() throws Exception {
-        var request = TestAuthData.createTestLoginRequestDto(
-                "nonexistent",
-                "password"
-        );
+        var request = TestAuthData.createTestLoginRequestDto("nonexistent", "password");
 
         String json = objectMapper.writeValueAsString(request);
 
         mockMvc.perform(
-                MockMvcRequestBuilders.post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
-        ).andExpect(
-                MockMvcResultMatchers.status().isUnauthorized()
-        );
+                        MockMvcRequestBuilders.post("/auth/login")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 }

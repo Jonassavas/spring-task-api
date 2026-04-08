@@ -2,17 +2,6 @@ package com.jonassavas.spring_task_api.controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.List;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
 import com.jonassavas.spring_task_api.domain.dto.task.CreateTaskRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task.UpdateTaskRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
@@ -26,14 +15,20 @@ import com.jonassavas.util.TestTaskBoardData;
 import com.jonassavas.util.TestTaskData;
 import com.jonassavas.util.TestTaskGroupData;
 import com.jonassavas.util.TestUserData;
-
-
-
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class TaskControllerIntegrationTest extends BaseControllerIntegrationTest {
-    
+public class TaskControllerIntegrationTest extends BaseAuthenticatedIntegrationTest {
+
     // Repositories to save test data to the database:
     @Autowired private TaskRepository taskRepository;
     @Autowired private TaskGroupRepository taskGroupRepository;
@@ -41,13 +36,12 @@ public class TaskControllerIntegrationTest extends BaseControllerIntegrationTest
 
     /* Prerequisit data:
         A Task needs a taskGroup, which in turn requires a taskBoard.
-            - TaskBoard --> TaskGroup --> Task 
-    */  
-    private TaskBoardEntity taskBoard; 
+            - TaskBoard --> TaskGroup --> Task
+    */
+    private TaskBoardEntity taskBoard;
     private TaskGroupEntity taskGroupA;
     private TaskGroupEntity taskGroupB;
 
-    
     @BeforeEach
     public void setUp() {
         // Clear previous test data in reverse FK order
@@ -56,86 +50,78 @@ public class TaskControllerIntegrationTest extends BaseControllerIntegrationTest
         taskBoardRepository.deleteAll();
 
         // Create a task board for the current user
-        taskBoard = taskBoardRepository.save(
-            TestTaskBoardData.createTestTaskBoardEntityA(user)
-        );
+        taskBoard = taskBoardRepository.save(TestTaskBoardData.createTestTaskBoardEntityA(user));
 
         // Create two task groups for this board
-        taskGroupA = taskGroupRepository.save(
-            TestTaskGroupData.createTaskGroupEntityA(taskBoard)
-        );
-        taskGroupB = taskGroupRepository.save(
-            TestTaskGroupData.createTaskGroupEntityB(taskBoard)
-        );
-    } 
+        taskGroupA = taskGroupRepository.save(TestTaskGroupData.createTaskGroupEntityA(taskBoard));
+        taskGroupB = taskGroupRepository.save(TestTaskGroupData.createTaskGroupEntityB(taskBoard));
+    }
 
     // CREATE -----------------------------------------------------------
 
     @Test
-    public void testThatCreateTaskReturnsHttp201Create() throws Exception{
-        CreateTaskRequestDto testTaskRequestDtoA = TestTaskData.createTestTaskRequestDtoA(taskGroupA);
+    public void testThatCreateTaskReturnsHttp201Create() throws Exception {
+        CreateTaskRequestDto testTaskRequestDtoA =
+                TestTaskData.createTestTaskRequestDtoA(taskGroupA);
 
         String taskJson = objectMapper.writeValueAsString(testTaskRequestDtoA);
 
         mockMvc.perform(
-            authenticated(MockMvcRequestBuilders.post("/groups/" + taskGroupA.getId() + "/tasks"))
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(taskJson)
-        )
-        .andExpect(MockMvcResultMatchers.status().isCreated())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.taskName").value("Task A"))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.taskGroupId").value(taskGroupA.getId())); 
+                        authenticated(
+                                        MockMvcRequestBuilders.post(
+                                                "/groups/" + taskGroupA.getId() + "/tasks"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(taskJson))
+                .andExpect(MockMvcResultMatchers.status().isCreated())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.taskName").value("Task A"))
+                .andExpect(
+                        MockMvcResultMatchers.jsonPath("$.taskGroupId").value(taskGroupA.getId()));
     }
 
     @Test
-    public void testThatCreateTaskReturnsSavedTask() throws Exception{
-        CreateTaskRequestDto testTaskRequestDtoA = TestTaskData.createTestTaskRequestDtoA(taskGroupA);
+    public void testThatCreateTaskReturnsSavedTask() throws Exception {
+        CreateTaskRequestDto testTaskRequestDtoA =
+                TestTaskData.createTestTaskRequestDtoA(taskGroupA);
 
         String taskJson = objectMapper.writeValueAsString(testTaskRequestDtoA);
 
         mockMvc.perform(
-            authenticated(MockMvcRequestBuilders.post("/groups/" + taskGroupA.getId() + "/tasks"))
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(taskJson)
-        ).andExpect(
-            MockMvcResultMatchers.jsonPath("$.taskGroupId").isNumber()
-        ).andExpect(
-            MockMvcResultMatchers.jsonPath("$.id").isNumber()
-        ).andExpect( 
-            MockMvcResultMatchers.jsonPath("$.taskName").value("Task A")
-        );
+                        authenticated(
+                                        MockMvcRequestBuilders.post(
+                                                "/groups/" + taskGroupA.getId() + "/tasks"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(taskJson))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.taskGroupId").isNumber())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNumber())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.taskName").value("Task A"));
 
-        assertThat(taskRepository.findAll())
-            .extracting(TaskEntity::getTaskName)
-            .contains("Task A");
+        assertThat(taskRepository.findAll()).extracting(TaskEntity::getTaskName).contains("Task A");
     }
-    
+
     @Test
-    public void testThatCreateTaskWithoutValidTaskGroupReturns404() throws Exception{
-        CreateTaskRequestDto testTaskRequestDtoA = TestTaskData.createTestTaskRequestDtoA(taskGroupA);
+    public void testThatCreateTaskWithoutValidTaskGroupReturns404() throws Exception {
+        CreateTaskRequestDto testTaskRequestDtoA =
+                TestTaskData.createTestTaskRequestDtoA(taskGroupA);
 
         String taskJson = objectMapper.writeValueAsString(testTaskRequestDtoA);
 
         mockMvc.perform(
-            authenticated(MockMvcRequestBuilders.post("/groups/" + 99 + "/tasks"))
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(taskJson)
-        ).andExpect(
-            MockMvcResultMatchers.status().isNotFound()
-        );
+                        authenticated(MockMvcRequestBuilders.post("/groups/" + 99 + "/tasks"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(taskJson))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
     @Test
     public void testThatCreateTaskWithoutTokenReturns401() throws Exception {
-        String taskJson = objectMapper.writeValueAsString(
-            TestTaskData.createTestTaskRequestDtoA(taskGroupA)
-        );
+        String taskJson =
+                objectMapper.writeValueAsString(TestTaskData.createTestTaskRequestDtoA(taskGroupA));
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/groups/" + taskGroupA.getId() + "/tasks")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(taskJson)
-        ).andExpect(MockMvcResultMatchers.status().isUnauthorized());
+                        MockMvcRequestBuilders.post("/groups/" + taskGroupA.getId() + "/tasks")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(taskJson))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
     }
 
     @Test
@@ -146,128 +132,140 @@ public class TaskControllerIntegrationTest extends BaseControllerIntegrationTest
         String json = objectMapper.writeValueAsString(dto);
 
         mockMvc.perform(
-                authenticated(MockMvcRequestBuilders.post("/groups/" + taskGroupA.getId() + "/tasks"))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
-        ).andExpect(MockMvcResultMatchers.status().isBadRequest());
+                        authenticated(
+                                        MockMvcRequestBuilders.post(
+                                                "/groups/" + taskGroupA.getId() + "/tasks"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     // DELETE -----------------------------------------------------------
 
     @Test
-    public void testThatDeleteTaskReturnsHttp204() throws Exception{
-        TaskEntity testTaskEntityA = taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
+    public void testThatDeleteTaskReturnsHttp204() throws Exception {
+        TaskEntity testTaskEntityA =
+                taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
 
-        assertThat(taskGroupRepository
-                    .findByIdWithTasksAndUsername(taskGroupA.getId(), user.getUsername()).get()
-                        .getTasks().size())
-                .isEqualTo(1); 
+        assertThat(
+                        taskGroupRepository
+                                .findByIdWithTasksAndUsername(
+                                        taskGroupA.getId(), user.getUsername())
+                                .get()
+                                .getTasks()
+                                .size())
+                .isEqualTo(1);
 
         mockMvc.perform(
-            authenticated(MockMvcRequestBuilders.delete("/tasks/" + testTaskEntityA.getId())) 
-            .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(
-            MockMvcResultMatchers.status().isNoContent());
+                        authenticated(
+                                        MockMvcRequestBuilders.delete(
+                                                "/tasks/" + testTaskEntityA.getId()))
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
 
-        assertThat(taskGroupRepository
-                    .findByIdWithTasksAndUsername(taskGroupA.getId(), user.getUsername()).get()
-                        .getTasks().size())
-                .isEqualTo(0); 
+        assertThat(
+                        taskGroupRepository
+                                .findByIdWithTasksAndUsername(
+                                        taskGroupA.getId(), user.getUsername())
+                                .get()
+                                .getTasks()
+                                .size())
+                .isEqualTo(0);
     }
 
     @Test
-    public void testThatDeleteTaskDeletesCorrectTask() throws Exception{
-        TaskEntity testTaskEntityA = 
-            taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
+    public void testThatDeleteTaskDeletesCorrectTask() throws Exception {
+        TaskEntity testTaskEntityA =
+                taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
 
-        TaskEntity testTaskEntityB = 
-            taskRepository.save(TestTaskData.createTestTaskEntityB(taskGroupA));
+        TaskEntity testTaskEntityB =
+                taskRepository.save(TestTaskData.createTestTaskEntityB(taskGroupA));
 
-        assertThat(taskGroupRepository
-                    .findByIdWithTasksAndUsername(taskGroupA.getId(), user.getUsername()).get()
-                        .getTasks().size())
-                .isEqualTo(2); 
+        assertThat(
+                        taskGroupRepository
+                                .findByIdWithTasksAndUsername(
+                                        taskGroupA.getId(), user.getUsername())
+                                .get()
+                                .getTasks()
+                                .size())
+                .isEqualTo(2);
 
         mockMvc.perform(
-            authenticated(MockMvcRequestBuilders.delete("/tasks/" + testTaskEntityA.getId()))
-            .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(
-            MockMvcResultMatchers.status().isNoContent());
-        
-        List<TaskEntity> result = taskGroupRepository
-                                    .findByIdWithTasksAndUsername(taskGroupA.getId(), user.getUsername())
-                                    .get()
-                                    .getTasks();
+                        authenticated(
+                                        MockMvcRequestBuilders.delete(
+                                                "/tasks/" + testTaskEntityA.getId()))
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNoContent());
+
+        List<TaskEntity> result =
+                taskGroupRepository
+                        .findByIdWithTasksAndUsername(taskGroupA.getId(), user.getUsername())
+                        .get()
+                        .getTasks();
 
         assertThat(result.size()).isEqualTo(1);
-        assertThat(result)
-                .extracting(TaskEntity::getId)
-                .containsExactly(testTaskEntityB.getId());
-        
+        assertThat(result).extracting(TaskEntity::getId).containsExactly(testTaskEntityB.getId());
     }
 
     @Test
     public void testThatDeleteNonExistentTaskReturns404() throws Exception {
         mockMvc.perform(
-            authenticated(MockMvcRequestBuilders.delete("/tasks/9999"))
-                .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(MockMvcResultMatchers.status().isNotFound());
+                        authenticated(MockMvcRequestBuilders.delete("/tasks/9999"))
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
     // UPDATE -----------------------------------------------------------
 
     @Test
-    public void testUpdateTaskName() throws Exception{
-        TaskEntity testTaskEntityA = 
-            taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
+    public void testUpdateTaskName() throws Exception {
+        TaskEntity testTaskEntityA =
+                taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
 
-        UpdateTaskRequestDto testRequestTaskDto =
-            TestTaskData.updateTestRequestTaskDto(taskGroupA);
+        UpdateTaskRequestDto testRequestTaskDto = TestTaskData.updateTestRequestTaskDto(taskGroupA);
         testRequestTaskDto.setTaskName("UPDATED");
 
         String taskJson = objectMapper.writeValueAsString(testRequestTaskDto);
 
         mockMvc.perform(
-            authenticated(MockMvcRequestBuilders.patch("/tasks/" + testTaskEntityA.getId()))
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(taskJson)
-        ).andExpect(
-            MockMvcResultMatchers.status().isOk()
-        ).andExpect(
-            MockMvcResultMatchers.jsonPath("$.taskName").value("UPDATED")
-        );
+                        authenticated(
+                                        MockMvcRequestBuilders.patch(
+                                                "/tasks/" + testTaskEntityA.getId()))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(taskJson))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.taskName").value("UPDATED"));
     }
 
     @Test
-    public void testUpdateTaskGroupId() throws Exception{
+    public void testUpdateTaskGroupId() throws Exception {
         // Creating tasks for taskGroup: A
-        TaskEntity testTaskEntityA = 
-            taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
+        TaskEntity testTaskEntityA =
+                taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
 
         // Creating tasks for another taskGroup: B
-        UpdateTaskRequestDto testRequestTaskDto = 
-            TestTaskData.updateTestRequestTaskDto(taskGroupB);
+        UpdateTaskRequestDto testRequestTaskDto = TestTaskData.updateTestRequestTaskDto(taskGroupB);
         testRequestTaskDto.setTaskGroupId(taskGroupB.getId());
 
         String taskJson = objectMapper.writeValueAsString(testRequestTaskDto);
 
         mockMvc.perform(
-            authenticated(MockMvcRequestBuilders.patch("/tasks/" + testTaskEntityA.getId()))
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(taskJson)
-        ).andExpect(
-            MockMvcResultMatchers.status().isOk()
-        ).andExpect(
-            MockMvcResultMatchers.jsonPath("$.taskGroupId").value(taskGroupB.getId())
-        );
+                        authenticated(
+                                        MockMvcRequestBuilders.patch(
+                                                "/tasks/" + testTaskEntityA.getId()))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(taskJson))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        MockMvcResultMatchers.jsonPath("$.taskGroupId").value(taskGroupB.getId()));
     }
 
     @Test
-    public void testUpdateBothTaskGroupIdAndTaskName() throws Exception{
+    public void testUpdateBothTaskGroupIdAndTaskName() throws Exception {
 
         // Creating task for taskGroup: A
-        TaskEntity testTaskEntityA = 
-            taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
+        TaskEntity testTaskEntityA =
+                taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
 
         // Creating request to change testTaskEntityA from taskGroup: A --> B
         UpdateTaskRequestDto testRequestTaskDto = TestTaskData.updateTestRequestTaskDto(taskGroupB);
@@ -277,16 +275,15 @@ public class TaskControllerIntegrationTest extends BaseControllerIntegrationTest
         String taskJson = objectMapper.writeValueAsString(testRequestTaskDto);
 
         mockMvc.perform(
-            authenticated(MockMvcRequestBuilders.patch("/tasks/" + testTaskEntityA.getId()))
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(taskJson)
-        ).andExpect(
-            MockMvcResultMatchers.status().isOk()
-        ).andExpect(
-            MockMvcResultMatchers.jsonPath("$.taskGroupId").value(taskGroupB.getId())
-        ).andExpect(
-            MockMvcResultMatchers.jsonPath("$.taskName").value("UPDATED")
-        );
+                        authenticated(
+                                        MockMvcRequestBuilders.patch(
+                                                "/tasks/" + testTaskEntityA.getId()))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(taskJson))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        MockMvcResultMatchers.jsonPath("$.taskGroupId").value(taskGroupB.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.taskName").value("UPDATED"));
     }
 
     @Test
@@ -297,10 +294,10 @@ public class TaskControllerIntegrationTest extends BaseControllerIntegrationTest
         String json = objectMapper.writeValueAsString(dto);
 
         mockMvc.perform(
-                authenticated(MockMvcRequestBuilders.patch("/tasks/9999"))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
-        ).andExpect(MockMvcResultMatchers.status().isNotFound());
+                        authenticated(MockMvcRequestBuilders.patch("/tasks/9999"))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
     @Test
@@ -308,23 +305,26 @@ public class TaskControllerIntegrationTest extends BaseControllerIntegrationTest
         TaskEntity task = taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
 
         UpdateTaskRequestDto dto = TestTaskData.updateTestRequestTaskDto(taskGroupA);
-        dto.setTaskName("");  // Invalid empty name
+        dto.setTaskName(""); // Invalid empty name
 
         String json = objectMapper.writeValueAsString(dto);
 
         mockMvc.perform(
-                authenticated(MockMvcRequestBuilders.patch("/tasks/" + task.getId()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
-        ).andExpect(MockMvcResultMatchers.status().isBadRequest());
+                        authenticated(MockMvcRequestBuilders.patch("/tasks/" + task.getId()))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     @Test
     public void testUpdateTaskOfAnotherUserReturns404() throws Exception {
         // Create a different user
-        UserEntity otherUser = userRepository.saveAndFlush(TestUserData.createBaseTestUserEntity("otherUser"));
-        TaskBoardEntity otherBoard = taskBoardRepository.save(TestTaskBoardData.createTestTaskBoardEntityA(otherUser));
-        TaskGroupEntity otherGroup = taskGroupRepository.save(TestTaskGroupData.createTaskGroupEntityA(otherBoard));
+        UserEntity otherUser =
+                userRepository.saveAndFlush(TestUserData.createBaseTestUserEntity("otherUser"));
+        TaskBoardEntity otherBoard =
+                taskBoardRepository.save(TestTaskBoardData.createTestTaskBoardEntityA(otherUser));
+        TaskGroupEntity otherGroup =
+                taskGroupRepository.save(TestTaskGroupData.createTaskGroupEntityA(otherBoard));
         TaskEntity otherTask = taskRepository.save(TestTaskData.createTestTaskEntityA(otherGroup));
 
         UpdateTaskRequestDto dto = TestTaskData.updateTestRequestTaskDto(otherGroup);
@@ -333,10 +333,10 @@ public class TaskControllerIntegrationTest extends BaseControllerIntegrationTest
         String json = objectMapper.writeValueAsString(dto);
 
         mockMvc.perform(
-                authenticated(MockMvcRequestBuilders.patch("/tasks/" + otherTask.getId()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
-        ).andExpect(MockMvcResultMatchers.status().isNotFound());
+                        authenticated(MockMvcRequestBuilders.patch("/tasks/" + otherTask.getId()))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andExpect(MockMvcResultMatchers.status().isNotFound());
     }
 
     @Test
@@ -348,12 +348,14 @@ public class TaskControllerIntegrationTest extends BaseControllerIntegrationTest
         String json = objectMapper.writeValueAsString(dto);
 
         mockMvc.perform(
-                authenticated(MockMvcRequestBuilders.patch("/tasks/" + task.getId()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
-        ).andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.taskName").value(task.getTaskName()))
-        .andExpect(MockMvcResultMatchers.jsonPath("$.taskGroupId").value(task.getTaskGroup().getId()));
+                        authenticated(MockMvcRequestBuilders.patch("/tasks/" + task.getId()))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.taskName").value(task.getTaskName()))
+                .andExpect(
+                        MockMvcResultMatchers.jsonPath("$.taskGroupId")
+                                .value(task.getTaskGroup().getId()));
     }
 
     @Test
@@ -366,11 +368,11 @@ public class TaskControllerIntegrationTest extends BaseControllerIntegrationTest
         String json = objectMapper.writeValueAsString(dto);
 
         mockMvc.perform(
-                authenticated(MockMvcRequestBuilders.patch("/tasks/" + task.getId()))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(json)
-        ).andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.jsonPath("$.taskGroupId").value(taskGroupA.getId()));
+                        authenticated(MockMvcRequestBuilders.patch("/tasks/" + task.getId()))
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(
+                        MockMvcResultMatchers.jsonPath("$.taskGroupId").value(taskGroupA.getId()));
     }
-
 }

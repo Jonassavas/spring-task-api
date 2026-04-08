@@ -12,8 +12,13 @@ public class ApiError {
     private String path;
     private Map<String, String> errors;
 
-    public ApiError(LocalDateTime timestamp, int status, String error,
-                    String message, String path, Map<String, String> errors) {
+    public ApiError(
+            LocalDateTime timestamp,
+            int status,
+            String error,
+            String message,
+            String path,
+            Map<String, String> errors) {
         this.timestamp = timestamp;
         this.status = status;
         this.error = error;
@@ -22,15 +27,32 @@ public class ApiError {
         this.errors = errors;
     }
 
-    public ApiError(LocalDateTime timestamp, int status, String error,
-                    String message, String path) {
+    public ApiError(
+            LocalDateTime timestamp, int status, String error, String message, String path) {
         this(timestamp, status, error, message, path, null);
     }
 
-    public LocalDateTime getTimestamp() { return timestamp; }
-    public int getStatus() { return status; }
-    public String getError() { return error; }
-    public String getMessage() { return message; }
-    public String getPath() { return path; }
-    public Map<String, String> getErrors() { return errors; }
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public Map<String, String> getErrors() {
+        return errors;
+    }
 }

@@ -1,9 +1,7 @@
 package com.jonassavas.spring_task_api.domain.dto.task_board;
 
-import java.util.List;
-
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupDto;
-
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -1,17 +1,16 @@
 package com.jonassavas.spring_task_api.mappers.impl.user;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Component;
-
 import com.jonassavas.spring_task_api.domain.dto.user.UserDto;
 import com.jonassavas.spring_task_api.domain.entities.UserEntity;
 import com.jonassavas.spring_task_api.mappers.Mapper;
+import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Component;
 
 @Component
-public class UserMapper implements Mapper<UserEntity, UserDto>{
+public class UserMapper implements Mapper<UserEntity, UserDto> {
     private ModelMapper modelMapper;
 
-    public UserMapper(ModelMapper modelMapper){
+    public UserMapper(ModelMapper modelMapper) {
         this.modelMapper = modelMapper;
 
         // Skip taskGroup when mapping DTO -> Entity
@@ -21,13 +20,13 @@ public class UserMapper implements Mapper<UserEntity, UserDto>{
     }
 
     @Override
-    public UserDto mapTo(UserEntity userEntity){
+    public UserDto mapTo(UserEntity userEntity) {
         UserDto dto = modelMapper.map(userEntity, UserDto.class);
         return dto;
     }
 
     @Override
-    public UserEntity mapFrom(UserDto userResponseDto){
+    public UserEntity mapFrom(UserDto userResponseDto) {
         return modelMapper.map(userResponseDto, UserEntity.class);
     }
 }

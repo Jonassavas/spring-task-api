@@ -15,5 +15,5 @@ public class CreateTaskBoardRequestDto {
 
     @NotBlank(message = "Task board name is required")
     @Size(min = 1, max = 50, message = "Task board name cannot exceed 50 characters")
-    private String taskBoardName;   
+    private String taskBoardName;
 }

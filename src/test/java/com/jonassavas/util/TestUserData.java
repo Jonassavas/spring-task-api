@@ -2,6 +2,7 @@ package com.jonassavas.util;
 
 import com.jonassavas.spring_task_api.domain.dto.user.UpdateUserRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.UserEntity;
+import java.util.UUID;
 
 public class TestUserData {
 
@@ -13,48 +14,48 @@ public class TestUserData {
                 .build();
     }
 
-    public static UserEntity createTestUserEntity(String username, String email) {
+    public static UserEntity createRandomTestUserEntity() {
+        String unique =
+                UUID.randomUUID().toString().replace("-", "").substring(0, 8); // short + safe
+
         return UserEntity.builder()
-                .username(username)
-                .email(email)
-                .password("password")
+                .username("user_" + unique)
+                .password("testpasswd1")
+                .email("email_" + unique + "@test.com")
                 .build();
     }
 
-    // Entities ----------------------------------------------------------
-    public static UserEntity createTestUserEntityA(){
-        return UserEntity.builder()
-                                .username("userA")
-                                .password("encryptedtestpassw1")
-                                .email("userA@testmail.com")
-                                .build();
-    }
-    
-    public static UserEntity createTestUserEntityB(){
-        return UserEntity.builder()
-                                .username("userB")
-                                .password("encryptedtestpassw2")
-                                .email("userB@testmail.com")
-                                .build();
+    public static UserEntity createTestUserEntity(String username, String email) {
+        return UserEntity.builder().username(username).email(email).password("password").build();
     }
 
-    public static UserEntity createTestUserEntityC(){
+    // Entities ----------------------------------------------------------
+    public static UserEntity createTestUserEntityA() {
         return UserEntity.builder()
-                                .username("userC")
-                                .password("encryptedtestpassw3")
-                                .email("userC@testmail.com")
-                                .build();
+                .username("userA")
+                .password("encryptedtestpassw1")
+                .email("userA@testmail.com")
+                .build();
+    }
+
+    public static UserEntity createTestUserEntityB() {
+        return UserEntity.builder()
+                .username("userB")
+                .password("encryptedtestpassw2")
+                .email("userB@testmail.com")
+                .build();
+    }
+
+    public static UserEntity createTestUserEntityC() {
+        return UserEntity.builder()
+                .username("userC")
+                .password("encryptedtestpassw3")
+                .email("userC@testmail.com")
+                .build();
     }
 
     // UPDATE DTO -------------------------------------------------------------
-    public static UpdateUserRequestDto createTestUpdateUserRequestDtoA(){
-        return UpdateUserRequestDto.builder()
-                                        .username(null)
-                                        .password(null)
-                                        .email(null)
-                                        .build();
+    public static UpdateUserRequestDto createTestUpdateUserRequestDtoA() {
+        return UpdateUserRequestDto.builder().username(null).password(null).email(null).build();
     }
-
-    
-
 }

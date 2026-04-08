@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.jsonwebtoken.Claims;
@@ -12,9 +13,12 @@ import io.jsonwebtoken.security.Keys;
 
 @Service
 public class JwtService {
+    // Values are read from .env in the root of the project
+    @Value("${jwt.secret}")
+    private String secret;
 
-    private final String secret = "verylongsecretkey_for_jwt_that_should_be_secure_and_long";
-    private final long expirationMs = 1000 * 60 * 60 * 24; // 1 day
+    @Value("${jwt.expiration-ms}")
+    private long expirationMs;
 
     private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());

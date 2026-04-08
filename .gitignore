@@ -1,3 +1,9 @@
+# Secrets
+# Spring Boot specific
+src/main/resources/application-secrets.properties
+application-local.properties
+application-dev.properties
+
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar

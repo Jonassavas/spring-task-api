@@ -33,8 +33,8 @@ public abstract class BaseControllerIntegrationTest {
         token = jwtService.generateToken(user.getUsername());
     }
 
-    protected UserEntity createAndSaveUser() {
-        /*
+
+    /*
             - DB has a limit of 30 chars for usernames.
             - Users persist through controller tests.
             - UUID of 20 chars could potentially collide
@@ -42,12 +42,16 @@ public abstract class BaseControllerIntegrationTest {
             - If this happens:
                 - Read the output
                 - Rerun the tests
-                - Buy a lottery ticket
+                - Buy a lottery ticket (~1.2trillion combinations)
         */
-        String unique = UUID.randomUUID().toString().substring(0, 20);
+    protected UserEntity createAndSaveUser() {
+        String unique = UUID.randomUUID()
+            .toString()
+            .replace("-", "")
+            .substring(0, 20); 
 
-        return userRepository.save(
-                TestUserData.createTestUserEntity(unique)
+        return userRepository.saveAndFlush(
+                TestUserData.createBaseTestUserEntity(unique)
         );
     }
 

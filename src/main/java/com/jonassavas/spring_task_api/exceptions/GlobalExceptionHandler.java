@@ -124,4 +124,21 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
+    
+    @ExceptionHandler(ConflictFieldsException.class)
+    public ResponseEntity<ApiError> handleConflictFields(
+                ConflictFieldsException ex,
+                HttpServletRequest request) {
+
+        ApiError error = new ApiError(
+                LocalDateTime.now(),
+                409,
+                "Conflict",
+                "Some fields are already in use",
+                request.getRequestURI(),
+                ex.getConflicts()
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
 }

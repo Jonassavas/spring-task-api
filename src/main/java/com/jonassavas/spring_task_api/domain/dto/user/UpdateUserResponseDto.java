@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 public class UpdateUserResponseDto {
     private UserDto user;
     private String token;
-    private long expiresIn;
+    private Long expiresIn; // Allow null when updating (no new token)
 }

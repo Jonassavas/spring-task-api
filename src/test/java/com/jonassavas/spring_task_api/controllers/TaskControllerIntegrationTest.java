@@ -10,12 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jonassavas.spring_task_api.domain.dto.task.CreateTaskRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task.UpdateTaskRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
@@ -25,8 +22,6 @@ import com.jonassavas.spring_task_api.domain.entities.UserEntity;
 import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
 import com.jonassavas.spring_task_api.repositories.TaskGroupRepository;
 import com.jonassavas.spring_task_api.repositories.TaskRepository;
-import com.jonassavas.spring_task_api.repositories.UserRepository;
-import com.jonassavas.spring_task_api.security.JwtService;
 import com.jonassavas.util.TestTaskBoardData;
 import com.jonassavas.util.TestTaskData;
 import com.jonassavas.util.TestTaskGroupData;
@@ -36,67 +31,43 @@ import com.jonassavas.util.TestUserData;
 
 
 @SpringBootTest
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureMockMvc
-public class TaskControllerIntegrationTest {
+public class TaskControllerIntegrationTest extends BaseControllerIntegrationTest {
     
-    private MockMvc mockMvc;
-    private ObjectMapper objectMapper;
-
     // Repositories to save test data to the database:
-    private TaskRepository taskRepository;
-    private TaskGroupRepository taskGroupRepository;
-    private TaskBoardRepository taskBoardRepository;
-    private UserRepository userRepository;
-
-    private JwtService jwtService;
-    private String token;
+    @Autowired private TaskRepository taskRepository;
+    @Autowired private TaskGroupRepository taskGroupRepository;
+    @Autowired private TaskBoardRepository taskBoardRepository;
 
     /* Prerequisit data:
         A Task needs a taskGroup, which in turn requires a taskBoard.
             - TaskBoard --> TaskGroup --> Task 
     */  
-    private UserEntity user;
     private TaskBoardEntity taskBoard; 
     private TaskGroupEntity taskGroupA;
     private TaskGroupEntity taskGroupB;
 
-    @Autowired
-    public TaskControllerIntegrationTest(
-            MockMvc mockMvc, 
-            ObjectMapper objectMapper,
-            TaskRepository taskRepository,
-            TaskGroupRepository taskGroupRepository,
-            TaskBoardRepository taskBoardRepository,
-            UserRepository userRepository,
-            JwtService jwtService) {
-        this.mockMvc = mockMvc;
-        this.objectMapper = objectMapper;
-        this.taskRepository = taskRepository;
-        this.taskGroupRepository = taskGroupRepository;
-        this.taskBoardRepository = taskBoardRepository;
-        this.userRepository = userRepository;
-        this.jwtService = jwtService;
-    } 
     
     @BeforeEach
-    public void setUp(){
-        user = userRepository.save(
-            TestUserData.createTestUserEntityA()
-        );
+    public void setUp() {
+        // Clear previous test data in reverse FK order
+        taskRepository.deleteAll();
+        taskGroupRepository.deleteAll();
+        taskBoardRepository.deleteAll();
 
-        token = jwtService.generateToken(user.getUsername());
-
+        // Create a task board for the current user
         taskBoard = taskBoardRepository.save(
             TestTaskBoardData.createTestTaskBoardEntityA(user)
         );
+
+        // Create two task groups for this board
         taskGroupA = taskGroupRepository.save(
             TestTaskGroupData.createTaskGroupEntityA(taskBoard)
         );
         taskGroupB = taskGroupRepository.save(
-            TestTaskGroupData.createTaskGroupEntityA(taskBoard)
+            TestTaskGroupData.createTaskGroupEntityB(taskBoard)
         );
-    }
+    } 
 
     // CREATE -----------------------------------------------------------
 
@@ -107,13 +78,13 @@ public class TaskControllerIntegrationTest {
         String taskJson = objectMapper.writeValueAsString(testTaskRequestDtoA);
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/groups/" + taskGroupA.getId() + "/tasks")
-            .header("Authorization", "Bearer " + token)
+            authenticated(MockMvcRequestBuilders.post("/groups/" + taskGroupA.getId() + "/tasks"))
             .contentType(MediaType.APPLICATION_JSON)
             .content(taskJson)
-        ).andExpect(
-            MockMvcResultMatchers.status().isCreated()
-        );
+        )
+        .andExpect(MockMvcResultMatchers.status().isCreated())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.taskName").value("Task A"))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.taskGroupId").value(taskGroupA.getId())); 
     }
 
     @Test
@@ -123,8 +94,7 @@ public class TaskControllerIntegrationTest {
         String taskJson = objectMapper.writeValueAsString(testTaskRequestDtoA);
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/groups/" + taskGroupA.getId() + "/tasks")
-            .header("Authorization", "Bearer " + token)
+            authenticated(MockMvcRequestBuilders.post("/groups/" + taskGroupA.getId() + "/tasks"))
             .contentType(MediaType.APPLICATION_JSON)
             .content(taskJson)
         ).andExpect(
@@ -134,6 +104,10 @@ public class TaskControllerIntegrationTest {
         ).andExpect( 
             MockMvcResultMatchers.jsonPath("$.taskName").value("Task A")
         );
+
+        assertThat(taskRepository.findAll())
+            .extracting(TaskEntity::getTaskName)
+            .contains("Task A");
     }
     
     @Test
@@ -143,13 +117,39 @@ public class TaskControllerIntegrationTest {
         String taskJson = objectMapper.writeValueAsString(testTaskRequestDtoA);
 
         mockMvc.perform(
-            MockMvcRequestBuilders.post("/groups/" + 99 + "/tasks")
-            .header("Authorization", "Bearer " + token)
+            authenticated(MockMvcRequestBuilders.post("/groups/" + 99 + "/tasks"))
             .contentType(MediaType.APPLICATION_JSON)
             .content(taskJson)
         ).andExpect(
             MockMvcResultMatchers.status().isNotFound()
         );
+    }
+
+    @Test
+    public void testThatCreateTaskWithoutTokenReturns401() throws Exception {
+        String taskJson = objectMapper.writeValueAsString(
+            TestTaskData.createTestTaskRequestDtoA(taskGroupA)
+        );
+
+        mockMvc.perform(
+            MockMvcRequestBuilders.post("/groups/" + taskGroupA.getId() + "/tasks")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(taskJson)
+        ).andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    @Test
+    public void testCreateTaskWithInvalidFieldsReturns400() throws Exception {
+        CreateTaskRequestDto dto = TestTaskData.createTestTaskRequestDtoA(taskGroupA);
+        dto.setTaskName(""); // Invalid
+
+        String json = objectMapper.writeValueAsString(dto);
+
+        mockMvc.perform(
+                authenticated(MockMvcRequestBuilders.post("/groups/" + taskGroupA.getId() + "/tasks"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+        ).andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
 
     // DELETE -----------------------------------------------------------
@@ -164,8 +164,7 @@ public class TaskControllerIntegrationTest {
                 .isEqualTo(1); 
 
         mockMvc.perform(
-            MockMvcRequestBuilders.delete("/tasks/" + testTaskEntityA.getId())
-            .header("Authorization", "Bearer " + token)
+            authenticated(MockMvcRequestBuilders.delete("/tasks/" + testTaskEntityA.getId())) 
             .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(
             MockMvcResultMatchers.status().isNoContent());
@@ -190,8 +189,7 @@ public class TaskControllerIntegrationTest {
                 .isEqualTo(2); 
 
         mockMvc.perform(
-            MockMvcRequestBuilders.delete("/tasks/" + testTaskEntityA.getId())
-            .header("Authorization", "Bearer " + token)
+            authenticated(MockMvcRequestBuilders.delete("/tasks/" + testTaskEntityA.getId()))
             .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(
             MockMvcResultMatchers.status().isNoContent());
@@ -208,6 +206,14 @@ public class TaskControllerIntegrationTest {
         
     }
 
+    @Test
+    public void testThatDeleteNonExistentTaskReturns404() throws Exception {
+        mockMvc.perform(
+            authenticated(MockMvcRequestBuilders.delete("/tasks/9999"))
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
     // UPDATE -----------------------------------------------------------
 
     @Test
@@ -222,8 +228,7 @@ public class TaskControllerIntegrationTest {
         String taskJson = objectMapper.writeValueAsString(testRequestTaskDto);
 
         mockMvc.perform(
-            MockMvcRequestBuilders.patch("/tasks/" + testTaskEntityA.getId())
-            .header("Authorization", "Bearer " + token)
+            authenticated(MockMvcRequestBuilders.patch("/tasks/" + testTaskEntityA.getId()))
             .contentType(MediaType.APPLICATION_JSON)
             .content(taskJson)
         ).andExpect(
@@ -247,8 +252,7 @@ public class TaskControllerIntegrationTest {
         String taskJson = objectMapper.writeValueAsString(testRequestTaskDto);
 
         mockMvc.perform(
-            MockMvcRequestBuilders.patch("/tasks/" + testTaskEntityA.getId())
-            .header("Authorization", "Bearer " + token)
+            authenticated(MockMvcRequestBuilders.patch("/tasks/" + testTaskEntityA.getId()))
             .contentType(MediaType.APPLICATION_JSON)
             .content(taskJson)
         ).andExpect(
@@ -273,8 +277,7 @@ public class TaskControllerIntegrationTest {
         String taskJson = objectMapper.writeValueAsString(testRequestTaskDto);
 
         mockMvc.perform(
-            MockMvcRequestBuilders.patch("/tasks/" + testTaskEntityA.getId())
-            .header("Authorization", "Bearer " + token)
+            authenticated(MockMvcRequestBuilders.patch("/tasks/" + testTaskEntityA.getId()))
             .contentType(MediaType.APPLICATION_JSON)
             .content(taskJson)
         ).andExpect(
@@ -285,4 +288,89 @@ public class TaskControllerIntegrationTest {
             MockMvcResultMatchers.jsonPath("$.taskName").value("UPDATED")
         );
     }
+
+    @Test
+    public void testUpdateNonExistentTaskReturns404() throws Exception {
+        UpdateTaskRequestDto dto = TestTaskData.updateTestRequestTaskDto(taskGroupA);
+        dto.setTaskName("NEW_NAME");
+
+        String json = objectMapper.writeValueAsString(dto);
+
+        mockMvc.perform(
+                authenticated(MockMvcRequestBuilders.patch("/tasks/9999"))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+        ).andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    public void testUpdateTaskWithInvalidNameReturns400() throws Exception {
+        TaskEntity task = taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
+
+        UpdateTaskRequestDto dto = TestTaskData.updateTestRequestTaskDto(taskGroupA);
+        dto.setTaskName("");  // Invalid empty name
+
+        String json = objectMapper.writeValueAsString(dto);
+
+        mockMvc.perform(
+                authenticated(MockMvcRequestBuilders.patch("/tasks/" + task.getId()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+        ).andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    @Test
+    public void testUpdateTaskOfAnotherUserReturns404() throws Exception {
+        // Create a different user
+        UserEntity otherUser = userRepository.saveAndFlush(TestUserData.createBaseTestUserEntity("otherUser"));
+        TaskBoardEntity otherBoard = taskBoardRepository.save(TestTaskBoardData.createTestTaskBoardEntityA(otherUser));
+        TaskGroupEntity otherGroup = taskGroupRepository.save(TestTaskGroupData.createTaskGroupEntityA(otherBoard));
+        TaskEntity otherTask = taskRepository.save(TestTaskData.createTestTaskEntityA(otherGroup));
+
+        UpdateTaskRequestDto dto = TestTaskData.updateTestRequestTaskDto(otherGroup);
+        dto.setTaskName("NEW_NAME");
+
+        String json = objectMapper.writeValueAsString(dto);
+
+        mockMvc.perform(
+                authenticated(MockMvcRequestBuilders.patch("/tasks/" + otherTask.getId()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+        ).andExpect(MockMvcResultMatchers.status().isNotFound());
+    }
+
+    @Test
+    public void testUpdateTaskWithNoChangesReturns200() throws Exception {
+        TaskEntity task = taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
+
+        UpdateTaskRequestDto dto = new UpdateTaskRequestDto(); // No changes
+
+        String json = objectMapper.writeValueAsString(dto);
+
+        mockMvc.perform(
+                authenticated(MockMvcRequestBuilders.patch("/tasks/" + task.getId()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+        ).andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.taskName").value(task.getTaskName()))
+        .andExpect(MockMvcResultMatchers.jsonPath("$.taskGroupId").value(task.getTaskGroup().getId()));
+    }
+
+    @Test
+    public void testUpdateTaskGroupIdToSameValueReturns200() throws Exception {
+        TaskEntity task = taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
+
+        UpdateTaskRequestDto dto = TestTaskData.updateTestRequestTaskDto(taskGroupA);
+        dto.setTaskGroupId(taskGroupA.getId());
+
+        String json = objectMapper.writeValueAsString(dto);
+
+        mockMvc.perform(
+                authenticated(MockMvcRequestBuilders.patch("/tasks/" + task.getId()))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json)
+        ).andExpect(MockMvcResultMatchers.status().isOk())
+        .andExpect(MockMvcResultMatchers.jsonPath("$.taskGroupId").value(taskGroupA.getId()));
+    }
+
 }

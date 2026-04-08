@@ -15,5 +15,4 @@ public class TaskGroupDto {
     private String taskGroupName;
 
     private Long taskBoardId;
-
 }

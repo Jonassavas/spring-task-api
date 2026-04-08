@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @Builder
 public class TaskBoardDto {
     private Long id;
-    private String taskBoardName;   
+    private String taskBoardName;
 }

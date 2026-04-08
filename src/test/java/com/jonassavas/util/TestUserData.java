@@ -5,6 +5,14 @@ import com.jonassavas.spring_task_api.domain.entities.UserEntity;
 
 public class TestUserData {
 
+    public static UserEntity createTestUserEntity(String suffix) {
+        return UserEntity.builder()
+                .username("user_" + suffix)
+                .email("user_" + suffix + "@test.com")
+                .password("password")
+                .build();
+    }
+
     // Entities ----------------------------------------------------------
     public static UserEntity createTestUserEntityA(){
         return UserEntity.builder()

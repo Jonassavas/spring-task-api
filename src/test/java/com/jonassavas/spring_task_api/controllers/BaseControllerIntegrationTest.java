@@ -1,5 +1,7 @@
 package com.jonassavas.spring_task_api.controllers;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -27,8 +29,26 @@ public abstract class BaseControllerIntegrationTest {
 
     @BeforeEach
     void baseSetUp() {
-        user = userRepository.save(TestUserData.createTestUserEntityA());
+        user = createAndSaveUser();
         token = jwtService.generateToken(user.getUsername());
+    }
+
+    protected UserEntity createAndSaveUser() {
+        /*
+            - DB has a limit of 30 chars for usernames.
+            - Users persist through controller tests.
+            - UUID of 20 chars could potentially collide
+              and cause test failures.
+            - If this happens:
+                - Read the output
+                - Rerun the tests
+                - Buy a lottery ticket
+        */
+        String unique = UUID.randomUUID().toString().substring(0, 20);
+
+        return userRepository.save(
+                TestUserData.createTestUserEntity(unique)
+        );
     }
 
     protected MockHttpServletRequestBuilder authenticated(

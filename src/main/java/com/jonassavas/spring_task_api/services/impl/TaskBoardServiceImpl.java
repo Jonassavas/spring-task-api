@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 
 import com.jonassavas.spring_task_api.domain.dto.task_board.CreateTaskBoardRequestDto;
@@ -107,8 +108,12 @@ public class TaskBoardServiceImpl implements TaskBoardService {
         UserEntity user = securityService.getCurrentUser();
 
         TaskBoardEntity board = taskBoardRepository
-                .findByIdAndOwnerUsernameWithGroupsAndTasks(boardId, user.getUsername())
+                .findByIdAndOwnerUsername(boardId, user.getUsername())
                 .orElseThrow(() -> new EntityNotFoundException("TaskBoard not found"));
+
+        // Second query: groups + their tasks (Hibernate handles one bag at a time fine)
+        // Force initialization of tasks for each group separately
+        board.getTaskGroups().forEach(group -> Hibernate.initialize(group.getTasks()));
 
         return taskBoardMapper.mapToWithGroups(board);
     } 

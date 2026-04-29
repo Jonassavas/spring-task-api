@@ -1,20 +1,25 @@
 package com.jonassavas.spring_task_api.services.impl;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.jonassavas.spring_task_api.domain.dto.task_board.CreateTaskBoardRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardDto;
+import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardWithGroupsDto;
 import com.jonassavas.spring_task_api.domain.dto.task_board.UpdateTaskBoardRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.UserEntity;
 import com.jonassavas.spring_task_api.mappers.Mapper;
+import com.jonassavas.spring_task_api.mappers.impl.task_board.TaskBoardMapper;
 import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
 import com.jonassavas.spring_task_api.security.SecurityService;
 import com.jonassavas.spring_task_api.services.TaskBoardService;
+
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
@@ -22,13 +27,13 @@ public class TaskBoardServiceImpl implements TaskBoardService {
 
     private TaskBoardRepository taskBoardRepository;
     private Mapper<TaskBoardEntity, CreateTaskBoardRequestDto> taskBoardRequestMapper;
-    private Mapper<TaskBoardEntity, TaskBoardDto> taskBoardMapper;
+    private final TaskBoardMapper taskBoardMapper;
     private final SecurityService securityService;
 
     public TaskBoardServiceImpl(
             TaskBoardRepository taskBoardRepository,
             Mapper<TaskBoardEntity, CreateTaskBoardRequestDto> taskBoardRequestMapper,
-            Mapper<TaskBoardEntity, TaskBoardDto> taskBoardMapper,
+            TaskBoardMapper taskBoardMapper,
             SecurityService securityService) {
         this.taskBoardRepository = taskBoardRepository;
         this.taskBoardRequestMapper = taskBoardRequestMapper;
@@ -95,6 +100,18 @@ public class TaskBoardServiceImpl implements TaskBoardService {
 
         return taskBoard.map(taskBoardMapper::mapTo);
     }
+
+    @Override
+    public TaskBoardWithGroupsDto getTaskBoardWithDetails(Long boardId) {
+
+        UserEntity user = securityService.getCurrentUser();
+
+        TaskBoardEntity board = taskBoardRepository
+                .findByIdAndOwnerUsernameWithGroupsAndTasks(boardId, user.getUsername())
+                .orElseThrow(() -> new EntityNotFoundException("TaskBoard not found"));
+
+        return taskBoardMapper.mapToWithGroups(board);
+    } 
 
     @Override
     public List<TaskBoardDto> listTaskBoardsForCurrentUser() {

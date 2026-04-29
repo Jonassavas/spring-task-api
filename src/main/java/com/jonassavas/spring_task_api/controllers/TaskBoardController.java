@@ -1,11 +1,7 @@
 package com.jonassavas.spring_task_api.controllers;
 
-import com.jonassavas.spring_task_api.domain.dto.task_board.CreateTaskBoardRequestDto;
-import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardDto;
-import com.jonassavas.spring_task_api.domain.dto.task_board.UpdateTaskBoardRequestDto;
-import com.jonassavas.spring_task_api.services.TaskBoardService;
-import jakarta.validation.Valid;
 import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,6 +12,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.jonassavas.spring_task_api.domain.dto.task_board.CreateTaskBoardRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardDto;
+import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardWithGroupsDto;
+import com.jonassavas.spring_task_api.domain.dto.task_board.UpdateTaskBoardRequestDto;
+import com.jonassavas.spring_task_api.services.TaskBoardService;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/taskboards")
@@ -45,12 +49,12 @@ public class TaskBoardController {
 
     // Might need to get taskGroups here aswell (lazy loaded)
     @GetMapping("/{boardId}")
-    public ResponseEntity<TaskBoardDto> getTaskBoard(@PathVariable Long boardId) {
+    public ResponseEntity<TaskBoardWithGroupsDto> getCompleteTaskBoard(
+            @PathVariable Long boardId) {
 
-        return taskBoardService
-                .findById(boardId)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+        return ResponseEntity.ok(
+                taskBoardService.getTaskBoardWithDetails(boardId)
+        );
     }
 
     @PatchMapping("/{boardId}")

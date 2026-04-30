@@ -1,6 +1,6 @@
 package com.jonassavas.spring_task_api.domain.dto.task_board;
 
-import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupWithTasksDto;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,5 +14,5 @@ import lombok.NoArgsConstructor;
 public class TaskBoardWithGroupsDto {
     private Long id;
     private String taskBoardName;
-    private List<TaskGroupDto> taskGroups;
+    private List<TaskGroupWithTasksDto> taskGroups;
 }

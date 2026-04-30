@@ -5,6 +5,7 @@ import com.jonassavas.spring_task_api.domain.dto.auth.LoginRequest;
 import com.jonassavas.spring_task_api.domain.dto.auth.RegisterRequest;
 import com.jonassavas.spring_task_api.domain.entities.UserEntity;
 import com.jonassavas.spring_task_api.exceptions.ConflictFieldsException;
+import com.jonassavas.spring_task_api.mappers.impl.user.UserMapper;
 import com.jonassavas.spring_task_api.repositories.UserRepository;
 import com.jonassavas.spring_task_api.security.JwtService;
 import com.jonassavas.spring_task_api.services.AuthService;
@@ -24,34 +25,33 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final UserMapper userMapper;
 
     public AuthServiceImpl(
             UserRepository userRepository,
             PasswordEncoder passwordEncoder,
-            AuthenticationManager authentificationManager,
-            JwtService jwtService) {
+            AuthenticationManager authenticationManager,
+            JwtService jwtService,
+            UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authentificationManager;
+        this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.userMapper = userMapper;
     }
 
     @Override
     public AuthResponse register(RegisterRequest request) {
 
-        // Check for conflicts
         Map<String, String> conflicts = new HashMap<>();
 
         if (userRepository.existsByUsername(request.getUsername())) {
             conflicts.put("username", "Username already in use");
         }
-
         if (userRepository.existsByEmail(request.getEmail())) {
             conflicts.put("email", "Email already in use");
         }
-
         if (!conflicts.isEmpty()) {
-            // Can throw a custom exception with the conflicts map
             throw new ConflictFieldsException(conflicts);
         }
 
@@ -60,11 +60,15 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        userRepository.save(user);
+        UserEntity savedUser = userRepository.save(user);
 
-        String token = jwtService.generateToken(user.getUsername());
+        String token = jwtService.generateToken(savedUser.getUsername());
 
-        return AuthResponse.builder().token(token).expiresIn(jwtService.getExpirationMs()).build();
+        return AuthResponse.builder()
+                .token(token)
+                .expiresIn(jwtService.getExpirationMs())
+                .user(userMapper.mapTo(savedUser))
+                .build();
     }
 
     @Override
@@ -74,8 +78,17 @@ public class AuthServiceImpl implements AuthService {
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(), request.getPassword()));
 
-        String token = jwtService.generateToken(request.getUsername());
+        UserEntity user =
+                userRepository
+                        .findByUsername(request.getUsername())
+                        .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return AuthResponse.builder().token(token).expiresIn(jwtService.getExpirationMs()).build();
+        String token = jwtService.generateToken(user.getUsername());
+
+        return AuthResponse.builder()
+                .token(token)
+                .expiresIn(jwtService.getExpirationMs())
+                .user(userMapper.mapTo(user))
+                .build();
     }
 }

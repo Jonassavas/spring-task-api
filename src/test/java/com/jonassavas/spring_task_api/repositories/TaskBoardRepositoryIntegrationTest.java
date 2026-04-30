@@ -2,15 +2,17 @@ package com.jonassavas.spring_task_api.repositories;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
-import com.jonassavas.spring_task_api.domain.entities.UserEntity;
-import com.jonassavas.util.TestTaskBoardData;
-import com.jonassavas.util.TestUserData;
 import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
+import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
+import com.jonassavas.spring_task_api.domain.entities.UserEntity;
+import com.jonassavas.util.TestTaskBoardData;
+import com.jonassavas.util.TestUserData;
 
 @DataJpaTest
 public class TaskBoardRepositoryIntegrationTest {

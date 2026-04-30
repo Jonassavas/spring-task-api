@@ -13,7 +13,6 @@ import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardWithGroupsD
 import com.jonassavas.spring_task_api.domain.dto.task_board.UpdateTaskBoardRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.UserEntity;
-import com.jonassavas.spring_task_api.mappers.Mapper;
 import com.jonassavas.spring_task_api.mappers.impl.task_board.TaskBoardMapper;
 import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
 import com.jonassavas.spring_task_api.security.SecurityService;
@@ -27,17 +26,14 @@ import jakarta.transaction.Transactional;
 public class TaskBoardServiceImpl implements TaskBoardService {
 
     private TaskBoardRepository taskBoardRepository;
-    private Mapper<TaskBoardEntity, CreateTaskBoardRequestDto> taskBoardRequestMapper;
     private final TaskBoardMapper taskBoardMapper;
     private final SecurityService securityService;
 
     public TaskBoardServiceImpl(
             TaskBoardRepository taskBoardRepository,
-            Mapper<TaskBoardEntity, CreateTaskBoardRequestDto> taskBoardRequestMapper,
             TaskBoardMapper taskBoardMapper,
             SecurityService securityService) {
         this.taskBoardRepository = taskBoardRepository;
-        this.taskBoardRequestMapper = taskBoardRequestMapper;
         this.taskBoardMapper = taskBoardMapper;
         this.securityService = securityService;
     }

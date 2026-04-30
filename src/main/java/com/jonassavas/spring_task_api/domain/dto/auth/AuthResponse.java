@@ -1,7 +1,6 @@
 package com.jonassavas.spring_task_api.domain.dto.auth;
 
 import com.jonassavas.spring_task_api.domain.dto.user.UserDto;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

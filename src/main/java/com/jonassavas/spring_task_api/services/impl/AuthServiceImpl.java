@@ -1,13 +1,5 @@
 package com.jonassavas.spring_task_api.services.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
 import com.jonassavas.spring_task_api.domain.dto.auth.AuthResponse;
 import com.jonassavas.spring_task_api.domain.dto.auth.LoginRequest;
 import com.jonassavas.spring_task_api.domain.dto.auth.RegisterRequest;
@@ -17,8 +9,13 @@ import com.jonassavas.spring_task_api.mappers.impl.user.UserMapper;
 import com.jonassavas.spring_task_api.repositories.UserRepository;
 import com.jonassavas.spring_task_api.security.JwtService;
 import com.jonassavas.spring_task_api.services.AuthService;
-
 import jakarta.transaction.Transactional;
+import java.util.HashMap;
+import java.util.Map;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
@@ -81,8 +78,10 @@ public class AuthServiceImpl implements AuthService {
                 new UsernamePasswordAuthenticationToken(
                         request.getUsername(), request.getPassword()));
 
-        UserEntity user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        UserEntity user =
+                userRepository
+                        .findByUsername(request.getUsername())
+                        .orElseThrow(() -> new RuntimeException("User not found"));
 
         String token = jwtService.generateToken(user.getUsername());
 

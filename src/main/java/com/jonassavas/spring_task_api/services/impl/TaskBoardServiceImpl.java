@@ -1,12 +1,5 @@
 package com.jonassavas.spring_task_api.services.impl;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.hibernate.Hibernate;
-import org.springframework.stereotype.Service;
-
 import com.jonassavas.spring_task_api.domain.dto.task_board.CreateTaskBoardRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardDto;
 import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardWithGroupsDto;
@@ -17,9 +10,13 @@ import com.jonassavas.spring_task_api.mappers.impl.task_board.TaskBoardMapper;
 import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
 import com.jonassavas.spring_task_api.security.SecurityService;
 import com.jonassavas.spring_task_api.services.TaskBoardService;
-
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.hibernate.Hibernate;
+import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
@@ -103,16 +100,17 @@ public class TaskBoardServiceImpl implements TaskBoardService {
 
         UserEntity user = securityService.getCurrentUser();
 
-        TaskBoardEntity board = taskBoardRepository
-                .findByIdAndOwnerUsername(boardId, user.getUsername())
-                .orElseThrow(() -> new EntityNotFoundException("TaskBoard not found"));
+        TaskBoardEntity board =
+                taskBoardRepository
+                        .findByIdAndOwnerUsername(boardId, user.getUsername())
+                        .orElseThrow(() -> new EntityNotFoundException("TaskBoard not found"));
 
         // Second query: groups + their tasks (Hibernate handles one bag at a time fine)
         // Force initialization of tasks for each group separately
         board.getTaskGroups().forEach(group -> Hibernate.initialize(group.getTasks()));
 
         return taskBoardMapper.mapToWithGroups(board);
-    } 
+    }
 
     @Override
     public List<TaskBoardDto> listTaskBoardsForCurrentUser() {

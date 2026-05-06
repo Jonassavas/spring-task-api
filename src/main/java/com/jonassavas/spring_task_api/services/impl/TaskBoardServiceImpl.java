@@ -1,5 +1,12 @@
 package com.jonassavas.spring_task_api.services.impl;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import org.hibernate.Hibernate;
+import org.springframework.stereotype.Service;
+
 import com.jonassavas.spring_task_api.domain.dto.task_board.CreateTaskBoardRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardDto;
 import com.jonassavas.spring_task_api.domain.dto.task_board.TaskBoardWithGroupsDto;
@@ -10,13 +17,9 @@ import com.jonassavas.spring_task_api.mappers.impl.task_board.TaskBoardMapper;
 import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
 import com.jonassavas.spring_task_api.security.SecurityService;
 import com.jonassavas.spring_task_api.services.TaskBoardService;
+
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import org.hibernate.Hibernate;
-import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
@@ -125,5 +128,13 @@ public class TaskBoardServiceImpl implements TaskBoardService {
     @Override
     public boolean isExist(Long id) {
         return taskBoardRepository.existsById(id);
+    }
+
+    // TODO
+    @Override
+    public TaskBoardDto createDefaultConfiguration(){
+        UserEntity user = securityService.getCurrentUser();
+
+        return null;
     }
 }

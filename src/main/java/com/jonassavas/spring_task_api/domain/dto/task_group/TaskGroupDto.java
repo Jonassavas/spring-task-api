@@ -14,5 +14,9 @@ public class TaskGroupDto {
 
     private String taskGroupName;
 
+    private String color;
+
+    private Integer position;
+
     private Long taskBoardId;
 }

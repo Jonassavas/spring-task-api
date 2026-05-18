@@ -1,7 +1,11 @@
 package com.jonassavas.spring_task_api.domain.entities;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,8 +17,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -41,6 +43,16 @@ public class TaskGroupEntity {
 
     @Column(nullable = false, length = 50)
     private String taskGroupName;
+
+    // Hex color:
+    // Nullable so frontend can decide default styling
+    @Column(length = 7)
+    private String color;
+
+    // User for ordering task groups in the UI
+    // Lower numbers appear first
+    @Column(nullable = false)
+    private Integer position;
 
     @Builder.Default
     @OneToMany(mappedBy = "taskGroup", cascade = CascadeType.ALL, orphanRemoval = true)

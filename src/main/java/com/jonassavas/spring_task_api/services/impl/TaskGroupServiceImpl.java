@@ -1,6 +1,12 @@
 package com.jonassavas.spring_task_api.services.impl;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.jonassavas.spring_task_api.domain.dto.task_group.CreateTaskGroupRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.ReorderTaskGroupRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupWithTasksDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.UpdateTaskGroupRequestDto;
@@ -11,11 +17,9 @@ import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
 import com.jonassavas.spring_task_api.repositories.TaskGroupRepository;
 import com.jonassavas.spring_task_api.security.SecurityService;
 import com.jonassavas.spring_task_api.services.TaskGroupService;
+
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import java.util.List;
-import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
@@ -148,5 +152,10 @@ public class TaskGroupServiceImpl implements TaskGroupService {
                                                 "TaskGroup not found or not owned by user"));
 
         taskGroup.getTasks().clear();
+    }
+
+    @Override
+    public void reorderTaskGroups(Long boardId, List<ReorderTaskGroupRequestDto> dtoList){
+
     }
 }

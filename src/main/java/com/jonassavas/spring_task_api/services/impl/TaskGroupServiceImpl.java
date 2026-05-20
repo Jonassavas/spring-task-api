@@ -1,6 +1,7 @@
 package com.jonassavas.spring_task_api.services.impl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -57,8 +58,20 @@ public class TaskGroupServiceImpl implements TaskGroupService {
                                         new EntityNotFoundException(
                                                 "Taskboard not found or not owned by user"));
 
+        Integer maxPosition =
+                taskGroupRepository.findMaxPositionByBoardIdAndUsername(
+                        boardId,
+                        username
+                );
+
+        int nextPosition = (maxPosition == null) ? 0 : maxPosition + 1;
+
         TaskGroupEntity taskGroup =
-                TaskGroupEntity.builder().taskGroupName(dto.getTaskGroupName()).build();
+                TaskGroupEntity.builder()
+                        .taskGroupName(dto.getTaskGroupName())
+                        .color(dto.getColor())
+                        .position(nextPosition)
+                        .build();
 
         taskBoard.addTaskGroup(taskGroup); // sets relationship
 
@@ -135,6 +148,10 @@ public class TaskGroupServiceImpl implements TaskGroupService {
             taskGroup.setTaskGroupName(dto.getTaskGroupName());
         }
 
+        if (dto.getColor() != null) {
+            taskGroup.setColor(dto.getColor());
+        }
+
         return taskGroupMapper.mapTo(taskGroup);
     }
 
@@ -155,7 +172,34 @@ public class TaskGroupServiceImpl implements TaskGroupService {
     }
 
     @Override
-    public void reorderTaskGroups(Long boardId, List<ReorderTaskGroupRequestDto> dtoList){
+        public void reorderTaskGroups(
+                Long boardId,
+                List<ReorderTaskGroupRequestDto> dtoList) {
 
-    }
+        String username = securityService.getCurrentUsername();
+
+        TaskBoardEntity board =
+                taskBoardRepository
+                        .findByIdAndOwnerUsername(boardId, username)
+                        .orElseThrow(
+                                () ->
+                                        new EntityNotFoundException(
+                                                "Taskboard not found or not owned by user"));
+
+        Map<Long, Integer> positionMap =
+                dtoList.stream()
+                        .collect(Collectors.toMap(
+                                ReorderTaskGroupRequestDto::getId,
+                                ReorderTaskGroupRequestDto::getPosition
+                        ));
+
+        for (TaskGroupEntity group : board.getTaskGroups()) {
+
+                Integer newPosition = positionMap.get(group.getId());
+
+                if (newPosition != null) {
+                group.setPosition(newPosition);
+                }
+        }
+        } 
 }

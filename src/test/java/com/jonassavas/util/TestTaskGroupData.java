@@ -10,32 +10,47 @@ public class TestTaskGroupData {
     // Entities ----------------------------------------------------------
 
     public static TaskGroupEntity createTaskGroupEntityA(TaskBoardEntity taskBoard) {
-        return TaskGroupEntity.builder().taskBoard(taskBoard).taskGroupName("Task Group A").build();
+        return TaskGroupEntity.builder()
+                .taskBoard(taskBoard)
+                .taskGroupName("Task Group A")
+                .position(0)
+                .color("#FF0000")
+                .build();
     }
 
     public static TaskGroupEntity createTaskGroupEntityB(TaskBoardEntity taskBoard) {
-        return TaskGroupEntity.builder().taskBoard(taskBoard).taskGroupName("Task Group B").build();
+        return TaskGroupEntity.builder()
+                .taskBoard(taskBoard)
+                .taskGroupName("Task Group B")
+                .position(1)
+                .color("#00FF00")
+                .build();
     }
 
     public static TaskGroupEntity createTaskGroupEntityC(TaskBoardEntity taskBoard) {
-        return TaskGroupEntity.builder().taskBoard(taskBoard).taskGroupName("Task Group C").build();
+        return TaskGroupEntity.builder()
+                .taskBoard(taskBoard)
+                .taskGroupName("Task Group C")
+                .position(2)
+                .color("#0000FF")
+                .build();
     }
 
     // CREATE DTOs -------------------------------------------------------------
     public static CreateTaskGroupRequestDto createTaskGroupRequestDtoA(TaskBoardEntity taskBoard) {
-        return CreateTaskGroupRequestDto.builder().taskGroupName("Task Group A").build();
+        return CreateTaskGroupRequestDto.builder().taskGroupName("Task Group A").color("#FF0000").build();
     }
 
     public static CreateTaskGroupRequestDto createTaskGroupDtoA(TaskBoardEntity taskBoard) {
-        return CreateTaskGroupRequestDto.builder().taskGroupName("Task Group A").build();
+        return CreateTaskGroupRequestDto.builder().taskGroupName("Task Group A").color("#FF0000").build();
     }
 
     public static CreateTaskGroupRequestDto createTaskGroupDtoB(TaskBoardEntity taskBoard) {
-        return CreateTaskGroupRequestDto.builder().taskGroupName("Task Group B").build();
+        return CreateTaskGroupRequestDto.builder().taskGroupName("Task Group B").color("#FF0000").build();
     }
 
     public static CreateTaskGroupRequestDto createTaskGroupDtoC(TaskBoardEntity taskBoard) {
-        return CreateTaskGroupRequestDto.builder().taskGroupName("Task Group C").build();
+        return CreateTaskGroupRequestDto.builder().taskGroupName("Task Group C").color("#FF0000").build();
     }
 
     // UPDATE DTOs -------------------------------------------------------------

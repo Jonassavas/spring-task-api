@@ -2,12 +2,13 @@ package com.jonassavas.spring_task_api.services.impl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
 import com.jonassavas.spring_task_api.domain.dto.task_group.CreateTaskGroupRequestDto;
-import com.jonassavas.spring_task_api.domain.dto.task_group.ReorderTaskGroupRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.ReorderTaskGroupsRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupWithTasksDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.UpdateTaskGroupRequestDto;
@@ -171,10 +172,10 @@ public class TaskGroupServiceImpl implements TaskGroupService {
         taskGroup.getTasks().clear();
     }
 
-    @Override
+        @Override
         public void reorderTaskGroups(
                 Long boardId,
-                List<ReorderTaskGroupRequestDto> dtoList) {
+                ReorderTaskGroupsRequestDto dto) {
 
         String username = securityService.getCurrentUsername();
 
@@ -186,20 +187,25 @@ public class TaskGroupServiceImpl implements TaskGroupService {
                                         new EntityNotFoundException(
                                                 "Taskboard not found or not owned by user"));
 
-        Map<Long, Integer> positionMap =
-                dtoList.stream()
+        Map<Long, TaskGroupEntity> groupMap =
+                board.getTaskGroups()
+                        .stream()
                         .collect(Collectors.toMap(
-                                ReorderTaskGroupRequestDto::getId,
-                                ReorderTaskGroupRequestDto::getPosition
+                                TaskGroupEntity::getId,
+                                Function.identity()
                         ));
 
-        for (TaskGroupEntity group : board.getTaskGroups()) {
+        List<Long> orderedIds = dto.getGroupIds();
 
-                Integer newPosition = positionMap.get(group.getId());
+        for (int i = 0; i < orderedIds.size(); i++) {
 
-                if (newPosition != null) {
-                group.setPosition(newPosition);
+                Long groupId = orderedIds.get(i);
+
+                TaskGroupEntity group = groupMap.get(groupId);
+
+                if (group != null) {
+                group.setPosition(i);
                 }
         }
-        } 
+        }
 }

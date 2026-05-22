@@ -2,6 +2,13 @@ package com.jonassavas.spring_task_api.repositories;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskEntity;
 import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
@@ -10,11 +17,6 @@ import com.jonassavas.util.TestTaskBoardData;
 import com.jonassavas.util.TestTaskData;
 import com.jonassavas.util.TestTaskGroupData;
 import com.jonassavas.util.TestUserData;
-import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 @DataJpaTest // Runs each test in a transaction and rolls it back.
 public class TaskGroupRepositoryIntegrationTest {
@@ -46,7 +48,17 @@ public class TaskGroupRepositoryIntegrationTest {
         Optional<TaskGroupEntity> result = underTest.findById(saved.getId());
 
         assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo(saved);
+
+        TaskGroupEntity savedGroup = result.get();
+
+        assertThat(savedGroup.getTaskGroupName())
+                .isEqualTo(testTaskGroup.getTaskGroupName());
+
+        assertThat(savedGroup.getPosition())
+                .isEqualTo(testTaskGroup.getPosition());
+
+        assertThat(savedGroup.getColor())
+                .isEqualTo(testTaskGroup.getColor());
     }
 
     @Test
@@ -58,7 +70,7 @@ public class TaskGroupRepositoryIntegrationTest {
                 underTest.saveAndFlush(TestTaskGroupData.createTaskGroupEntityB(taskBoard));
 
         TaskGroupEntity groupC =
-                underTest.saveAndFlush(TestTaskGroupData.createTaskGroupEntityB(taskBoard));
+                underTest.saveAndFlush(TestTaskGroupData.createTaskGroupEntityC(taskBoard));
 
         Iterable<TaskGroupEntity> result = underTest.findAll();
 
@@ -111,6 +123,57 @@ public class TaskGroupRepositoryIntegrationTest {
         result = underTest.findById(group.getId());
 
         assertThat(result).isEmpty();
+    }
+
+    @Test
+    public void testThatTaskGroupsAreReturnedInPositionOrder() {
+
+        TaskGroupEntity groupA =
+                underTest.saveAndFlush(TestTaskGroupData.createTaskGroupEntityA(taskBoard));
+
+        TaskGroupEntity groupB =
+                underTest.saveAndFlush(TestTaskGroupData.createTaskGroupEntityB(taskBoard));
+
+        TaskGroupEntity groupC =
+                underTest.saveAndFlush(TestTaskGroupData.createTaskGroupEntityC(taskBoard));
+
+        var result =
+                underTest.findByTaskBoardIdAndTaskBoardOwnerUsername(
+                        taskBoard.getId(), user.getUsername());
+
+        assertThat(result).hasSize(3);
+
+        assertThat(result)
+                .extracting(TaskGroupEntity::getId)
+                .containsExactly(groupA.getId(), groupB.getId(), groupC.getId());
+    }
+
+    @Test
+    public void testThatTaskGroupPositionsArePersistedCorrectly() {
+
+        TaskGroupEntity group =
+                underTest.saveAndFlush(TestTaskGroupData.createTaskGroupEntityA(taskBoard));
+
+        Optional<TaskGroupEntity> result =
+                underTest.findById(group.getId());
+
+        assertThat(result).isPresent();
+
+        assertThat(result.get().getPosition()).isEqualTo(0);
+    }
+
+    @Test
+    public void testThatTaskGroupColorIsPersisted() {
+
+        TaskGroupEntity group =
+                underTest.saveAndFlush(TestTaskGroupData.createTaskGroupEntityA(taskBoard));
+
+        Optional<TaskGroupEntity> result =
+                underTest.findById(group.getId());
+
+        assertThat(result).isPresent();
+
+        assertThat(result.get().getColor()).isEqualTo("#FF0000");
     }
 
     // Custom repository methods -----------------------------------------

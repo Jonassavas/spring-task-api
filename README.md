@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/jonassavas/spring-task-api/branch/main/graph/badge.svg)](https://codecov.io/gh/jonassavas/spring-task-api)
+
 # Spring Task API
 
 > **Note:** This project is currently in development. The API is functional for core features, but more enhancements and frontend integration will soon be available!

@@ -2,6 +2,18 @@ package com.jonassavas.spring_task_api.controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
+import java.util.Map;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
 import com.jonassavas.spring_task_api.domain.dto.task_group.CreateTaskGroupRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.UpdateTaskGroupRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
@@ -13,15 +25,6 @@ import com.jonassavas.spring_task_api.repositories.TaskRepository;
 import com.jonassavas.util.TestTaskBoardData;
 import com.jonassavas.util.TestTaskData;
 import com.jonassavas.util.TestTaskGroupData;
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -78,7 +81,9 @@ public class TaskGroupControllerIntegrationTest extends BaseAuthenticatedIntegra
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(taskGroupJson))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.taskGroupName").value("Task Group A"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.taskBoardId").isNumber());
+                .andExpect(MockMvcResultMatchers.jsonPath("$.taskBoardId").isNumber())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.position").isNumber())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.color").value("#FF0000"));
     }
 
     // READ -----------------------------------------------------------
@@ -128,6 +133,38 @@ public class TaskGroupControllerIntegrationTest extends BaseAuthenticatedIntegra
                 .andExpect(
                         MockMvcResultMatchers.jsonPath("$[1].taskName").value(task2.getTaskName()));
     }
+
+    @Test
+    public void testThatListTaskGroupsReturnsListOfTaskGroupsOrderedByPosition() throws Exception {
+
+        TaskGroupEntity groupA = TestTaskGroupData.createTaskGroupEntityA(taskBoard);
+        TaskGroupEntity groupC = TestTaskGroupData.createTaskGroupEntityC(taskBoard);
+        TaskGroupEntity groupB = TestTaskGroupData.createTaskGroupEntityB(taskBoard);
+
+        taskGroupRepository.saveAndFlush(groupA);
+        taskGroupRepository.saveAndFlush(groupB);
+        taskGroupRepository.saveAndFlush(groupC);
+
+        mockMvc.perform(
+                        authenticated(
+                                        MockMvcRequestBuilders.get(
+                                                "/taskboards/" + taskBoard.getId() + "/groups"))
+                                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+
+                
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id").value(groupA.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id").value(groupB.getId()))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].id").value(groupC.getId()))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].position").value(0))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].position").value(1))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].position").value(2))
+
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].color").value("#FF0000"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].color").value("#00FF00"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].color").value("#0000FF"));
+        }
 
     // DELETE -----------------------------------------------------------
 
@@ -383,4 +420,52 @@ public class TaskGroupControllerIntegrationTest extends BaseAuthenticatedIntegra
         List<TaskEntity> result = taskRepository.findAll();
         assertThat(result).extracting(TaskEntity::getId).containsExactly(testTaskEntityC.getId());
     }
+
+    @Test
+public void testThatReorderTaskGroupsUpdatesPositionsCorrectly() throws Exception {
+
+    // given: 3 groups in initial order A, B, C
+    TaskGroupEntity groupA =
+            taskGroupRepository.saveAndFlush(
+                    TestTaskGroupData.createTaskGroupEntityA(taskBoard));
+
+    TaskGroupEntity groupB =
+            taskGroupRepository.saveAndFlush(
+                    TestTaskGroupData.createTaskGroupEntityB(taskBoard));
+
+    TaskGroupEntity groupC =
+            taskGroupRepository.saveAndFlush(
+                    TestTaskGroupData.createTaskGroupEntityC(taskBoard));
+
+    // sanity check initial state
+    assertThat(groupA.getPosition()).isEqualTo(0);
+    assertThat(groupB.getPosition()).isEqualTo(1);
+    assertThat(groupC.getPosition()).isEqualTo(2);
+
+    // when: reorder to C, A, B
+    String reorderJson = objectMapper.writeValueAsString(
+            Map.of("groupIds", List.of(groupC.getId(), groupA.getId(), groupB.getId()))
+    );
+
+    mockMvc.perform(
+                    authenticated(
+                                    MockMvcRequestBuilders.patch(
+                                            "/taskboards/" + taskBoard.getId() + "/groups/reorder"))
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(reorderJson))
+            .andExpect(MockMvcResultMatchers.status().isNoContent());
+
+    // then: verify persisted order
+    List<TaskGroupEntity> result =
+            taskGroupRepository.findByTaskBoardIdAndTaskBoardOwnerUsernameOrderByPositionAsc(
+                    taskBoard.getId(), user.getUsername());
+
+    assertThat(result)
+            .extracting(TaskGroupEntity::getId)
+            .containsExactly(groupC.getId(), groupA.getId(), groupB.getId());
+
+    assertThat(result)
+            .extracting(TaskGroupEntity::getPosition)
+            .containsExactly(0, 1, 2);
+}
 }

@@ -100,12 +100,14 @@ public class TaskGroupRepositoryIntegrationTest {
                 underTest.saveAndFlush(TestTaskGroupData.createTaskGroupEntityA(taskBoard));
 
         group.setTaskGroupName("UPDATED");
+        group.setColor("#18a3e4");
         underTest.saveAndFlush(group);
 
         Optional<TaskGroupEntity> result = underTest.findById(group.getId());
 
         assertThat(result).isPresent();
         assertThat(result.get().getTaskGroupName()).isEqualTo("UPDATED");
+        assertThat(result.get().getColor()).isEqualTo("#18a3e4");
     }
 
     @Test
@@ -138,7 +140,7 @@ public class TaskGroupRepositoryIntegrationTest {
                 underTest.saveAndFlush(TestTaskGroupData.createTaskGroupEntityC(taskBoard));
 
         var result =
-                underTest.findByTaskBoardIdAndTaskBoardOwnerUsername(
+                underTest.findByTaskBoardIdAndTaskBoardOwnerUsernameOrderByPositionAsc(
                         taskBoard.getId(), user.getUsername());
 
         assertThat(result).hasSize(3);
@@ -189,7 +191,7 @@ public class TaskGroupRepositoryIntegrationTest {
                 underTest.saveAndFlush(TestTaskGroupData.createTaskGroupEntityB(taskBoard));
 
         var result =
-                underTest.findByTaskBoardIdAndTaskBoardOwnerUsername(
+                underTest.findByTaskBoardIdAndTaskBoardOwnerUsernameOrderByPositionAsc(
                         taskBoard.getId(), user.getUsername());
 
         assertThat(result).hasSize(2).containsExactly(groupA, groupB);

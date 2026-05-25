@@ -16,7 +16,10 @@ retrieval, update, delete, and search operation on objects.*/
 @Repository
 public interface TaskGroupRepository extends JpaRepository<TaskGroupEntity, Long> {
 
-    List<TaskGroupEntity> findByTaskBoardIdAndTaskBoardOwnerUsername(Long boardId, String username);
+    List<TaskGroupEntity> findByTaskBoardIdAndTaskBoardOwnerUsernameOrderByPositionAsc(
+            Long boardId,
+            String username
+    ); 
 
     Optional<TaskGroupEntity> findByIdAndTaskBoardOwnerUsername(Long id, String username);
 

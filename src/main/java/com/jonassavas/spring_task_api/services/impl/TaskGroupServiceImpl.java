@@ -87,7 +87,7 @@ public class TaskGroupServiceImpl implements TaskGroupService {
         String username = securityService.getCurrentUsername();
 
         return taskGroupRepository
-                .findByTaskBoardIdAndTaskBoardOwnerUsername(boardId, username)
+                .findByTaskBoardIdAndTaskBoardOwnerUsernameOrderByPositionAsc(boardId, username)
                 .stream()
                 .map(taskGroupMapper::mapTo)
                 .collect(Collectors.toList());

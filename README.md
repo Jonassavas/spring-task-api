@@ -53,19 +53,24 @@ The API follows a **layered architecture** for maintainability and scalability:
 
 ### Authentication
 - `POST /auth/register` – Register a new user  
-- `POST /auth/login` – Authenticate and receive a JWT  
+- `POST /auth/login` – Authenticate and receive a JWT
+
+### Users
+- `GET /users/me` - List user information
+- `PATCH /users/me` - Update user information (name, password, email)
+- `DELETE /users/me` - Delete user/account
 
 ### Boards
-- `GET /boards` – List user boards  
-- `POST /boards` – Create a new board  
-- `PATCH /boards/{id}` – Update a board  
-- `DELETE /boards/{id}` – Delete a board  
+- `GET /taskboards` – List user taskboards  
+- `POST /taskboards` – Create a new taskboard  
+- `PATCH /taskboards/{id}` – Update a taskboard  
+- `DELETE /taskboards/{id}` – Delete a taskboard  
 
 ### Task Groups
-- `GET /boards/{boardId}/groups` – List task groups in a board  
-- `POST /boards/{boardId}/groups` – Create a new task group  
-- `PATCH /boards/{boardId}/groups/{groupId}` – Update a task group  
-- `DELETE /boards/{boardId}/groups/{groupId}` – Delete a task group  
+- `GET /taskboards/{boardId}/groups` – List task groups in a board  
+- `POST /taskboards/{boardId}/groups` – Create a new task group  
+- `PATCH /taskboards/{boardId}/groups/{groupId}` – Update a task group  
+- `DELETE /taskboards/{boardId}/groups/{groupId}` – Delete a task group  
 
 ### Tasks
 - `POST /groups/{groupId}/tasks` – Create a task in a group  

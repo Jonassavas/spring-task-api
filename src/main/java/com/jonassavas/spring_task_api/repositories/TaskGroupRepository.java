@@ -1,13 +1,11 @@
 package com.jonassavas.spring_task_api.repositories;
 
+import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-
-import com.jonassavas.spring_task_api.domain.entities.TaskGroupEntity;
 
 /*
 @Repository Annotation is a specialization of the @Component annotation,
@@ -17,9 +15,7 @@ retrieval, update, delete, and search operation on objects.*/
 public interface TaskGroupRepository extends JpaRepository<TaskGroupEntity, Long> {
 
     List<TaskGroupEntity> findByTaskBoardIdAndTaskBoardOwnerUsernameOrderByPositionAsc(
-            Long boardId,
-            String username
-    ); 
+            Long boardId, String username);
 
     Optional<TaskGroupEntity> findByIdAndTaskBoardOwnerUsername(Long id, String username);
 
@@ -39,11 +35,12 @@ public interface TaskGroupRepository extends JpaRepository<TaskGroupEntity, Long
     """)
     Optional<TaskGroupEntity> findByIdWithTasksAndUsername(Long id, String username);
 
-    @Query("""
+    @Query(
+            """
         SELECT MAX(tg.position)
         FROM TaskGroupEntity tg
         WHERE tg.taskBoard.id = :boardId
         AND tg.taskBoard.owner.username = :username
     """)
-    Integer findMaxPositionByBoardIdAndUsername(Long boardId, String username); 
+    Integer findMaxPositionByBoardIdAndUsername(Long boardId, String username);
 }

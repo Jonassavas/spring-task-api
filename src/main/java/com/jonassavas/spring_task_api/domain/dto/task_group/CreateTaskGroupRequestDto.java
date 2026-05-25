@@ -18,9 +18,6 @@ public class CreateTaskGroupRequestDto {
     @Size(max = 50, message = "Task group name cannot exceed 50 characters")
     private String taskGroupName;
 
-    @Pattern(
-        regexp = "^#([A-Fa-f0-9]{6})$",
-        message = "Color must be a valid hex color"
-    )
+    @Pattern(regexp = "^#([A-Fa-f0-9]{6})$", message = "Color must be a valid hex color")
     private String color;
 }

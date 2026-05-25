@@ -17,10 +17,7 @@ public class UpdateTaskGroupRequestDto {
     @Size(min = 1, max = 50, message = "Task group name must be between 1-50 characters")
     private String taskGroupName;
 
-    @Pattern(
-        regexp = "^#([A-Fa-f0-9]{6})$",
-        message = "Color must be a valid hex color"
-    )
+    @Pattern(regexp = "^#([A-Fa-f0-9]{6})$", message = "Color must be a valid hex color")
     private String color;
 
     @PositiveOrZero(message = "Position must be zero or greater")

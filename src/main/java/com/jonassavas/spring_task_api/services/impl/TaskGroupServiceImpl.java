@@ -1,12 +1,5 @@
 package com.jonassavas.spring_task_api.services.impl;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-
 import com.jonassavas.spring_task_api.domain.dto.task_group.CreateTaskGroupRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.ReorderTaskGroupsRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupDto;
@@ -19,9 +12,13 @@ import com.jonassavas.spring_task_api.repositories.TaskBoardRepository;
 import com.jonassavas.spring_task_api.repositories.TaskGroupRepository;
 import com.jonassavas.spring_task_api.security.SecurityService;
 import com.jonassavas.spring_task_api.services.TaskGroupService;
-
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
@@ -60,10 +57,7 @@ public class TaskGroupServiceImpl implements TaskGroupService {
                                                 "Taskboard not found or not owned by user"));
 
         Integer maxPosition =
-                taskGroupRepository.findMaxPositionByBoardIdAndUsername(
-                        boardId,
-                        username
-                );
+                taskGroupRepository.findMaxPositionByBoardIdAndUsername(boardId, username);
 
         int nextPosition = (maxPosition == null) ? 0 : maxPosition + 1;
 
@@ -172,10 +166,8 @@ public class TaskGroupServiceImpl implements TaskGroupService {
         taskGroup.getTasks().clear();
     }
 
-        @Override
-        public void reorderTaskGroups(
-                Long boardId,
-                ReorderTaskGroupsRequestDto dto) {
+    @Override
+    public void reorderTaskGroups(Long boardId, ReorderTaskGroupsRequestDto dto) {
 
         String username = securityService.getCurrentUsername();
 
@@ -188,24 +180,20 @@ public class TaskGroupServiceImpl implements TaskGroupService {
                                                 "Taskboard not found or not owned by user"));
 
         Map<Long, TaskGroupEntity> groupMap =
-                board.getTaskGroups()
-                        .stream()
-                        .collect(Collectors.toMap(
-                                TaskGroupEntity::getId,
-                                Function.identity()
-                        ));
+                board.getTaskGroups().stream()
+                        .collect(Collectors.toMap(TaskGroupEntity::getId, Function.identity()));
 
         List<Long> orderedIds = dto.getGroupIds();
 
         for (int i = 0; i < orderedIds.size(); i++) {
 
-                Long groupId = orderedIds.get(i);
+            Long groupId = orderedIds.get(i);
 
-                TaskGroupEntity group = groupMap.get(groupId);
+            TaskGroupEntity group = groupMap.get(groupId);
 
-                if (group != null) {
+            if (group != null) {
                 group.setPosition(i);
-                }
+            }
         }
-        }
+    }
 }

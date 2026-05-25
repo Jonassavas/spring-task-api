@@ -1,7 +1,13 @@
 package com.jonassavas.spring_task_api.controllers;
 
+import com.jonassavas.spring_task_api.domain.dto.task_group.CreateTaskGroupRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.ReorderTaskGroupsRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupWithTasksDto;
+import com.jonassavas.spring_task_api.domain.dto.task_group.UpdateTaskGroupRequestDto;
+import com.jonassavas.spring_task_api.services.TaskGroupService;
+import jakarta.validation.Valid;
 import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,15 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.jonassavas.spring_task_api.domain.dto.task_group.CreateTaskGroupRequestDto;
-import com.jonassavas.spring_task_api.domain.dto.task_group.ReorderTaskGroupsRequestDto;
-import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupDto;
-import com.jonassavas.spring_task_api.domain.dto.task_group.TaskGroupWithTasksDto;
-import com.jonassavas.spring_task_api.domain.dto.task_group.UpdateTaskGroupRequestDto;
-import com.jonassavas.spring_task_api.services.TaskGroupService;
-
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/taskboards/{boardId}/groups")

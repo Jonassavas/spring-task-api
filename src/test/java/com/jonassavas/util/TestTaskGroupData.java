@@ -38,19 +38,31 @@ public class TestTaskGroupData {
 
     // CREATE DTOs -------------------------------------------------------------
     public static CreateTaskGroupRequestDto createTaskGroupRequestDtoA(TaskBoardEntity taskBoard) {
-        return CreateTaskGroupRequestDto.builder().taskGroupName("Task Group A").color("#FF0000").build();
+        return CreateTaskGroupRequestDto.builder()
+                .taskGroupName("Task Group A")
+                .color("#FF0000")
+                .build();
     }
 
     public static CreateTaskGroupRequestDto createTaskGroupDtoA(TaskBoardEntity taskBoard) {
-        return CreateTaskGroupRequestDto.builder().taskGroupName("Task Group A").color("#FF0000").build();
+        return CreateTaskGroupRequestDto.builder()
+                .taskGroupName("Task Group A")
+                .color("#FF0000")
+                .build();
     }
 
     public static CreateTaskGroupRequestDto createTaskGroupDtoB(TaskBoardEntity taskBoard) {
-        return CreateTaskGroupRequestDto.builder().taskGroupName("Task Group B").color("#FF0000").build();
+        return CreateTaskGroupRequestDto.builder()
+                .taskGroupName("Task Group B")
+                .color("#FF0000")
+                .build();
     }
 
     public static CreateTaskGroupRequestDto createTaskGroupDtoC(TaskBoardEntity taskBoard) {
-        return CreateTaskGroupRequestDto.builder().taskGroupName("Task Group C").color("#FF0000").build();
+        return CreateTaskGroupRequestDto.builder()
+                .taskGroupName("Task Group C")
+                .color("#FF0000")
+                .build();
     }
 
     // UPDATE DTOs -------------------------------------------------------------

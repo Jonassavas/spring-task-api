@@ -15,4 +15,6 @@ public class TaskDto {
     private Long taskGroupId;
 
     private String taskName;
+
+    private Integer position;
 }

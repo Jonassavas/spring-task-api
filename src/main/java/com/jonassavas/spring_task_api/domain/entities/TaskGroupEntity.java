@@ -1,11 +1,7 @@
 package com.jonassavas.spring_task_api.domain.entities;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,6 +14,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -59,7 +57,7 @@ public class TaskGroupEntity {
     @OrderBy("position ASC")
     @Builder.Default
     @JsonManagedReference
-    private List<TaskEntity> tasks = new ArrayList<>(); 
+    private List<TaskEntity> tasks = new ArrayList<>();
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "task_board_id", nullable = false)

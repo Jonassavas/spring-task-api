@@ -1,6 +1,7 @@
 package com.jonassavas.spring_task_api.controllers;
 
 import com.jonassavas.spring_task_api.domain.dto.task.CreateTaskRequestDto;
+import com.jonassavas.spring_task_api.domain.dto.task.ReorderTasksRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task.TaskDto;
 import com.jonassavas.spring_task_api.domain.dto.task.UpdateTaskRequestDto;
 import com.jonassavas.spring_task_api.services.TaskService;
@@ -46,6 +47,15 @@ public class TaskController {
 
         TaskDto responseDto = taskService.update(taskId, requestDto);
         return ResponseEntity.ok(responseDto);
+    }
+
+    @PatchMapping("/tasks/reorder")
+    public ResponseEntity<Void> reorderTasks(
+            @Valid @RequestBody ReorderTasksRequestDto requestDto) {
+
+        taskService.reorderTasks(requestDto);
+
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/tasks/{taskId}")

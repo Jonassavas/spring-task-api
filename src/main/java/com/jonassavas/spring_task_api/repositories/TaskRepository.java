@@ -12,10 +12,13 @@ which is used to indicate that the class provides the mechanism for storage,
 retrieval, update, delete, and search operation on objects.*/
 @Repository
 public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
-    // Finding an individual Task with its id, requiring the correct authorized user.
+
+    boolean existsByIdAndTaskGroupTaskBoardOwnerUsername(Long id, String username);
+
     Optional<TaskEntity> findByIdAndTaskGroupTaskBoardOwnerUsername(Long id, String username);
 
-    // Finding all Task within a TaskGroup using the groupId, requiring the correct authorized user.
-    List<TaskEntity> findByTaskGroupIdAndTaskGroupTaskBoardOwnerUsername(
+    List<TaskEntity> findByTaskGroupIdAndTaskGroupTaskBoardOwnerUsernameOrderByPositionAsc(
             Long groupId, String username);
+
+    Integer findMaxPositionByTaskGroupId(Long groupId);
 }

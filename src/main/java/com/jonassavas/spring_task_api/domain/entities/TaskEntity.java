@@ -1,7 +1,6 @@
 package com.jonassavas.spring_task_api.domain.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -28,10 +27,7 @@ import lombok.ToString;
 @Entity
 @Table(
         name = "tasks",
-        uniqueConstraints = {
-            @UniqueConstraint(
-                    columnNames = {"group_id", "position"})
-        })
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"group_id", "position"})})
 @ToString(exclude = "taskGroup")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class TaskEntity {

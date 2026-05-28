@@ -2,6 +2,17 @@ package com.jonassavas.spring_task_api.controllers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.List;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
 import com.jonassavas.spring_task_api.domain.dto.task.CreateTaskRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task.UpdateTaskRequestDto;
 import com.jonassavas.spring_task_api.domain.entities.TaskBoardEntity;
@@ -15,15 +26,6 @@ import com.jonassavas.util.TestTaskBoardData;
 import com.jonassavas.util.TestTaskData;
 import com.jonassavas.util.TestTaskGroupData;
 import com.jonassavas.util.TestUserData;
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -245,7 +247,7 @@ public class TaskControllerIntegrationTest extends BaseAuthenticatedIntegrationT
 
         // Creating tasks for another taskGroup: B
         UpdateTaskRequestDto testRequestTaskDto = TestTaskData.updateTestRequestTaskDto(taskGroupB);
-        testRequestTaskDto.setTaskGroupId(taskGroupB.getId());
+        //testRequestTaskDto.setTaskGroupId(taskGroupB.getId());
 
         String taskJson = objectMapper.writeValueAsString(testRequestTaskDto);
 
@@ -269,7 +271,7 @@ public class TaskControllerIntegrationTest extends BaseAuthenticatedIntegrationT
 
         // Creating request to change testTaskEntityA from taskGroup: A --> B
         UpdateTaskRequestDto testRequestTaskDto = TestTaskData.updateTestRequestTaskDto(taskGroupB);
-        testRequestTaskDto.setTaskGroupId(taskGroupB.getId());
+        //testRequestTaskDto.setTaskGroupId(taskGroupB.getId());
         testRequestTaskDto.setTaskName("UPDATED");
 
         String taskJson = objectMapper.writeValueAsString(testRequestTaskDto);
@@ -363,7 +365,7 @@ public class TaskControllerIntegrationTest extends BaseAuthenticatedIntegrationT
         TaskEntity task = taskRepository.save(TestTaskData.createTestTaskEntityA(taskGroupA));
 
         UpdateTaskRequestDto dto = TestTaskData.updateTestRequestTaskDto(taskGroupA);
-        dto.setTaskGroupId(taskGroupA.getId());
+        //dto.setTaskGroupId(taskGroupA.getId());
 
         String json = objectMapper.writeValueAsString(dto);
 

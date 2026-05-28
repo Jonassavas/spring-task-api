@@ -1,5 +1,14 @@
 package com.jonassavas.spring_task_api.services.impl;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
 import com.jonassavas.spring_task_api.domain.dto.task.CreateTaskRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task.ReorderTasksRequestDto;
 import com.jonassavas.spring_task_api.domain.dto.task.TaskDto;
@@ -11,15 +20,9 @@ import com.jonassavas.spring_task_api.repositories.TaskGroupRepository;
 import com.jonassavas.spring_task_api.repositories.TaskRepository;
 import com.jonassavas.spring_task_api.security.SecurityService;
 import com.jonassavas.spring_task_api.services.TaskService;
+
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
 
 @Service
 @Transactional
@@ -127,53 +130,43 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private void validateReorderRequest(
-            ReorderTasksRequestDto dto,
-            String username,
-            List<TaskEntity> sourceTasks,
-            List<TaskEntity> destinationTasks) {
+        ReorderTasksRequestDto dto,
+        String username) {
 
-        // 1. Collect all incoming IDs
-        List<Long> allIncomingIds = new ArrayList<>();
-        allIncomingIds.addAll(dto.getSourceTaskIds());
-        allIncomingIds.addAll(dto.getDestinationTaskIds());
+        List<Long> allIds = new ArrayList<>();
 
-        // 2. Check for duplicates in request
-        Set<Long> uniqueIds = new HashSet<>(allIncomingIds);
-        if (uniqueIds.size() != allIncomingIds.size()) {
-            throw new IllegalArgumentException("Duplicate task IDs in reorder request");
+        allIds.addAll(dto.getSourceTaskIds());
+        allIds.addAll(dto.getDestinationTaskIds());
+
+        // No duplicates
+        Set<Long> uniqueIds = new HashSet<>(allIds);
+
+        if (uniqueIds.size() != allIds.size()) {
+            throw new IllegalArgumentException(
+                    "Duplicate task IDs in reorder request");
         }
 
-        // 3. Ensure no nulls (frontend safety)
+        // No null IDs
         if (uniqueIds.contains(null)) {
-            throw new IllegalArgumentException("Null task ID in reorder request");
+            throw new IllegalArgumentException(
+                    "Null task ID in reorder request");
         }
 
-        // 4. Validate ownership + existence
+        // Verify all tasks exist and belong to user
         for (Long id : uniqueIds) {
+
             boolean exists =
-                    taskRepository.existsByIdAndTaskGroupTaskBoardOwnerUsername(id, username);
+                    taskRepository
+                            .existsByIdAndTaskGroupTaskBoardOwnerUsername(
+                                    id,
+                                    username);
 
             if (!exists) {
-                throw new EntityNotFoundException("Task not found or not owned: " + id);
+                throw new EntityNotFoundException(
+                        "Task not found or not owned: " + id);
             }
         }
-
-        // 5. Ensure request matches current DB state (no missing / extra tasks)
-        Set<Long> currentTaskIds = new HashSet<>();
-
-        for (TaskEntity t : sourceTasks) {
-            currentTaskIds.add(t.getId());
-        }
-
-        for (TaskEntity t : destinationTasks) {
-            currentTaskIds.add(t.getId());
-        }
-
-        if (!currentTaskIds.equals(uniqueIds)) {
-            throw new IllegalArgumentException(
-                    "Reorder request does not match current board state (missing or extra tasks)");
-        }
-    }
+    } 
 
     @Override
     public void reorderTasks(ReorderTasksRequestDto dto) {
@@ -191,6 +184,9 @@ public class TaskServiceImpl implements TaskService {
                         .orElseThrow(
                                 () -> new EntityNotFoundException("Destination group not found"));
 
+        validateReorderRequest(dto, username);
+
+        // Fetch all involved tasks once
         List<Long> allIds = new ArrayList<>();
         allIds.addAll(dto.getSourceTaskIds());
         allIds.addAll(dto.getDestinationTaskIds());
@@ -200,18 +196,19 @@ public class TaskServiceImpl implements TaskService {
         Map<Long, TaskEntity> taskMap =
                 tasks.stream().collect(Collectors.toMap(TaskEntity::getId, t -> t));
 
-        // VALIDATION
-        validateReorderRequest(dto, username, tasks, tasks);
-
-        // apply source ordering
+        // Normalize source group positions
         for (int i = 0; i < dto.getSourceTaskIds().size(); i++) {
+
             TaskEntity task = taskMap.get(dto.getSourceTaskIds().get(i));
+
             task.setPosition(i);
         }
 
-        // apply destination ordering
+        // Normalize destination group positions
         for (int i = 0; i < dto.getDestinationTaskIds().size(); i++) {
+
             TaskEntity task = taskMap.get(dto.getDestinationTaskIds().get(i));
+
             task.setTaskGroup(destinationGroup);
             task.setPosition(i);
         }

@@ -39,21 +39,21 @@ public class TestTaskData {
     // UPDATE DTOs -------------------------------------------------------------
     public static UpdateTaskRequestDto updateTestTaskRequestDtoA(TaskGroupEntity taskGroup) {
         return UpdateTaskRequestDto.builder()
-                .taskGroupId(taskGroup.getId())
+                //.taskGroupId(taskGroup.getId())
                 .taskName("Task A")
                 .build();
     }
 
     public static UpdateTaskRequestDto updateTestTaskRequestDtoB(TaskGroupEntity taskGroup) {
         return UpdateTaskRequestDto.builder()
-                .taskGroupId(taskGroup.getId())
+                //.taskGroupId(taskGroup.getId())
                 .taskName("Task B")
                 .build();
     }
 
     public static UpdateTaskRequestDto updateTestTaskRequestDtoC(TaskGroupEntity taskGroup) {
         return UpdateTaskRequestDto.builder()
-                .taskGroupId(taskGroup.getId())
+                //.taskGroupId(taskGroup.getId())
                 .taskName("Task C")
                 .build();
     }
@@ -61,7 +61,7 @@ public class TestTaskData {
     public static UpdateTaskRequestDto updateTestRequestTaskDto(TaskGroupEntity taskGroup) {
         return UpdateTaskRequestDto.builder()
                 .taskName("Create Task Dto")
-                .taskGroupId(taskGroup.getId())
+                //.taskGroupId(taskGroup.getId())
                 .build();
     }
 }

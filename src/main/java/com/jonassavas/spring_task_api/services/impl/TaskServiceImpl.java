@@ -169,7 +169,7 @@ public class TaskServiceImpl implements TaskService {
     } 
 
     @Override
-    public void reorderTasks(ReorderTasksRequestDto dto) {
+        public void reorderTasks(ReorderTasksRequestDto dto) {
 
         String username = securityService.getCurrentUsername();
 
@@ -186,7 +186,6 @@ public class TaskServiceImpl implements TaskService {
 
         validateReorderRequest(dto, username);
 
-        // Fetch all involved tasks once
         List<Long> allIds = new ArrayList<>();
         allIds.addAll(dto.getSourceTaskIds());
         allIds.addAll(dto.getDestinationTaskIds());
@@ -196,21 +195,37 @@ public class TaskServiceImpl implements TaskService {
         Map<Long, TaskEntity> taskMap =
                 tasks.stream().collect(Collectors.toMap(TaskEntity::getId, t -> t));
 
-        // Normalize source group positions
+        // -----------------------------------
+        // PHASE 1: assign temporary positions
+        // -----------------------------------
+
+        int tempPosition = -1;
+
+        for (TaskEntity task : tasks) {
+                task.setPosition(tempPosition--);
+        }
+
+        taskRepository.flush();
+
+        // -----------------------------------
+        // PHASE 2: assign final positions
+        // -----------------------------------
+
+        // Source group
         for (int i = 0; i < dto.getSourceTaskIds().size(); i++) {
 
-            TaskEntity task = taskMap.get(dto.getSourceTaskIds().get(i));
+                TaskEntity task = taskMap.get(dto.getSourceTaskIds().get(i));
 
-            task.setPosition(i);
+                task.setPosition(i);
         }
 
-        // Normalize destination group positions
+        // Destination group
         for (int i = 0; i < dto.getDestinationTaskIds().size(); i++) {
 
-            TaskEntity task = taskMap.get(dto.getDestinationTaskIds().get(i));
+                TaskEntity task = taskMap.get(dto.getDestinationTaskIds().get(i));
 
-            task.setTaskGroup(destinationGroup);
-            task.setPosition(i);
+                task.setTaskGroup(destinationGroup);
+                task.setPosition(i);
         }
-    }
+        }
 }

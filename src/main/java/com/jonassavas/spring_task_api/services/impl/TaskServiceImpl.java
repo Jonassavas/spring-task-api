@@ -129,103 +129,113 @@ public class TaskServiceImpl implements TaskService {
         return taskMapper.mapTo(task);
     }
 
-    private void validateReorderRequest(
+private void validateReorderRequest(
         ReorderTasksRequestDto dto,
         String username) {
 
-        List<Long> allIds = new ArrayList<>();
+    List<Long> allIds = new ArrayList<>();
+    allIds.addAll(dto.getSourceTaskIds());
 
-        allIds.addAll(dto.getSourceTaskIds());
+    // FIX: Only combine lists if moving across different columns.
+    // If it's the same column, source and destination lists are identical.
+    if (!dto.getSourceGroupId().equals(dto.getDestinationGroupId())) {
         allIds.addAll(dto.getDestinationTaskIds());
+    }
 
-        // No duplicates
-        Set<Long> uniqueIds = new HashSet<>(allIds);
+    // No duplicates within the expected scope
+    Set<Long> uniqueIds = new HashSet<>(allIds);
 
-        if (uniqueIds.size() != allIds.size()) {
-            throw new IllegalArgumentException(
-                    "Duplicate task IDs in reorder request");
+    if (uniqueIds.size() != allIds.size()) {
+        throw new IllegalArgumentException(
+                "Duplicate task IDs in reorder request");
+    }
+
+    // No null IDs
+    if (uniqueIds.contains(null)) {
+        throw new IllegalArgumentException(
+                "Null task ID in reorder request");
+    }
+
+    // Verify all tasks exist and belong to user
+    for (Long id : uniqueIds) {
+        boolean exists = taskRepository
+                .existsByIdAndTaskGroupTaskBoardOwnerUsername(id, username);
+
+        if (!exists) {
+            throw new EntityNotFoundException(
+                    "Task not found or not owned: " + id);
         }
+    }
+} 
 
-        // No null IDs
-        if (uniqueIds.contains(null)) {
-            throw new IllegalArgumentException(
-                    "Null task ID in reorder request");
-        }
+@Override
+@Transactional // Good practice to ensure both phases and flushes are atomic
+public void reorderTasks(ReorderTasksRequestDto dto) {
 
-        // Verify all tasks exist and belong to user
-        for (Long id : uniqueIds) {
+    String username = securityService.getCurrentUsername();
 
-            boolean exists =
-                    taskRepository
-                            .existsByIdAndTaskGroupTaskBoardOwnerUsername(
-                                    id,
-                                    username);
+    TaskGroupEntity sourceGroup = taskGroupRepository
+            .findByIdAndTaskBoardOwnerUsername(dto.getSourceGroupId(), username)
+            .orElseThrow(() -> new EntityNotFoundException("Source group not found"));
 
-            if (!exists) {
-                throw new EntityNotFoundException(
-                        "Task not found or not owned: " + id);
+    TaskGroupEntity destinationGroup = taskGroupRepository
+            .findByIdAndTaskBoardOwnerUsername(dto.getDestinationGroupId(), username)
+            .orElseThrow(() -> new EntityNotFoundException("Destination group not found"));
+
+    validateReorderRequest(dto, username);
+
+    // Build the unique list of tasks to fetch from DB
+    List<Long> fetchIds = new ArrayList<>(dto.getSourceTaskIds());
+    if (!dto.getSourceGroupId().equals(dto.getDestinationGroupId())) {
+        fetchIds.addAll(dto.getDestinationTaskIds());
+    }
+
+    List<TaskEntity> tasks = taskRepository.findAllById(fetchIds);
+
+    Map<Long, TaskEntity> taskMap = tasks.stream()
+            .collect(Collectors.toMap(TaskEntity::getId, t -> t));
+
+    // -----------------------------------
+    // PHASE 1: assign temporary positions
+    // -----------------------------------
+    int tempPosition = -1;
+    for (TaskEntity task : tasks) {
+        task.setPosition(tempPosition--);
+    }
+
+    // Flush changes to avoid temporary database unique constraint collisions
+    taskRepository.flush();
+
+    // -----------------------------------
+    // PHASE 2: assign final positions
+    // -----------------------------------
+    boolean isSameGroup = dto.getSourceGroupId().equals(dto.getDestinationGroupId());
+
+    if (isSameGroup) {
+        // If moving within the same column, we only need to process one list
+        for (int i = 0; i < dto.getSourceTaskIds().size(); i++) {
+            TaskEntity task = taskMap.get(dto.getSourceTaskIds().get(i));
+            if (task != null) {
+                task.setPosition(i);
             }
         }
-    } 
-
-    @Override
-        public void reorderTasks(ReorderTasksRequestDto dto) {
-
-        String username = securityService.getCurrentUsername();
-
-        TaskGroupEntity sourceGroup =
-                taskGroupRepository
-                        .findByIdAndTaskBoardOwnerUsername(dto.getSourceGroupId(), username)
-                        .orElseThrow(() -> new EntityNotFoundException("Source group not found"));
-
-        TaskGroupEntity destinationGroup =
-                taskGroupRepository
-                        .findByIdAndTaskBoardOwnerUsername(dto.getDestinationGroupId(), username)
-                        .orElseThrow(
-                                () -> new EntityNotFoundException("Destination group not found"));
-
-        validateReorderRequest(dto, username);
-
-        List<Long> allIds = new ArrayList<>();
-        allIds.addAll(dto.getSourceTaskIds());
-        allIds.addAll(dto.getDestinationTaskIds());
-
-        List<TaskEntity> tasks = taskRepository.findAllById(allIds);
-
-        Map<Long, TaskEntity> taskMap =
-                tasks.stream().collect(Collectors.toMap(TaskEntity::getId, t -> t));
-
-        // -----------------------------------
-        // PHASE 1: assign temporary positions
-        // -----------------------------------
-
-        int tempPosition = -1;
-
-        for (TaskEntity task : tasks) {
-                task.setPosition(tempPosition--);
-        }
-
-        taskRepository.flush();
-
-        // -----------------------------------
-        // PHASE 2: assign final positions
-        // -----------------------------------
-
-        // Source group
+    } else {
+        // CROSS COLUMN: Source group updates positions
         for (int i = 0; i < dto.getSourceTaskIds().size(); i++) {
-
-                TaskEntity task = taskMap.get(dto.getSourceTaskIds().get(i));
-
+            TaskEntity task = taskMap.get(dto.getSourceTaskIds().get(i));
+            if (task != null) {
                 task.setPosition(i);
+            }
         }
 
-        // Destination group
+        // CROSS COLUMN: Destination group updates parent mapping and positions
         for (int i = 0; i < dto.getDestinationTaskIds().size(); i++) {
-
-                TaskEntity task = taskMap.get(dto.getDestinationTaskIds().get(i));
-
+            TaskEntity task = taskMap.get(dto.getDestinationTaskIds().get(i));
+            if (task != null) {
                 task.setTaskGroup(destinationGroup);
                 task.setPosition(i);
+            }
         }
-        }
+    }
+} 
 }
